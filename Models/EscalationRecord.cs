@@ -5,6 +5,7 @@ namespace CourseScheduleSystem.Web.Models;
 /// </summary>
 public class EscalationRecord
 {
+    public int    Id            { get; set; }   // PK for EF Core
     public string CourseCode    { get; set; } = string.Empty;
     public string CourseTitle   { get; set; } = string.Empty;
     public string Department    { get; set; } = string.Empty;

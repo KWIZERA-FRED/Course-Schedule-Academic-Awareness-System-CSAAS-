@@ -1,7 +1,7 @@
 @page
 @model CourseScheduleSystem.Web.Pages.IndexModel
 @{
-    ViewData["Title"] = "CSAS | UNILAK Academic Portal";
+    ViewData["Title"] = "CSAS | UNILAK";
     ViewData["FullWidth"] = "true";
     Layout = null;
 }
@@ -14,444 +14,398 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <style>
-        /* -- Reset -- */
+
+        /* ── Reset ─────────────────────────────── */
         *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-        html { scroll-behavior:smooth; }
-        body { font-family:'Inter',sans-serif; background:#ffffff; color:#0f1a3a; overflow-x:hidden; }
-        a { text-decoration:none; }
+        html  { scroll-behavior: smooth; }
+        body  {
+            font-family: 'Inter', sans-serif;
+            color: #0f1a3a;
+            overflow-x: hidden;
+            background: #0b1535; /* matches video dark tone — no white flash */
+        }
+        a     { text-decoration: none; }
 
-        /* -- Tokens -- */
         :root {
-            --navy:   #0f1a3a;
+            --navy:   #0b1535;
             --blue:   #1e3a8a;
-            --mid:    #1a56db;
+            --mid:    #2563eb;
             --green:  #10b981;
-            --light:  #f8faff;
-            --border: #e5e7eb;
             --muted:  #6b7280;
+            --border: #e5e7eb;
         }
 
-        /* ------------------------------------------
-           NAVBAR
-        ------------------------------------------ */
+        /* ── Navbar ────────────────────────────── */
         .lp-nav {
-            position:sticky; top:0; z-index:1000;
-            height:68px; padding:0 6%;
-            display:flex; align-items:center; justify-content:space-between;
-            background:rgba(255,255,255,0.97);
-            border-bottom:1px solid var(--border);
-            backdrop-filter:blur(10px);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 999;
+            height: 70px;
+            padding: 0 6%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(11, 21, 53, 0.5);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            transition: background .3s ease;
         }
-        .lp-brand { display:flex; align-items:center; gap:12px; color:var(--navy); }
-        .lp-brand-icon {
-            width:40px; height:40px; border-radius:10px;
-            background:var(--blue); color:white;
-            display:flex; align-items:center; justify-content:center; font-size:18px;
-            box-shadow:0 4px 12px rgba(30,58,138,.25);
-        }
-        .lp-brand strong { font-size:16px; font-weight:800; display:block; line-height:1.1; }
-        .lp-brand span   { font-size:10px; color:#9ca3af; font-weight:500; }
-        .lp-links { display:flex; align-items:center; gap:6px; }
-        .lp-link {
-            padding:8px 14px; border-radius:8px; font-size:13px;
-            font-weight:500; color:var(--muted); transition:.15s ease;
-        }
-        .lp-link:hover { color:var(--navy); background:#f3f4f6; }
-        .lp-cta {
-            padding:10px 22px; border-radius:9px; font-size:13px;
-            font-weight:700; background:var(--blue); color:white;
-            box-shadow:0 4px 14px rgba(30,58,138,.25); transition:.2s ease;
-            display:inline-flex; align-items:center; gap:8px;
-        }
-        .lp-cta:hover { background:var(--mid); color:white; transform:translateY(-1px); }
+        .lp-nav.scrolled { background: rgba(11, 21, 53, 0.97); }
 
-        /* ------------------------------------------
-           HERO
-        ------------------------------------------ */
+        .lp-brand { display: flex; align-items: center; gap: 11px; color: white; }
+        .lp-brand img {
+            width: 44px; height: 44px; border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.25);
+        }
+        .lp-brand strong { font-size: 17px; font-weight: 800; color: white; display: block; line-height: 1.1; }
+        .lp-brand span   { font-size: 10px; color: rgba(255,255,255,0.5); }
+
+        .lp-links { display: flex; align-items: center; gap: 4px; }
+        .lp-link  {
+            padding: 8px 16px; border-radius: 8px;
+            font-size: 13px; font-weight: 500;
+            color: rgba(255,255,255,0.7); transition: .15s ease;
+        }
+        .lp-link:hover { color: white; background: rgba(255,255,255,0.1); }
+
+        .lp-cta {
+            padding: 10px 22px; border-radius: 9px;
+            font-size: 13px; font-weight: 700;
+            background: var(--blue); color: white;
+            display: inline-flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 16px rgba(30,58,138,0.5);
+            transition: .2s ease;
+        }
+        .lp-cta:hover { background: var(--mid); color: white; transform: translateY(-1px); }
+
+
+        /* ── Hero ──────────────────────────────── */
         .hero {
             position: relative;
-            min-height: 100vh;
+            height: 100vh;
+            min-height: 600px;
             overflow: hidden;
             display: flex;
             align-items: center;
+            justify-content: center;
         }
 
-        /* Video background */
+        /* Video — fixed to viewport so it never clips or shows black on overscroll */
         .hero-video-wrap {
-            position: absolute;
+            position: fixed;
             inset: 0;
-            z-index: 0;
+            z-index: -1;          /* sits behind everything */
+            width: 100vw;
+            height: 100vh;
         }
         .hero-video-wrap video {
-            width: 100%; height: 100%;
-            object-fit: cover; object-position: center;
-            /* Slightly brighten the video so it looks vivid */
-            filter: brightness(1.08) saturate(1.1);
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center center;
+            display: block;
         }
-        /* Light overlay — just enough to keep text readable, not enough to hide the video */
+        /* Gradient overlay */
         .hero-video-wrap::after {
             content: '';
             position: absolute;
             inset: 0;
             background: linear-gradient(
-                160deg,
-                rgba(8, 15, 40, 0.48) 0%,
-                rgba(10, 25, 65, 0.30) 45%,
-                rgba(8, 15, 40, 0.52) 100%
+                180deg,
+                rgba(5, 10, 30, 0.50) 0%,
+                rgba(5, 10, 30, 0.28) 40%,
+                rgba(5, 10, 30, 0.28) 60%,
+                rgba(5, 10, 30, 0.60) 100%
             );
         }
 
-        /* Mute button */
-        .hero-mute-btn {
-            position: absolute; bottom: 28px; right: 28px; z-index: 10;
-            width: 44px; height: 44px; border-radius: 50%;
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white; font-size: 18px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: .2s ease;
-            backdrop-filter: blur(6px);
+        /* Cover image shown until video loads — avoids black flash */
+        .hero-video-cover {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            background-image: url('/images/zpc1.jpeg');
+            background-size: cover;
+            background-position: center;
+            opacity: 1;
+            transition: opacity 0.9s ease;
         }
-        .hero-mute-btn:hover { background: rgba(255,255,255,0.25); }
-
-        /* Container sits above video */
-        .hero-container {
-            position: relative; z-index: 1;
-            max-width: 1200px; margin: auto;
-            width: 100%;
-            display: grid; grid-template-columns: 1.1fr 0.9fr;
-            gap: 60px; align-items: center;
-            padding: 90px 6%;
+        .hero-video-cover.hidden {
+            opacity: 0;
+            pointer-events: none;
         }
 
-        .hero-badge {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: rgba(0,0,0,0.35);
+        
+
+        /* Text content — centred over video */
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 780px;
+            padding: 0 24px;
+            padding-top: 70px; /* navbar offset */
+        }
+
+        .hero-title {
+            font-size: clamp(2.8rem, 6vw, 5rem);
+            font-weight: 900;
+            line-height: 1.04;
+            letter-spacing: -2.5px;
             color: white;
-            border: 1px solid rgba(255,255,255,0.4);
-            padding: 8px 15px; border-radius: 30px;
-            font-size: 12px; font-weight: 700; margin-bottom: 24px;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+            text-shadow: 0 2px 28px rgba(0,0,0,0.6);
         }
-        .hero-badge i { color: #34d399; }
-
-        .hero h1 {
-            font-size: clamp(2.7rem,5vw,4.4rem);
-            line-height: 1.05; letter-spacing: -2px;
-            font-weight: 900; color: white; margin-bottom: 24px;
-            text-shadow: 0 2px 20px rgba(0,0,0,0.6), 0 1px 4px rgba(0,0,0,0.5);
-        }
-        .hero h1 .hl { display: block; color: #93c5fd; text-shadow: 0 2px 20px rgba(0,0,0,0.5); }
-
-        .hero-desc {
-            max-width: 560px; font-size: 17px; line-height: 1.75;
-            color: rgba(255,255,255,0.90); margin-bottom: 34px;
-            text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+        .hero-title .hl {
+            display: block;
+            background: linear-gradient(90deg, #60a5fa 0%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .hero-btns { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .hero-sub {
+            font-size: 17px;
+            line-height: 1.8;
+            color: rgba(255,255,255,0.80);
+            max-width: 620px;
+            margin: 0 auto 36px;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.4);
+        }
 
-        .btn-primary {
-            display: inline-flex; align-items: center; gap: 9px;
-            padding: 14px 24px; border-radius: 10px;
-            background: #1e3a8a; color: white;
-            font-size: 14px; font-weight: 700;
-            box-shadow: 0 6px 20px rgba(30,58,138,.4);
-            text-decoration: none; transition: .2s ease;
+        .hero-actions {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
         }
-        .btn-primary:hover { background: #1a56db; color: white; transform: translateY(-2px); }
 
-        .btn-ghost {
-            display: inline-flex; align-items: center; gap: 9px;
-            padding: 13px 22px; border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.35);
-            background: rgba(255,255,255,0.1);
-            color: white; font-size: 14px; font-weight: 700;
-            text-decoration: none; transition: .2s ease;
-            backdrop-filter: blur(4px);
+        .btn-hero-primary {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 18px 38px; border-radius: 12px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            font-size: 16px; font-weight: 700;
+            box-shadow: 0 8px 32px rgba(30,58,138,0.65),
+                        inset 0 1px 0 rgba(255,255,255,0.15);
+            transition: .25s ease;
+            letter-spacing: 0.3px;
+            border: 1px solid rgba(255,255,255,0.15);
         }
-        .btn-ghost:hover { background: rgba(255,255,255,0.2); color: white; transform: translateY(-2px); }
-        /* Hero visual */
-        .hero-visual { position:relative; }
-        .hero-card {
-            background:white; border:1px solid var(--border);
-            border-radius:20px; overflow:hidden;
-            box-shadow:0 30px 70px rgba(15,26,58,.12);
-            transform:perspective(1100px) rotateY(-4deg) rotateX(2deg);
+        .btn-hero-primary:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 14px 40px rgba(30,58,138,0.70);
         }
-        .hc-head {
-            height:50px; padding:0 18px;
-            background:#f8fafc; border-bottom:1px solid #edf0f4;
-            display:flex; align-items:center; justify-content:space-between;
-        }
-        .hc-dots { display:flex; gap:5px; }
-        .hc-dots span {
-            width:10px; height:10px; border-radius:50%;
-        }
-        .hc-dots span:nth-child(1){ background:#fc5c65; }
-        .hc-dots span:nth-child(2){ background:#fed330; }
-        .hc-dots span:nth-child(3){ background:#26de81; }
-        .hc-title { font-size:11px; color:#9ca3af; font-weight:600; }
-        .hc-body { padding:22px; }
-        .hc-welcome {
-            display:flex; justify-content:space-between;
-            align-items:center; margin-bottom:18px;
-        }
-        .hc-welcome h4 { font-size:15px; font-weight:700; margin-bottom:3px; }
-        .hc-welcome p  { font-size:10px; color:#9ca3af; }
-        .hc-avatar {
-            width:36px; height:36px; border-radius:50%;
-            background:#eff6ff; color:var(--blue);
-            display:flex; align-items:center; justify-content:center;
-            font-size:15px;
-        }
-        .hc-stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
-        .hc-stat {
-            padding:13px; border:1px solid #edf0f4;
-            border-radius:10px; background:#fbfcfe;
-        }
-        .hc-stat-icon {
-            width:28px; height:28px; border-radius:7px;
-            background:#eff6ff; color:var(--blue);
-            display:flex; align-items:center; justify-content:center;
-            font-size:12px; margin-bottom:8px;
-        }
-        .hc-stat strong { display:block; font-size:20px; color:var(--navy); font-weight:800; }
-        .hc-stat span   { font-size:9px; color:#9ca3af; }
-        .hc-schedule { border:1px solid #edf0f4; border-radius:10px; overflow:hidden; }
-        .hc-sch-head { padding:10px 14px; background:#f8fafc; font-size:10px; font-weight:700; }
-        .hc-row {
-            display:grid; grid-template-columns:50px 1fr 65px;
-            padding:10px 14px; border-top:1px solid #f1f5f9;
-            font-size:9px; align-items:center;
-        }
-        .hc-time { color:var(--blue); font-weight:700; }
-        .hc-room { text-align:right; color:#9ca3af; }
 
-        /* Floating badges on hero */
-        .hero-badge-float {
-            position:absolute; background:white;
-            border:1px solid var(--border); border-radius:12px;
-            padding:10px 14px; display:flex; align-items:center; gap:10px;
-            box-shadow:0 8px 24px rgba(0,0,0,.09); font-size:12px;
+        .btn-hero-ghost {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 17px 36px; border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.85);
+            background: rgba(255,255,255,0.10);
+            color: white; font-size: 16px; font-weight: 700;
+            transition: .25s ease;
+            backdrop-filter: blur(10px);
+            letter-spacing: 0.3px;
         }
-        .hbf-icon {
-            width:32px; height:32px; border-radius:8px;
-            display:flex; align-items:center; justify-content:center;
-            font-size:14px; flex-shrink:0;
+        .btn-hero-ghost:hover {
+            background: rgba(255,255,255,0.22);
+            border-color: white;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
         }
-        .hbf-label { font-size:10px; color:#9ca3af; }
-        .hbf-val   { font-size:13px; font-weight:700; color:var(--navy); }
-        .float-tl { top:-18px; left:-20px; }
-        .float-br { bottom:-16px; right:-16px; }
 
-        /* ------------------------------------------
-           STATS STRIP
-        ------------------------------------------ */
+
+        /* ── Stats strip ───────────────────────── */
         .stats-strip {
-            background:var(--navy);
-            padding:42px 6%;
-            display:grid; grid-template-columns:repeat(4,1fr);
-            gap:10px;
+            position: relative;
+            z-index: 1;
+            background: var(--navy);
+            padding: 44px 6%;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
         }
-        .stat-item { text-align:center; padding:16px; }
-        .stat-item strong { display:block; font-size:2.4rem; font-weight:900; color:white; line-height:1; margin-bottom:6px; }
-        .stat-item span   { font-size:12px; color:rgba(255,255,255,.55); font-weight:500; }
-        .stat-item .accent { color:var(--green); }
+        .stat-item        { text-align: center; padding: 14px; }
+        .stat-item strong { display: block; font-size: 2.2rem; font-weight: 900; color: white; line-height: 1; margin-bottom: 7px; }
+        .stat-item span   { font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 500; }
+        .accent           { color: #34d399; }
 
-        /* ------------------------------------------
-           SECTION COMMON
-        ------------------------------------------ */
-        .section { max-width:1200px; margin:auto; padding:90px 6%; }
+
+        /* ── Sections ──────────────────────────── */
+        .section       { max-width: 1200px; margin: auto; padding: 90px 6%; }
         .section-label {
-            display:inline-block; background:#ecfdf5; color:var(--green);
-            padding:5px 12px; border-radius:20px; font-size:10px;
-            font-weight:800; text-transform:uppercase; letter-spacing:.08em;
-            margin-bottom:14px;
+            display: inline-block;
+            background: #ecfdf5; color: #059669;
+            padding: 5px 12px; border-radius: 20px;
+            font-size: 10px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: .08em;
+            margin-bottom: 14px;
         }
-        .section-heading { max-width:640px; margin-bottom:52px; }
-        .section-heading h2 { font-size:2.1rem; font-weight:800; line-height:1.2; margin-bottom:13px; }
-        .section-heading p  { font-size:15px; line-height:1.75; color:var(--muted); }
+        .section-heading     { max-width: 640px; margin-bottom: 52px; }
+        .section-heading h2  { font-size: 2rem; font-weight: 800; line-height: 1.2; margin-bottom: 13px; }
+        .section-heading p   { font-size: 15px; line-height: 1.75; color: var(--muted); }
 
-        /* ------------------------------------------
-           FEATURES
-        ------------------------------------------ */
-        .features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+
+        /* ── Features ──────────────────────────── */
+        .features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; }
         .feature-card {
-            padding:28px; border:1px solid var(--border); border-radius:16px;
-            background:white; transition:.25s ease;
+            padding: 28px; border: 1px solid var(--border);
+            border-radius: 16px; background: white; transition: .25s ease;
         }
         .feature-card:hover {
-            transform:translateY(-5px);
-            border-color:#bfdbfe;
-            box-shadow:0 16px 40px rgba(30,58,138,.08);
+            transform: translateY(-5px);
+            border-color: #bfdbfe;
+            box-shadow: 0 16px 40px rgba(30,58,138,.08);
         }
         .feat-icon {
-            width:48px; height:48px; border-radius:12px;
-            background:#eff6ff; color:var(--blue);
-            display:flex; align-items:center; justify-content:center;
-            font-size:20px; margin-bottom:18px;
+            width: 48px; height: 48px; border-radius: 12px;
+            background: #eff6ff; color: var(--blue);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; margin-bottom: 18px;
         }
-        .feature-card h3 { font-size:15px; font-weight:700; margin-bottom:8px; }
-        .feature-card p  { font-size:13px; color:var(--muted); line-height:1.7; }
+        .feature-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+        .feature-card p  { font-size: 13px; color: var(--muted); line-height: 1.7; }
 
-        /* ------------------------------------------
-           HOW IT WORKS
-        ------------------------------------------ */
-        .how-bg { background:#f8faff; }
-        .steps  { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
-        .step   { text-align:center; position:relative; }
+
+        /* ── How it works ──────────────────────── */
+        .how-bg { background: #f8faff; position: relative; z-index: 1; }
+        .steps  { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; }
+        .step   { text-align: center; position: relative; }
         .step-num {
-            width:52px; height:52px; margin:0 auto 18px;
-            border-radius:50%; background:var(--blue); color:white;
-            display:flex; align-items:center; justify-content:center;
-            font-weight:800; font-size:16px;
-            box-shadow:0 6px 16px rgba(30,58,138,.3);
+            width: 52px; height: 52px; margin: 0 auto 18px;
+            border-radius: 50%; background: var(--blue); color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 16px;
+            box-shadow: 0 6px 16px rgba(30,58,138,.3);
         }
         .step:not(:last-child)::after {
-            content:''; position:absolute;
-            top:26px; left:calc(50% + 32px); right:calc(-50% + 32px);
-            height:2px; background:linear-gradient(90deg,var(--blue),#bfdbfe);
+            content: ''; position: absolute;
+            top: 26px; left: calc(50% + 32px); right: calc(-50% + 32px);
+            height: 2px;
+            background: linear-gradient(90deg, var(--blue), #bfdbfe);
         }
-        .step h3 { font-size:14px; font-weight:700; margin-bottom:7px; }
-        .step p  { font-size:12px; color:var(--muted); line-height:1.6; }
+        .step h3 { font-size: 14px; font-weight: 700; margin-bottom: 7px; }
+        .step p  { font-size: 12px; color: var(--muted); line-height: 1.6; }
 
-        /* ------------------------------------------
-           ROLES
-        ------------------------------------------ */
+
+        /* ── Roles ─────────────────────────────── */
         .roles-grid {
-            display:grid; grid-template-columns:repeat(3,1fr); gap:16px;
+            display: grid; grid-template-columns: repeat(3,1fr); gap: 16px;
         }
         .role-card {
-            padding:28px 22px; border:1px solid var(--border);
-            border-radius:16px; background:white;
-            text-align:center; transition:.2s ease; cursor:default;
+            padding: 28px 22px; border: 1px solid var(--border);
+            border-radius: 16px; background: white;
+            text-align: center; transition: .2s ease;
         }
         .role-card:hover {
-            border-color:var(--blue); transform:translateY(-3px);
-            box-shadow:0 10px 28px rgba(30,58,138,.08);
+            border-color: var(--blue); transform: translateY(-3px);
+            box-shadow: 0 10px 28px rgba(30,58,138,.08);
         }
         .role-icon {
-            width:56px; height:56px; border-radius:14px;
-            margin:0 auto 14px;
-            display:flex; align-items:center; justify-content:center;
-            font-size:22px;
+            width: 56px; height: 56px; border-radius: 14px;
+            margin: 0 auto 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
         }
-        .role-card h3  { font-size:14px; font-weight:700; margin-bottom:6px; }
-        .role-card p   { font-size:12px; color:var(--muted); line-height:1.6; margin-bottom:14px; }
-        .role-pill {
-            display:inline-block; padding:4px 12px; border-radius:20px;
-            font-size:10px; font-weight:700;
-        }
-        .role-login {
-            display:inline-flex; align-items:center; gap:7px;
-            margin-top:10px; padding:9px 18px; border-radius:8px;
-            font-size:12px; font-weight:700; background:#eff6ff;
-            color:var(--blue); transition:.15s ease;
-        }
-        .role-login:hover { background:var(--blue); color:white; }
+        .role-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+        .role-card p  { font-size: 13px; color: var(--muted); line-height: 1.6; }
 
-        /* ------------------------------------------
-           CTA
-        ------------------------------------------ */
+
+        /* ── CTA ───────────────────────────────── */
         .cta-section {
-            margin:0 6% 80px; border-radius:24px;
-            background:radial-gradient(circle at 15% 20%, rgba(52,211,153,.12), transparent 25%),
-                        radial-gradient(circle at 90% 80%, rgba(59,130,246,.15), transparent 30%),
-                        var(--navy);
-            padding:80px 40px; text-align:center; color:white;
+            position: relative;
+            z-index: 1;
+            margin: 0 6% 80px; border-radius: 24px;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(52,211,153,.12), transparent 25%),
+                radial-gradient(circle at 90% 80%, rgba(59,130,246,.15), transparent 30%),
+                var(--navy);
+            padding: 80px 40px; text-align: center; color: white;
         }
         .cta-icon {
-            width:60px; height:60px; margin:0 auto 20px;
-            border-radius:16px; background:rgba(255,255,255,.1);
-            display:flex; align-items:center; justify-content:center;
-            font-size:26px; color:var(--green);
+            width: 64px; height: 64px; margin: 0 auto 20px;
+            border-radius: 16px; background: rgba(255,255,255,.1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; color: #34d399;
         }
-        .cta-section h2 { font-size:2rem; font-weight:800; margin-bottom:14px; }
+        .cta-section h2 { font-size: 2rem; font-weight: 800; margin-bottom: 14px; }
         .cta-section p  {
-            max-width:560px; margin:0 auto 32px;
-            color:rgba(255,255,255,.6); font-size:15px; line-height:1.75;
+            max-width: 540px; margin: 0 auto 32px;
+            color: rgba(255,255,255,.6); font-size: 15px; line-height: 1.75;
         }
         .btn-cta {
-            display:inline-flex; align-items:center; gap:9px;
-            padding:15px 30px; border-radius:10px;
-            background:var(--green); color:white;
-            font-size:15px; font-weight:700;
-            box-shadow:0 6px 20px rgba(16,185,129,.3);
-            transition:.2s ease;
+            display: inline-flex; align-items: center; gap: 9px;
+            padding: 15px 32px; border-radius: 10px;
+            background: #10b981; color: white;
+            font-size: 15px; font-weight: 700;
+            box-shadow: 0 6px 20px rgba(16,185,129,.3);
+            transition: .2s ease;
         }
-        .btn-cta:hover { background:#34d399; color:white; transform:translateY(-2px); }
+        .btn-cta:hover { background: #34d399; color: white; transform: translateY(-2px); }
 
-        /* ------------------------------------------
-           FOOTER
-        ------------------------------------------ */
-        footer {
-            background:#080f20; color:white;
-            padding:60px 6% 28px;
-        }
+
+        /* ── Footer ────────────────────────────── */
+        footer { position: relative; z-index: 1; background: #080f20; color: white; padding: 60px 6% 28px; }
         .footer-grid {
-            max-width:1200px; margin:auto;
-            display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr;
-            gap:60px; padding-bottom:44px;
+            max-width: 1200px; margin: auto;
+            display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr;
+            gap: 60px; padding-bottom: 44px;
         }
-        .footer-brand h3 { font-size:16px; font-weight:800; margin-bottom:12px; }
-        .footer-brand p  { color:#64748b; font-size:12px; line-height:1.75; max-width:280px; }
-        .footer-col h4   { font-size:11px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:16px; color:#94a3b8; }
-        .footer-col a    { display:block; color:#64748b; font-size:12px; margin-bottom:10px; transition:.15s ease; }
-        .footer-col a:hover { color:white; }
+        .footer-brand h3 { font-size: 16px; font-weight: 800; margin-bottom: 12px; }
+        .footer-brand p  { color: #64748b; font-size: 12px; line-height: 1.75; max-width: 280px; }
+        .footer-col h4   { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 16px; color: #94a3b8; }
+        .footer-col a    { display: block; color: #64748b; font-size: 12px; margin-bottom: 10px; transition: .15s; }
+        .footer-col a:hover { color: white; }
         .footer-bottom {
-            max-width:1200px; margin:auto;
-            padding-top:22px; border-top:1px solid rgba(255,255,255,.06);
-            display:flex; justify-content:space-between;
-            color:#475569; font-size:11px;
+            max-width: 1200px; margin: auto;
+            padding-top: 22px; border-top: 1px solid rgba(255,255,255,.06);
+            display: flex; justify-content: space-between;
+            color: #475569; font-size: 11px;
         }
 
-        /* ------------------------------------------
-           RESPONSIVE
-        ------------------------------------------ */
+
+        /* ── Responsive ────────────────────────── */
         @@media (max-width: 1024px) {
-            .hero { grid-template-columns:1fr; min-height:auto; gap:50px; }
-            .hero-visual { max-width:600px; margin:auto; }
-            .features-grid { grid-template-columns:repeat(2,1fr); }
-            .stats-strip    { grid-template-columns:repeat(2,1fr); }
-            .steps          { grid-template-columns:repeat(2,1fr); gap:40px; }
-            .step::after    { display:none; }
-            .footer-grid    { grid-template-columns:1fr 1fr; gap:40px; }
+            .features-grid { grid-template-columns: repeat(2,1fr); }
+            .stats-strip   { grid-template-columns: repeat(2,1fr); }
+            .steps         { grid-template-columns: repeat(2,1fr); gap: 40px; }
+            .step::after   { display: none; }
+            .footer-grid   { grid-template-columns: 1fr 1fr; gap: 40px; }
         }
         @@media (max-width: 768px) {
-            .lp-links       { display:none; }
-            .hero h1        { font-size:2.4rem; }
-            .features-grid  { grid-template-columns:1fr; }
-            .roles-grid     { grid-template-columns:1fr 1fr; }
-            .stats-strip    { grid-template-columns:1fr 1fr; }
-            .footer-grid    { grid-template-columns:1fr; gap:30px; }
-            .footer-brand   { grid-column:unset; }
-            .cta-section    { margin:0 16px 60px; padding:56px 20px; }
+            .lp-links      { display: none; }
+            .hero-title    { font-size: 2.6rem; letter-spacing: -1.5px; }
+            .features-grid { grid-template-columns: 1fr; }
+            .roles-grid    { grid-template-columns: 1fr 1fr; }
+            .stats-strip   { grid-template-columns: 1fr 1fr; }
+            .footer-grid   { grid-template-columns: 1fr; gap: 30px; }
+            .cta-section   { margin: 0 16px 60px; padding: 56px 20px; }
         }
         @@media (max-width: 520px) {
-            .hero-btns      { flex-direction:column; }
-            .btn-primary,
-            .btn-ghost      { justify-content:center; }
-            .roles-grid     { grid-template-columns:1fr; }
-            .steps          { grid-template-columns:1fr; }
-            .hero-card      { transform:none; }
+            .hero-actions  { flex-direction: column; align-items: center; }
+            .roles-grid    { grid-template-columns: 1fr; }
+            .steps         { grid-template-columns: 1fr; }
         }
+
     </style>
 </head>
 <body>
 
-<!-- -----------------------------------------------
+<!-- ═══════════════════════
      NAVBAR
------------------------------------------------- -->
-<nav class="lp-nav">
+═══════════════════════ -->
+<nav class="lp-nav" id="navbar">
     <a href="/" class="lp-brand">
-        <div class="lp-brand-icon" style="background:none;padding:0;box-shadow:none;"><img src="/images/logo.jpeg" alt="UNILAK" style="width:40px;height:40px;border-radius:50%;object-fit:cover;" /></div>
+        <img src="/images/logo.jpeg" alt="UNILAK" />
         <div>
             <strong>CSAS</strong>
-            <span>UNILAK Academic Portal</span>
+            <span>Course Schedule Awareness System</span>
         </div>
     </a>
 
@@ -467,138 +421,51 @@
 </nav>
 
 
-<!-- -----------------------------------------------
-     HERO
------------------------------------------------- -->
+<!-- ═══════════════════════
+     HERO — full-screen video
+═══════════════════════ -->
 <section class="hero">
 
-    <!-- -- Full-screen video background -- -->
     <div class="hero-video-wrap">
+        <!-- Cover image shown until video reaches a good frame -->
+        <div class="hero-video-cover" id="videoCover"></div>
         <video id="heroVideo" autoplay muted loop playsinline
-               poster="/images/dean1.jpeg">
+               poster="/images/zpc1.jpeg"
+               preload="auto">
             <source src="/images/Hero.mp4" type="video/mp4" />
         </video>
     </div>
 
-    <!-- -- Mute / Unmute button -- -->
-    <button class="hero-mute-btn" id="muteBtn" onclick="toggleMute()" title="Toggle sound">
-        <i class="bi bi-volume-mute-fill" id="muteIcon"></i>
-    </button>
+    <div class="hero-content">
 
-    <!-- -- Hero content -- -->
-    <div class="hero-container">
+        <h1 class="hero-title">
+            Smarter
+            <span class="hl">Academic Scheduling</span>
+            for Everyone.
+        </h1>
 
-        <!-- Left content -->
-        <div>
-            <h1>
-                Smarter
-                <span class="hl">Academic Scheduling</span>
-                for Everyone.
-            </h1>
+        <p class="hero-sub">
+            CSAS connects students, class representatives, lecturers and
+            management through one secure platform — timetables, verified
+            WhatsApp groups, mark management and quality monitoring in one place.
+        </p>
 
-            <p class="hero-desc">
-                CSAS connects students, class representatives, lecturers and
-                management through one secure platform � bringing timetables,
-                verified WhatsApp groups, mark management and academic
-                monitoring together in one place.
-            </p>
-
-            <div class="hero-btns">
-                <a href="/Login" class="btn-primary">
-                    Access Your Dashboard <i class="bi bi-arrow-right"></i>
-                </a>
-                <a href="#features" class="btn-ghost">
-                    Explore Platform <i class="bi bi-chevron-down"></i>
-                </a>
-            </div>
+        <div class="hero-actions">
+            <a href="/Login" class="btn-hero-primary"><i class="bi bi-box-arrow-in-right"></i> Access Dashboard</a>
+            <a href="#features" class="btn-hero-ghost"><i class="bi bi-play-circle-fill"></i> Learn More</a>
         </div>
 
-        <!-- Right visual: dashboard card -->
-        <div class="hero-visual">
-
-            
-                    <div class="hbf-val">CSE301 &middot; Software Eng.</div>
-                </div>
-            </div>
-
-            <div class="hero-card">
-                <div class="hc-head">
-                    <div class="hc-dots">
-                        <span></span><span></span><span></span>
-                    </div>
-                    <span class="hc-title">Academic Dashboard</span>
-                    <span style="font-size:10px;color:#9ca3af;">Semester 1 &middot; 2026</span>
-                </div>
-                <div class="hc-body">
-                    <div class="hc-welcome">
-                        <div>
-                            <h4>Academic Overview</h4>
-                            <p>Friday, 02 October 2026</p>
-                        </div>
-                        <div class="hc-avatar"><i class="bi bi-person-fill"></i></div>
-                    </div>
-                    <div class="hc-stats">
-                        <div class="hc-stat">
-                            <div class="hc-stat-icon"><i class="bi bi-calendar3"></i></div>
-                            <strong>4</strong><span>Enrolled Courses</span>
-                        </div>
-                        <div class="hc-stat">
-                            <div class="hc-stat-icon"><i class="bi bi-bar-chart-fill"></i></div>
-                            <strong>86%</strong><span>Avg. Attendance</span>
-                        </div>
-                        <div class="hc-stat">
-                            <div class="hc-stat-icon"><i class="bi bi-whatsapp"></i></div>
-                            <strong>3</strong><span>Open Groups</span>
-                        </div>
-                        <div class="hc-stat">
-                            <div class="hc-stat-icon"><i class="bi bi-patch-check-fill"></i></div>
-                            <strong>14</strong><span>Verified Sessions</span>
-                        </div>
-                    </div>
-                    <div class="hc-schedule">
-                        <div class="hc-sch-head">Today&rsquo;s Schedule</div>
-                        <div class="hc-row">
-                            <span class="hc-time">08:00</span>
-                            <span>Software Engineering</span>
-                            <span class="hc-room">Rm 204</span>
-                        </div>
-                        <div class="hc-row">
-                            <span class="hc-time">10:00</span>
-                            <span>Database Systems</span>
-                            <span class="hc-room">Rm 101</span>
-                        </div>
-                        <div class="hc-row">
-                            <span class="hc-time">14:00</span>
-                            <span>Software Architecture</span>
-                            <span class="hc-room">Rm 302</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="hero-badge-float float-br">
-                <div class="hbf-icon" style="background:rgba(254,243,199,0.9);color:#d97706;">
-                    <i class="bi bi-bell-fill"></i>
-                </div>
-                <div>
-                    <div class="hbf-label">Deadline in 3 days</div>
-                    <div class="hbf-val">CSE305 WhatsApp Group</div>
-                </div>
-            </div>
-
-        </div>
     </div>
-
 </section>
 
 
-<!-- -----------------------------------------------
+<!-- ═══════════════════════
      STATS STRIP
------------------------------------------------- -->
+═══════════════════════ -->
 <div class="stats-strip">
     <div class="stat-item">
         <strong><span class="accent">6</span></strong>
-        <span>Academic Roles Supported</span>
+        <span>Academic Roles</span>
     </div>
     <div class="stat-item">
         <strong>4</strong>
@@ -606,7 +473,7 @@
     </div>
     <div class="stat-item">
         <strong><span class="accent">100%</span></strong>
-        <span>Approval Chain Digital</span>
+        <span>Digital Approval Chain</span>
     </div>
     <div class="stat-item">
         <strong>Real-time</strong>
@@ -615,66 +482,59 @@
 </div>
 
 
-<!-- -----------------------------------------------
+<!-- ═══════════════════════
      FEATURES
------------------------------------------------- -->
+═══════════════════════ -->
 <div id="features">
     <div class="section">
         <div class="section-heading">
             <span class="section-label">Platform Features</span>
             <h2>Everything academic coordination needs.</h2>
             <p>
-                From timetables to mark management to quality monitoring �
+                From timetables to mark management to quality monitoring —
                 CSAS brings it all under one verified, role-based platform.
             </p>
         </div>
 
         <div class="features-grid">
-
             <div class="feature-card">
                 <div class="feat-icon"><i class="bi bi-calendar3-week"></i></div>
                 <h3>Timetable Synchronization</h3>
                 <p>Course schedules organized and synchronized across all departments with real-time delivery tracking.</p>
             </div>
-
             <div class="feature-card">
                 <div class="feat-icon"><i class="bi bi-whatsapp"></i></div>
                 <h3>Verified WhatsApp Groups</h3>
                 <p>Students access official class communication groups with controlled joining deadlines managed by Class Reps.</p>
             </div>
-
             <div class="feature-card">
                 <div class="feat-icon"><i class="bi bi-pencil-square"></i></div>
                 <h3>Mark Management</h3>
                 <p>Lecturers post assessment results directly to students. Students can view marks and raise claims for review.</p>
             </div>
-
             <div class="feature-card">
                 <div class="feat-icon"><i class="bi bi-diagram-3-fill"></i></div>
                 <h3>Multi-Level Approval Chain</h3>
-                <p>Session reports flow from Lecturer ? Class Rep ? HOD ? Dean, keeping every delivery verified and traceable.</p>
+                <p>Session reports flow from Lecturer → Class Rep → HOD → Dean, keeping every delivery verified and traceable.</p>
             </div>
-
             <div class="feature-card">
                 <div class="feat-icon"><i class="bi bi-bar-chart-fill"></i></div>
                 <h3>Quality Monitoring</h3>
                 <p>The Director of Quality gets university-wide delivery reports with automatic flagging of below-threshold courses.</p>
             </div>
-
             <div class="feature-card">
                 <div class="feat-icon"><i class="bi bi-person-lock"></i></div>
                 <h3>Role-Based Access</h3>
-                <p>Every role � Student, CP, Lecturer, HOD, Dean or Quality Director � gets a dashboard tailored to their responsibilities.</p>
+                <p>Every role gets a dashboard tailored to their responsibilities — no more than what they need.</p>
             </div>
-
         </div>
     </div>
 </div>
 
 
-<!-- -----------------------------------------------
+<!-- ═══════════════════════
      HOW IT WORKS
------------------------------------------------- -->
+═══════════════════════ -->
 <div class="how-bg" id="how">
     <div class="section">
         <div class="section-heading">
@@ -709,9 +569,9 @@
 </div>
 
 
-<!-- -----------------------------------------------
+<!-- ═══════════════════════
      ROLES
------------------------------------------------- -->
+═══════════════════════ -->
 <div id="roles">
     <div class="section">
         <div class="section-heading">
@@ -727,9 +587,7 @@
                     <i class="bi bi-mortarboard-fill"></i>
                 </div>
                 <h3>Students</h3>
-                <p>View your timetable, check marks, raise claims, and join verified WhatsApp groups before the deadline.</p>
-                <span class="role-pill" style="background:#eff6ff;color:#1e3a8a;">UNILAK/2024/001 � student123</span><br/>
-                <a href="/Login" class="role-login">Sign In <i class="bi bi-arrow-right"></i></a>
+                <p>View timetable, check marks, raise claims and join verified WhatsApp groups before the deadline.</p>
             </div>
 
             <div class="role-card">
@@ -737,9 +595,7 @@
                     <i class="bi bi-person-badge-fill"></i>
                 </div>
                 <h3>Class Representatives</h3>
-                <p>Sign off sessions, manage class WhatsApp groups and post announcements to your class.</p>
-                <span class="role-pill" style="background:#f0fdfa;color:#0d9488;">UNILAK/2024/002 � classrep123</span><br/>
-                <a href="/Login" class="role-login">Sign In <i class="bi bi-arrow-right"></i></a>
+                <p>Sign off sessions, manage class WhatsApp groups and communicate with the HOD directly.</p>
             </div>
 
             <div class="role-card">
@@ -747,9 +603,7 @@
                     <i class="bi bi-person-workspace"></i>
                 </div>
                 <h3>Lecturers</h3>
-                <p>Submit session reports, post marks for students and respond to student mark claims.</p>
-                <span class="role-pill" style="background:#f5f3ff;color:#7c3aed;">STAFF/001 � lecturer123</span><br/>
-                <a href="/Login" class="role-login">Sign In <i class="bi bi-arrow-right"></i></a>
+                <p>Submit session reports, post student marks and respond to mark claims raised by students.</p>
             </div>
 
             <div class="role-card">
@@ -757,9 +611,7 @@
                     <i class="bi bi-building"></i>
                 </div>
                 <h3>Head of Department</h3>
-                <p>Review course delivery rates, manage lecturers and approve session reports from your department.</p>
-                <span class="role-pill" style="background:#fffbeb;color:#d97706;">STAFF/010 � hod123</span><br/>
-                <a href="/Login" class="role-login">Sign In <i class="bi bi-arrow-right"></i></a>
+                <p>Add courses, manage rooms, review delivery rates and approve session reports.</p>
             </div>
 
             <div class="role-card">
@@ -767,9 +619,7 @@
                     <i class="bi bi-briefcase-fill"></i>
                 </div>
                 <h3>Dean</h3>
-                <p>Oversee all departments in your faculty, give final approvals and monitor faculty-wide performance.</p>
-                <span class="role-pill" style="background:#ecfdf5;color:#059669;">STAFF/020 � dean123</span><br/>
-                <a href="/Login" class="role-login">Sign In <i class="bi bi-arrow-right"></i></a>
+                <p>Oversee all departments in the faculty, give final approvals and monitor performance.</p>
             </div>
 
             <div class="role-card">
@@ -777,9 +627,7 @@
                     <i class="bi bi-graph-up-arrow"></i>
                 </div>
                 <h3>Director of Quality</h3>
-                <p>Monitor university-wide academic delivery, flag under-performing courses and generate audit reports.</p>
-                <span class="role-pill" style="background:#fef2f2;color:#dc2626;">STAFF/030 � quality123</span><br/>
-                <a href="/Login" class="role-login">Sign In <i class="bi bi-arrow-right"></i></a>
+                <p>Monitor university-wide delivery, flag under-performing courses and generate audit reports.</p>
             </div>
 
         </div>
@@ -787,9 +635,9 @@
 </div>
 
 
-<!-- -----------------------------------------------
+<!-- ═══════════════════════
      CTA
------------------------------------------------- -->
+═══════════════════════ -->
 <div class="cta-section">
     <div class="cta-icon"><i class="bi bi-mortarboard-fill"></i></div>
     <h2>Ready to access your academic portal?</h2>
@@ -804,28 +652,25 @@
 </div>
 
 
-<!-- -----------------------------------------------
+<!-- ═══════════════════════
      FOOTER
------------------------------------------------- -->
+═══════════════════════ -->
 <footer>
     <div class="footer-grid">
-
         <div class="footer-brand">
-            <h3>Course Schedule &amp; Academic Awareness System</h3>
+            <h3>Course Schedule Awareness System</h3>
             <p>
-                A centralized academic coordination platform designed to improve
-                timetable awareness, mark management, communication and academic
-                quality monitoring at UNILAK.
+                A centralized academic coordination platform for UNILAK —
+                timetable awareness, mark management, communication and
+                quality monitoring in one place.
             </p>
         </div>
-
         <div class="footer-col">
             <h4>Platform</h4>
             <a href="#features">Features</a>
             <a href="#how">How It Works</a>
             <a href="#roles">Academic Roles</a>
         </div>
-
         <div class="footer-col">
             <h4>Dashboards</h4>
             <a href="/Student/Dashboard">Student</a>
@@ -833,31 +678,60 @@
             <a href="/Lecturer/Dashboard">Lecturer</a>
             <a href="/HOD/Dashboard">Head of Department</a>
         </div>
-
         <div class="footer-col">
             <h4>Management</h4>
             <a href="/Dean/Dashboard">Dean</a>
             <a href="/Quality/Dashboard">Director of Quality</a>
             <a href="/Login">Sign In</a>
         </div>
-
     </div>
 
     <div class="footer-bottom">
         <span>&copy; @DateTime.Now.Year UNILAK. All rights reserved.</span>
-        <span>Course Schedule &amp; Academic Awareness System</span>
+        <span>Course Schedule Awareness System</span>
     </div>
 </footer>
 
+
 <script>
-    /* -- Hero video mute toggle -- */
-    function toggleMute() {
-        var video = document.getElementById('heroVideo');
-        var icon  = document.getElementById('muteIcon');
-        if (!video) return;
-        video.muted = !video.muted;
-        icon.className = video.muted ? 'bi bi-volume-mute-fill' : 'bi bi-volume-up-fill';
-    }
+    
+
+    /* Skip black opening frames and hide the cover once video is playing */
+    (function () {
+        var video  = document.getElementById('heroVideo');
+        var cover  = document.getElementById('videoCover');
+        if (!video || !cover) return;
+
+        function showVideo() {
+            cover.classList.add('hidden');
+        }
+
+        /* If the video's first frame is still black, skip ahead 0.5s */
+        video.addEventListener('loadeddata', function () {
+            if (video.readyState >= 2) {
+                /* Skip to 0.5s to avoid any black opening frame */
+                video.currentTime = 0.5;
+            }
+        });
+
+        /* Hide cover once video is actually playing with real content */
+        video.addEventListener('timeupdate', function onFirstFrame() {
+            if (video.currentTime > 0.4) {
+                showVideo();
+                video.removeEventListener('timeupdate', onFirstFrame);
+            }
+        });
+
+        /* Fallback: hide cover after 1.5s regardless */
+        setTimeout(showVideo, 1500);
+    })();
+
+    /* Navbar darkens on scroll */
+    var nav = document.getElementById('navbar');
+    window.addEventListener('scroll', function () {
+        nav.classList.toggle('scrolled', window.scrollY > 60);
+    });
 </script>
+
 </body>
 </html>
