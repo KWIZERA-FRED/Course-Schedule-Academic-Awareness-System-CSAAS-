@@ -10,22 +10,19 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Director of Quality Dashboard | CSAS</title>
+    <title>Director of Quality | CSAS</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/dashboard.css" />
 </head>
 <body>
-
 <div class="dash-shell">
 
-    <!-- =============================================
-         SIDEBAR
-    ============================================== -->
     <aside class="dash-sidebar">
-
         <a href="/" class="dash-sidebar-brand">
-            <div class="dash-sidebar-brand-icon" style="background:transparent;box-shadow:none;padding:2px;"><img src="/images/logo.jpeg" alt="UNILAK" style="width:34px;height:34px;border-radius:50%;object-fit:cover;" /></div>
+            <div class="dash-sidebar-brand-icon" style="background:transparent;box-shadow:none;padding:2px;">
+                <img src="/images/logo.jpeg" alt="UNILAK" style="width:34px;height:34px;border-radius:50%;object-fit:cover;" />
+            </div>
             <div class="dash-sidebar-brand-text">
                 <strong>CSAS</strong>
                 <span>Quality Directorate</span>
@@ -33,493 +30,314 @@
         </a>
 
         <div class="dash-sidebar-section">Main Menu</div>
-
         <nav class="dash-sidebar-nav">
-            <a href="/" class="dash-nav-link">
-                <i class="bi bi-house-fill"></i> Home
+            <a href="/" class="dash-nav-link"><i class="bi bi-house-fill"></i> Home</a>
+            <a href="/Quality/Dashboard" class="dash-nav-link active"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="#section-summary" class="dash-nav-link" onclick="revealAndScroll('section-summary')">
+                <i class="bi bi-bar-chart-fill"></i> Faculty Summary
             </a>
-            <a href="/Quality/Dashboard" class="dash-nav-link active">
-                <i class="bi bi-speedometer2"></i> Dashboard
-            </a>
-            <a href="#" class="dash-nav-link">
-                <i class="bi bi-bar-chart-fill"></i> Academic Reports
-            </a>
-            <a href="#" class="dash-nav-link">
-                <i class="bi bi-clipboard2-data-fill"></i> Delivery Audits
-            </a>
-            <a href="#" class="dash-nav-link">
-                <i class="bi bi-diagram-3-fill"></i> All Faculties
-            </a>
-            <a href="#" class="dash-nav-link">
+            <a href="#flagged" class="dash-nav-link" onclick="revealAndScroll('flagged')">
                 <i class="bi bi-exclamation-triangle-fill"></i> Flagged Courses
+                @if (Model.BelowThresholdCount > 0)
+                {
+                    <span style="margin-left:auto;background:#dc2626;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;">@Model.BelowThresholdCount</span>
+                }
             </a>
-            <a href="#" class="dash-nav-link">
-                <i class="bi bi-file-earmark-text-fill"></i> Generate Report
+            <a href="#section-breakdown" class="dash-nav-link" onclick="revealAndScroll('section-breakdown')">
+                <i class="bi bi-clipboard2-data-fill"></i> Delivery Breakdown
             </a>
-            <a href="#" class="dash-nav-link">
-                <i class="bi bi-bell"></i> Notifications
+            <a href="#section-audit" class="dash-nav-link" onclick="revealAndScroll('section-audit')">
+                <i class="bi bi-file-earmark-text-fill"></i> Audit Log
+            </a>
+            <a href="https://umurongosmart.com/" target="_blank" class="dash-nav-link"
+               style="border-top:1px solid rgba(255,255,255,0.07);margin-top:4px;padding-top:12px;">
+                <i class="bi bi-headset"></i> UmurongoSmart Support
             </a>
         </nav>
 
         <div class="dash-sidebar-section">Account</div>
-
         <nav class="dash-sidebar-nav">
-            <a href="#" class="dash-nav-link">
-                <i class="bi bi-person"></i> My Profile
-            </a>
-            <a href="/Logout" class="dash-nav-link"><i class="bi bi-box-arrow-left"></i> Logout
-            </a>
+            <a href="/Quality/Dashboard" class="dash-nav-link"><i class="bi bi-person"></i> My Profile</a>
+            <a href="/Logout" class="dash-nav-link"><i class="bi bi-box-arrow-left"></i> Logout</a>
         </nav>
 
         <div class="dash-sidebar-footer">
             <div class="dash-sidebar-user">
-                <div class="dash-user-avatar">
-                    <i class="bi bi-graph-up-arrow"></i>
-                </div>
+                <div class="dash-user-avatar"><i class="bi bi-graph-up-arrow"></i></div>
                 <div class="dash-user-info">
-                    <strong>Dr. M. Ingabire</strong>
-                    <span>Director · Academic Quality</span>
+                    <strong>@Model.CurrentUser.FullName</strong>
+                    <span>Director &middot; Academic Quality</span>
                 </div>
             </div>
         </div>
-
     </aside>
 
-
-    <!-- =============================================
-         MAIN CONTENT
-    ============================================== -->
     <div class="dash-main">
-
-        <!-- TOP BAR -->
         <div class="dash-topbar">
             <div class="dash-topbar-title">
                 <h1>Director of Quality Dashboard</h1>
-                <p>University-wide academic delivery monitoring &amp; quality assurance</p>
+                <p>Welcome, @Model.CurrentUser.FirstName &mdash; university-wide quality monitoring</p>
             </div>
             <div class="dash-topbar-actions">
-                <a href="#" class="btn-dash-outline btn-dash-sm">
-                    <i class="bi bi-file-earmark-arrow-down"></i> Full Report
-                </a>
-                <a href="#" class="dash-icon-btn" title="Notifications">
-                    <i class="bi bi-bell"></i>
-                </a>
-                <div class="dash-topbar-avatar">
-                    <i class="bi bi-graph-up-arrow"></i>
-                </div>
+                <div class="dash-topbar-avatar"><i class="bi bi-graph-up-arrow"></i></div>
             </div>
         </div>
 
-        <!-- CONTENT -->
         <div class="dash-content">
 
-            <!-- STATUS MESSAGE -->
             @if (TempData["StatusMessage"] != null)
             {
                 var type = TempData["StatusType"]?.ToString() ?? "info";
-                var alertClass = type == "success" ? "dash-alert-success"
-                               : type == "danger"  ? "dash-alert-danger"
-                               : type == "warning" ? "dash-alert-warning"
-                               : "dash-alert-info";
+                var alertClass = type == "success" ? "dash-alert-success" : type == "danger" ? "dash-alert-danger" : type == "warning" ? "dash-alert-warning" : "dash-alert-info";
                 var icon = type == "success" ? "bi-check-circle-fill" : "bi-exclamation-triangle-fill";
-                <div class="dash-alert @alertClass">
-                    <i class="bi @icon"></i>
-                    <div>@TempData["StatusMessage"]</div>
+                <div class="dash-alert @alertClass"><i class="bi @icon"></i><div>@TempData["StatusMessage"]</div></div>
+            }
+
+            @if (Model.BelowThresholdCount > 0)
+            {
+                <div class="dash-alert dash-alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <div>
+                        <strong>Critical:</strong>
+                        <strong>@Model.BelowThresholdCount course@(Model.BelowThresholdCount != 1 ? "s" : "")</strong>
+                        below the 70% delivery threshold — immediate action required.
+                        <a href="#" onclick="event.preventDefault();revealAndScroll('flagged')" style="font-weight:700;margin-left:8px;">View &rarr;</a>
+                    </div>
                 </div>
             }
 
-            <!-- ALERTS -->
-            <div class="dash-alert dash-alert-danger">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                <div>
-                    <strong>Critical:</strong>
-                    <strong>2 courses</strong> have fallen below the 70% delivery threshold and
-                    require immediate intervention by the respective Deans.
+            <div style="background:linear-gradient(135deg,#0D1E47 0%,#1C3B83 60%,#2952C8 100%);border-radius:16px;padding:32px 36px;margin-bottom:24px;position:relative;overflow:hidden;">
+                <div style="position:absolute;top:-50px;right:-50px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,0.04);"></div>
+                <div style="position:absolute;bottom:-70px;right:60px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,0.03);"></div>
+                <div style="position:relative;z-index:1;">
+                    <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.12);color:#93c5fd;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:14px;">
+                        <i class="bi bi-graph-up-arrow"></i> Director of Quality
+                    </div>
+                    <h2 style="color:white;font-size:26px;font-weight:800;margin:0 0 4px;">Welcome, @Model.CurrentUser.FullName</h2>
+                    <p style="color:rgba(255,255,255,0.6);font-size:13px;margin:0 0 20px;">
+                        @Model.TotalCourses course@(Model.TotalCourses != 1 ? "s" : "") monitored &nbsp;&middot;&nbsp;
+                        @Model.UniversityDeliveryRate% university delivery rate
+                        @if (Model.BelowThresholdCount > 0) { <text>&nbsp;&middot;&nbsp; <span style="color:#fca5a5;">@Model.BelowThresholdCount below threshold</span></text> }
+                    </p>
+                    <div style="display:flex;flex-wrap:wrap;gap:10px;">
+                        <button type="button" onclick="revealAndScroll('section-summary')" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:white;color:#1C3B83;">
+                            <i class="bi bi-bar-chart-fill"></i> Faculty Summary
+                        </button>
+                        <button type="button" onclick="revealAndScroll('flagged')" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Flagged Courses
+                            @if (Model.BelowThresholdCount > 0) { <span style="background:#dc2626;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;">@Model.BelowThresholdCount</span> }
+                        </button>
+                        <button type="button" onclick="revealAndScroll('section-breakdown')" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);">
+                            <i class="bi bi-clipboard2-data-fill"></i> Delivery Breakdown
+                        </button>
+                        <button type="button" onclick="revealAndScroll('section-audit')" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);">
+                            <i class="bi bi-file-earmark-text-fill"></i> Audit Log
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="dash-alert dash-alert-success">
-                <i class="bi bi-patch-check-fill"></i>
-                <div>
-                    <strong>Good standing:</strong>
-                    <strong>3 out of 4 faculties</strong> are meeting or exceeding the minimum
-                    80% delivery rate for this semester.
-                </div>
-            </div>
+            <div id="qualityContent" style="display:none;">
 
-            <!-- STAT CARDS -->
-            <div class="dash-stats dash-stats-4">
-
-                <div class="dash-stat-card">
-                    <div class="dash-stat-icon icon-blue">
-                        <i class="bi bi-diagram-3-fill"></i>
+                <div class="dash-stats dash-stats-4">
+                    <div class="dash-stat-card">
+                        <div class="dash-stat-icon icon-blue"><i class="bi bi-diagram-3-fill"></i></div>
+                        <div class="dash-stat-body"><strong>@Model.DeliveryByDepartment.Count</strong><span>Departments Monitored</span></div>
                     </div>
-                    <div class="dash-stat-body">
-                        <strong>3</strong>
-                        <span>Faculties Monitored</span>
+                    <div class="dash-stat-card">
+                        <div class="dash-stat-icon icon-teal"><i class="bi bi-journal-bookmark-fill"></i></div>
+                        <div class="dash-stat-body"><strong>@Model.TotalCourses</strong><span>Total Courses</span></div>
                     </div>
-                </div>
-
-                <div class="dash-stat-card">
-                    <div class="dash-stat-icon icon-teal">
-                        <i class="bi bi-journal-bookmark-fill"></i>
+                    <div class="dash-stat-card">
+                        <div class="dash-stat-icon @(Model.BelowThresholdCount > 0 ? "icon-red" : "icon-green")">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </div>
+                        <div class="dash-stat-body"><strong>@Model.BelowThresholdCount</strong><span>Below Threshold</span></div>
                     </div>
-                    <div class="dash-stat-body">
-                        <strong>64</strong>
-                        <span>Total Courses University</span>
+                    <div class="dash-stat-card">
+                        <div class="dash-stat-icon icon-green"><i class="bi bi-graph-up-arrow"></i></div>
+                        <div class="dash-stat-body"><strong>@Model.UniversityDeliveryRate%</strong><span>University Delivery Rate</span></div>
                     </div>
                 </div>
 
-                <div class="dash-stat-card">
-                    <div class="dash-stat-icon icon-red">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
+                <div class="dash-grid-2">
+
+                    <div class="dash-card" id="section-summary">
+                        <div class="dash-card-header">
+                            <div>
+                                <h5>Faculty Delivery Summary</h5>
+                                <p>University-wide academic delivery this semester</p>
+                            </div>
+                        </div>
+                        <div class="dash-card-body" style="padding:0;">
+                            <table class="dash-table">
+                                <thead>
+                                    <tr><th>Department</th><th>Courses</th><th>Delivery</th><th>Rating</th></tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var dept in Model.DeliveryByDepartment.OrderByDescending(d => d.Value))
+                                    {
+                                        var pct = (int)dept.Value;
+                                        var badgeClass = pct >= 90 ? "badge-approved" : pct >= 75 ? "badge-verified" : pct >= 60 ? "badge-pending" : "badge-missed";
+                                        var badgeLabel = pct >= 90 ? "Excellent" : pct >= 75 ? "Good" : pct >= 60 ? "Monitor" : "Critical";
+                                        var badgeIcon  = pct >= 90 ? "patch-check-fill" : pct >= 75 ? "check-circle-fill" : pct >= 60 ? "clock-history" : "x-circle-fill";
+                                        var courseCount = Model.AllCourses.Count(c => c.Department == dept.Key);
+                                        <tr>
+                                            <td><strong style="display:block;font-size:13px;">@dept.Key</strong></td>
+                                            <td>@courseCount</td>
+                                            <td>
+                                                <div style="display:flex;align-items:center;gap:8px;">
+                                                    <div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
+                                                        <div style="width:@pct%;height:100%;background:@(pct>=90?"#059669":pct>=75?"#1C3B83":pct>=60?"#d97706":"#dc2626");border-radius:5px;"></div>
+                                                    </div>
+                                                    <span style="font-size:11px;font-weight:700;">@pct%</span>
+                                                </div>
+                                            </td>
+                                            <td><span class="badge-status @badgeClass"><i class="bi bi-@badgeIcon"></i> @badgeLabel</span></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="dash-stat-body">
-                        <strong>2</strong>
-                        <span>Below Threshold Courses</span>
+
+                    <div class="dash-card" id="flagged">
+                        <div class="dash-card-header">
+                            <div>
+                                <h5>Flagged Courses</h5>
+                                <p>Below 70% delivery threshold &mdash; action required</p>
+                            </div>
+                            @if (Model.BelowThresholdCount > 0)
+                            {
+                                <span class="badge-status badge-missed">
+                                    <i class="bi bi-exclamation-triangle-fill"></i> @Model.BelowThresholdCount critical
+                                </span>
+                            }
+                        </div>
+                        @if (!Model.FlaggedCourses.Any())
+                        {
+                            <div class="dash-empty"><i class="bi bi-check2-circle"></i><p>No courses below threshold. All on track.</p></div>
+                        }
+                        else
+                        {
+                            <div class="dash-card-body" style="padding:0;">
+                                <table class="dash-table">
+                                    <thead>
+                                        <tr><th>Course</th><th>Department</th><th>Lecturer</th><th>Delivery</th><th>Action</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var c in Model.FlaggedCourses)
+                                        {
+                                            var pct = c.ScheduledHours > 0 ? (int)Math.Round((double)c.DeliveredHours / c.ScheduledHours * 100) : 0;
+                                            <tr>
+                                                <td>
+                                                    <strong style="display:block;font-size:13px;">@c.Code</strong>
+                                                    <span style="font-size:11px;color:#9ca3af;">@c.Title</span>
+                                                </td>
+                                                <td style="font-size:12px;">@c.Department</td>
+                                                <td style="font-size:12px;">@c.Lecturer</td>
+                                                <td><span style="font-size:13px;font-weight:700;color:#dc2626;">@pct%</span></td>
+                                                <td>
+                                                    <form method="post" asp-page-handler="Escalate" style="display:inline;">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="courseId" value="@c.Id" />
+                                                        <input type="hidden" name="notes" value="" />
+                                                        <button type="submit" class="btn-dash-primary btn-dash-sm">
+                                                            <i class="bi bi-flag-fill"></i> Escalate
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
                     </div>
+
                 </div>
 
-                <div class="dash-stat-card">
-                    <div class="dash-stat-icon icon-green">
-                        <i class="bi bi-graph-up-arrow"></i>
-                    </div>
-                    <div class="dash-stat-body">
-                        <strong>86%</strong>
-                        <span>University Delivery Rate</span>
-                    </div>
-                </div>
-
-            </div>
-
-
-            <!-- UNIVERSITY-WIDE DELIVERY + FLAGGED COURSES -->
-            <div class="dash-grid-2">
-
-                <!-- FACULTY DELIVERY TABLE -->
-                <div class="dash-card">
+                <div class="dash-card" id="section-breakdown">
                     <div class="dash-card-header">
                         <div>
-                            <h5>Faculty Delivery Summary</h5>
-                            <p>University-wide academic delivery this semester</p>
+                            <h5>Department Delivery Breakdown</h5>
+                            <p>Delivery rate per department across all courses</p>
                         </div>
-                        <a href="#" class="btn-dash-outline btn-dash-sm">
-                            <i class="bi bi-download"></i> Export
-                        </a>
                     </div>
-                    <div class="dash-card-body" style="padding:0;">
-                        <table class="dash-table">
-                            <thead>
-                                <tr>
-                                    <th>Faculty</th>
-                                    <th>Dean</th>
-                                    <th>Depts</th>
-                                    <th>Courses</th>
-                                    <th>Delivery</th>
-                                    <th>Rating</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <strong style="display:block;font-size:13px;">Engineering &amp; Technology</strong>
-                                    </td>
-                                    <td style="font-size:12px;">Prof. C. Ndayisaba</td>
-                                    <td>4</td>
-                                    <td>28</td>
-                                    <td>
-                                        <div style="display:flex;align-items:center;gap:8px;">
-                                            <div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
-                                                <div style="width:88%;height:100%;background:#1e3a8a;border-radius:5px;"></div>
-                                            </div>
-                                            <span style="font-size:11px;font-weight:700;">88%</span>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge-status badge-verified"><i class="bi bi-check-circle-fill"></i> Good</span></td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong style="display:block;font-size:13px;">Business &amp; Management</strong>
-                                    </td>
-                                    <td style="font-size:12px;">Dr. P. Rutaganda</td>
-                                    <td>3</td>
-                                    <td>20</td>
-                                    <td>
-                                        <div style="display:flex;align-items:center;gap:8px;">
-                                            <div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
-                                                <div style="width:92%;height:100%;background:#059669;border-radius:5px;"></div>
-                                            </div>
-                                            <span style="font-size:11px;font-weight:700;">92%</span>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge-status badge-approved"><i class="bi bi-patch-check-fill"></i> Excellent</span></td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong style="display:block;font-size:13px;">Social Sciences</strong>
-                                    </td>
-                                    <td style="font-size:12px;">Dr. A. Mukamurenzi</td>
-                                    <td>3</td>
-                                    <td>16</td>
-                                    <td>
-                                        <div style="display:flex;align-items:center;gap:8px;">
-                                            <div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
-                                                <div style="width:74%;height:100%;background:#d97706;border-radius:5px;"></div>
-                                            </div>
-                                            <span style="font-size:11px;font-weight:700;">74%</span>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge-status badge-pending"><i class="bi bi-clock-history"></i> Monitor</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="dash-card-body">
+                        @foreach (var dept in Model.DeliveryByDepartment.OrderByDescending(d => d.Value))
+                        {
+                            var pct      = (int)dept.Value;
+                            var barColor = pct >= 90 ? "#059669" : pct >= 75 ? "#1C3B83" : pct >= 60 ? "#d97706" : "#dc2626";
+                            <div class="dash-progress-row">
+                                <span class="dash-progress-label">@dept.Key</span>
+                                <div class="dash-progress-bar-wrap">
+                                    <div class="dash-progress-bar-fill" style="width:@pct%;background:@barColor;"></div>
+                                </div>
+                                <span class="dash-progress-pct">@pct%</span>
+                            </div>
+                        }
                     </div>
                 </div>
 
-                <!-- FLAGGED COURSES -->
-                <div class="dash-card">
+                <div class="dash-card" id="section-audit">
                     <div class="dash-card-header">
                         <div>
-                            <h5>Flagged Courses</h5>
-                            <p>Below 70% delivery threshold — action required</p>
+                            <h5>Audit Log</h5>
+                            <p>Recent quality monitoring actions and flagged events</p>
                         </div>
-                        <span class="badge-status badge-missed">
-                            <i class="bi bi-exclamation-triangle-fill"></i> 2 Critical
-                        </span>
                     </div>
-                    <div class="dash-card-body" style="padding:0;">
-                        <table class="dash-table">
-                            <thead>
-                                <tr>
-                                    <th>Course</th>
-                                    <th>Faculty</th>
-                                    <th>Lecturer</th>
-                                    <th>Delivery</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <strong style="display:block;font-size:13px;">CSE310</strong>
-                                        <span style="font-size:11px;color:#9ca3af;">Human-Computer Interaction</span>
-                                    </td>
-                                    <td style="font-size:12px;">Engineering</td>
-                                    <td style="font-size:12px;">Mr. E. Niyonsenga</td>
-                                    <td>
-                                        <span style="font-size:13px;font-weight:700;color:#dc2626;">61%</span>
-                                    </td>
-                                    <td>
-                                        <form method="post" asp-page-handler="Escalate" style="display:inline;">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="courseId" value="3" />
-                                            <input type="hidden" name="notes" value="" />
-                                            <button type="submit" class="btn-dash-primary btn-dash-sm">
-                                                <i class="bi bi-flag-fill"></i> Escalate
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong style="display:block;font-size:13px;">SS201</strong>
-                                        <span style="font-size:11px;color:#9ca3af;">Sociology Foundations</span>
-                                    </td>
-                                    <td style="font-size:12px;">Social Sciences</td>
-                                    <td style="font-size:12px;">Mr. T. Habimana</td>
-                                    <td>
-                                        <span style="font-size:13px;font-weight:700;color:#dc2626;">58%</span>
-                                    </td>
-                                    <td>
-                                        <form method="post" asp-page-handler="Escalate" style="display:inline;">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="courseId" value="0" />
-                                            <input type="hidden" name="notes" value="" />
-                                            <button type="submit" class="btn-dash-primary btn-dash-sm">
-                                                <i class="bi bi-flag-fill"></i> Escalate
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="dash-card-body">
+                        <div class="dash-timeline">
+                            @foreach (var c in Model.FlaggedCourses.Take(3))
+                            {
+                                var pct = c.ScheduledHours > 0 ? (int)Math.Round((double)c.DeliveredHours / c.ScheduledHours * 100) : 0;
+                                <div class="dash-timeline-item">
+                                    <div class="dash-timeline-dot icon-red">
+                                        <i class="bi bi-flag-fill" style="color:#dc2626;font-size:13px;"></i>
+                                    </div>
+                                    <div class="dash-timeline-body">
+                                        <strong>@c.Code flagged &mdash; delivery at @pct% (below 70% threshold)</strong>
+                                        <span>Auto-flagged &middot; @c.Department</span>
+                                    </div>
+                                </div>
+                            }
+                            @foreach (var dept in Model.DeliveryByDepartment.Where(d => d.Value >= 90).OrderByDescending(d => d.Value).Take(2))
+                            {
+                                <div class="dash-timeline-item">
+                                    <div class="dash-timeline-dot icon-green">
+                                        <i class="bi bi-patch-check-fill" style="color:#059669;font-size:13px;"></i>
+                                    </div>
+                                    <div class="dash-timeline-body">
+                                        <strong>@dept.Key cleared &mdash; @((int)dept.Value)% delivery</strong>
+                                        <span>Meets quality standard</span>
+                                    </div>
+                                </div>
+                            }
+                            @if (!Model.FlaggedCourses.Any() && !Model.DeliveryByDepartment.Any())
+                            {
+                                <div class="dash-empty"><i class="bi bi-clock-history"></i><p>No audit entries yet.</p></div>
+                            }
+                        </div>
                     </div>
                 </div>
 
-            </div>
-
-
-            <!-- DEPARTMENT-LEVEL DELIVERY BREAKDOWN -->
-            <div class="dash-card">
-                <div class="dash-card-header">
-                    <div>
-                        <h5>Department-Level Delivery Breakdown</h5>
-                        <p>Delivery rate per department across all faculties</p>
-                    </div>
-                </div>
-                <div class="dash-card-body">
-
-                    <div style="margin-bottom:18px;">
-                        <span style="font-size:11px;font-weight:700;color:#1e3a8a;text-transform:uppercase;
-                                     letter-spacing:0.06em;">Faculty of Engineering &amp; Technology</span>
-                    </div>
-
-                    <div class="dash-progress-row">
-                        <span class="dash-progress-label">Computer Science &amp; IT</span>
-                        <div class="dash-progress-bar-wrap">
-                            <div class="dash-progress-bar-fill" style="width:91%;"></div>
-                        </div>
-                        <span class="dash-progress-pct">91%</span>
-                    </div>
-
-                    <div class="dash-progress-row">
-                        <span class="dash-progress-label">Civil Engineering</span>
-                        <div class="dash-progress-bar-wrap">
-                            <div class="dash-progress-bar-fill" style="width:85%;"></div>
-                        </div>
-                        <span class="dash-progress-pct">85%</span>
-                    </div>
-
-                    <div class="dash-progress-row">
-                        <span class="dash-progress-label">Electrical Engineering</span>
-                        <div class="dash-progress-bar-wrap">
-                            <div class="dash-progress-bar-fill" style="width:79%;background:#d97706;"></div>
-                        </div>
-                        <span class="dash-progress-pct">79%</span>
-                    </div>
-
-                    <div class="dash-progress-row">
-                        <span class="dash-progress-label">Mechanical Engineering</span>
-                        <div class="dash-progress-bar-wrap">
-                            <div class="dash-progress-bar-fill" style="width:96%;background:#059669;"></div>
-                        </div>
-                        <span class="dash-progress-pct">96%</span>
-                    </div>
-
-                    <div style="margin:18px 0 12px;">
-                        <span style="font-size:11px;font-weight:700;color:#1e3a8a;text-transform:uppercase;
-                                     letter-spacing:0.06em;">Faculty of Business &amp; Management</span>
-                    </div>
-
-                    <div class="dash-progress-row">
-                        <span class="dash-progress-label">Accounting &amp; Finance</span>
-                        <div class="dash-progress-bar-wrap">
-                            <div class="dash-progress-bar-fill" style="width:94%;background:#059669;"></div>
-                        </div>
-                        <span class="dash-progress-pct">94%</span>
-                    </div>
-
-                    <div class="dash-progress-row">
-                        <span class="dash-progress-label">Business Administration</span>
-                        <div class="dash-progress-bar-wrap">
-                            <div class="dash-progress-bar-fill" style="width:90%;"></div>
-                        </div>
-                        <span class="dash-progress-pct">90%</span>
-                    </div>
-
-                    <div style="margin:18px 0 12px;">
-                        <span style="font-size:11px;font-weight:700;color:#1e3a8a;text-transform:uppercase;
-                                     letter-spacing:0.06em;">Faculty of Social Sciences</span>
-                    </div>
-
-                    <div class="dash-progress-row">
-                        <span class="dash-progress-label">Sociology</span>
-                        <div class="dash-progress-bar-wrap">
-                            <div class="dash-progress-bar-fill" style="width:63%;background:#dc2626;"></div>
-                        </div>
-                        <span class="dash-progress-pct">63%</span>
-                    </div>
-
-                    <div class="dash-progress-row">
-                        <span class="dash-progress-label">Political Science</span>
-                        <div class="dash-progress-bar-wrap">
-                            <div class="dash-progress-bar-fill" style="width:82%;"></div>
-                        </div>
-                        <span class="dash-progress-pct">82%</span>
-                    </div>
-
-                </div>
-            </div>
-
-
-            <!-- AUDIT LOG / RECENT QUALITY ACTIONS -->
-            <div class="dash-card">
-                <div class="dash-card-header">
-                    <div>
-                        <h5>Audit Log</h5>
-                        <p>Recent quality monitoring actions and system events</p>
-                    </div>
-                    <a href="#" class="btn-dash-outline btn-dash-sm">
-                        <i class="bi bi-file-earmark-text"></i> Full Audit Log
-                    </a>
-                </div>
-                <div class="dash-card-body">
-                    <div class="dash-timeline">
-
-                        <div class="dash-timeline-item">
-                            <div class="dash-timeline-dot icon-red">
-                                <i class="bi bi-flag-fill" style="color:#dc2626;font-size:13px;"></i>
-                            </div>
-                            <div class="dash-timeline-body">
-                                <strong>CSE310 flagged — delivery at 61% (below 70% threshold)</strong>
-                                <span>Today, 07:00 AM · Auto-flagged by system</span>
-                            </div>
-                        </div>
-
-                        <div class="dash-timeline-item">
-                            <div class="dash-timeline-dot icon-red">
-                                <i class="bi bi-flag-fill" style="color:#dc2626;font-size:13px;"></i>
-                            </div>
-                            <div class="dash-timeline-body">
-                                <strong>SS201 flagged — delivery at 58% (below 70% threshold)</strong>
-                                <span>Today, 07:00 AM · Auto-flagged by system</span>
-                            </div>
-                        </div>
-
-                        <div class="dash-timeline-item">
-                            <div class="dash-timeline-dot icon-blue">
-                                <i class="bi bi-file-earmark-arrow-down-fill" style="color:#1e3a8a;font-size:13px;"></i>
-                            </div>
-                            <div class="dash-timeline-body">
-                                <strong>Faculty report received from Dean — Engineering &amp; Technology</strong>
-                                <span>Yesterday, 04:00 PM</span>
-                            </div>
-                        </div>
-
-                        <div class="dash-timeline-item">
-                            <div class="dash-timeline-dot icon-green">
-                                <i class="bi bi-patch-check-fill" style="color:#059669;font-size:13px;"></i>
-                            </div>
-                            <div class="dash-timeline-body">
-                                <strong>Business &amp; Management Faculty cleared — 92% delivery</strong>
-                                <span>28 Sep, 10:30 AM</span>
-                            </div>
-                        </div>
-
-                        <div class="dash-timeline-item">
-                            <div class="dash-timeline-dot icon-purple">
-                                <i class="bi bi-file-earmark-text-fill" style="color:#7c3aed;font-size:13px;"></i>
-                            </div>
-                            <div class="dash-timeline-body">
-                                <strong>Semester Q3 2026 quality report generated and archived</strong>
-                                <span>26 Sep, 02:00 PM</span>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
+            </div><!-- /#qualityContent -->
 
         </div>
-        <!-- /dash-content -->
-
     </div>
-    <!-- /dash-main -->
-
 </div>
-<!-- /dash-shell -->
 
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function revealAndScroll(sectionId) {
+        var c = document.getElementById('qualityContent');
+        if (c) c.style.display = 'block';
+        setTimeout(function() {
+            var el = document.getElementById(sectionId);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
+    }
+</script>
 </body>
 </html>
-

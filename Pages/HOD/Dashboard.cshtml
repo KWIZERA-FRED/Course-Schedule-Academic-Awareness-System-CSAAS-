@@ -4,7 +4,6 @@
     ViewData["Title"] = "HOD Dashboard";
     Layout = null;
 }
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,117 +14,59 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/dashboard.css" />
     <style>
-        /* ── Room Grid ─────────────────────────────────── */
-        .room-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-            gap: 12px;
-        }
-        .room-card {
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 16px;
-            background: white;
-            transition: .2s ease;
-            cursor: default;
-        }
-        .room-card:hover { box-shadow: 0 6px 18px rgba(30,58,138,.08); transform: translateY(-2px); }
-        .room-card.unavailable { background: #fafafa; opacity: .7; }
-        .room-card.has-conflict { border-color: #fca5a5; background: #fff5f5; }
+        .room-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; }
+        .room-card { border:1px solid #e5e7eb; border-radius:12px; padding:14px; background:white; }
+        .room-card.unavailable { opacity:.6; background:#fafafa; }
+        .room-badge { display:inline-block; padding:3px 9px; border-radius:20px; font-size:10px; font-weight:700; margin-bottom:6px; }
+        .rb-lecture    { background:#eff6ff; color:#1C3B83; }
+        .rb-lab        { background:#f5f3ff; color:#7c3aed; }
+        .rb-computer   { background:#ecfdf5; color:#059669; }
+        .rb-seminar    { background:#fffbeb; color:#d97706; }
+        .rb-auditorium { background:#fef2f2; color:#dc2626; }
+        .rb-unavailable { background:#f3f4f6; color:#6b7280; }
+        .slot-booked { background:#fef3c7; color:#92400e; font-size:10px; padding:3px 7px; border-radius:5px; margin-bottom:3px; display:block; }
+        .slot-free   { background:#f0fdf4; color:#166534; font-size:10px; padding:3px 7px; border-radius:5px; margin-bottom:3px; display:block; }
+        .conflict-row td { border-left:3px solid #dc2626; background:#fff5f5 !important; }
 
-        .room-badge {
-            display: inline-block; padding: 3px 9px; border-radius: 20px;
-            font-size: 10px; font-weight: 700; margin-bottom: 8px;
+        .section-toggle {
+            cursor:pointer; user-select:none;
+            display:flex; align-items:center; justify-content:space-between;
+            width:100%;
         }
-        .rb-lecture    { background: #eff6ff; color: #1e3a8a; }
-        .rb-lab        { background: #f5f3ff; color: #7c3aed; }
-        .rb-computer   { background: #ecfdf5; color: #059669; }
-        .rb-seminar    { background: #fffbeb; color: #d97706; }
-        .rb-auditorium { background: #fef2f2; color: #dc2626; }
-        .rb-unavailable { background: #f3f4f6; color: #6b7280; }
+        .section-toggle:hover { opacity:.85; }
+        .toggle-icon { transition:transform .25s ease; font-size:14px; color:#9ca3af; }
+        .collapsed .toggle-icon { transform:rotate(-90deg); }
 
-        .room-slots { margin-top: 10px; }
-        .room-slot-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 5px 8px; border-radius: 6px; margin-bottom: 4px;
-            font-size: 11px;
-        }
-        .slot-free   { background: #f0fdf4; color: #166534; }
-        .slot-booked { background: #fef3c7; color: #92400e; }
+        .issue-priority-Critical { border-left:4px solid #dc2626; }
+        .issue-priority-High     { border-left:4px solid #d97706; }
+        .issue-priority-Medium   { border-left:4px solid #1C3B83; }
+        .issue-priority-Low      { border-left:4px solid #059669; }
 
-        /* ── Conflict Warning ──────────────────────────── */
-        .conflict-row { background: #fff5f5 !important; }
-        .conflict-row td { border-left: 3px solid #dc2626; }
-
-        /* ── Modal overlay ─────────────────────────────── */
-        .hod-modal-overlay {
-            display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,.45); z-index: 3000;
-            align-items: center; justify-content: center;
-        }
-        .hod-modal-overlay.open { display: flex; }
-        .hod-modal {
-            background: white; border-radius: 14px; padding: 28px;
-            width: 100%; max-width: 560px; margin: 20px;
-            box-shadow: 0 20px 50px rgba(0,0,0,.2);
-            max-height: 90vh; overflow-y: auto;
-        }
-        .hod-modal-header {
-            display: flex; justify-content: space-between;
-            align-items: center; margin-bottom: 20px;
-        }
-        .hod-modal-header h5 { margin: 0; font-size: 16px; font-weight: 700; color: #0f1a3a; }
-        .hod-close {
-            background: none; border: none; font-size: 18px;
-            color: #9ca3af; cursor: pointer; line-height: 1;
-        }
-        .hod-close:hover { color: #374151; }
-        .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .form-field { margin-bottom: 14px; }
-        .form-field label {
-            display: block; font-size: 12px; font-weight: 600;
-            color: #374151; margin-bottom: 5px;
-        }
-        .form-field input,
-        .form-field select,
-        .form-field textarea {
-            width: 100%; padding: 9px 12px;
-            border: 1px solid #d1d5db; border-radius: 7px;
-            font-size: 13px; outline: none;
-            transition: border-color .15s ease;
-        }
-        .form-field input:focus,
-        .form-field select:focus,
-        .form-field textarea:focus { border-color: #1e3a8a; }
-        .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
-
-        /* ── Reject modal ──────────────────────────────── */
-        #rejectModal .hod-modal { max-width: 420px; }
-
-        /* ── Assign room modal ─────────────────────────── */
-        #assignRoomModal .hod-modal { max-width: 480px; }
-        .assign-room-item {
-            display: flex; align-items: center; gap: 12px;
-            padding: 12px; border: 1px solid #e5e7eb;
-            border-radius: 8px; margin-bottom: 8px; cursor: pointer;
-            transition: .15s ease;
-        }
-        .assign-room-item:hover { border-color: #1e3a8a; background: #f0f6ff; }
-        .assign-room-item.conflict-room { opacity: .5; cursor: not-allowed; }
-        .assign-room-item.conflict-room:hover { border-color: #e5e7eb; background: white; }
+        .hod-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:3000; align-items:center; justify-content:center; }
+        .hod-modal-overlay.open { display:flex; }
+        .hod-modal { background:white; border-radius:14px; padding:28px; width:100%; max-width:560px; margin:20px; box-shadow:0 20px 50px rgba(0,0,0,.2); max-height:90vh; overflow-y:auto; }
+        .hod-modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+        .hod-modal-header h5 { margin:0; font-size:16px; font-weight:700; color:#0D1E47; }
+        .hod-close { background:none; border:none; font-size:18px; color:#9ca3af; cursor:pointer; }
+        .form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .form-field { margin-bottom:14px; }
+        .form-field label { display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:5px; }
+        .form-field input, .form-field select, .form-field textarea { width:100%; padding:9px 12px; border:1px solid #d1d5db; border-radius:7px; font-size:13px; outline:none; }
+        .form-actions { display:flex; gap:10px; justify-content:flex-end; }
+        .assign-room-item { display:flex; align-items:center; gap:12px; padding:12px; border:1px solid #e5e7eb; border-radius:8px; margin-bottom:8px; cursor:pointer; transition:.15s; }
+        .assign-room-item:hover { border-color:#1C3B83; background:#f0f6ff; }
+        .assign-room-item.conflict-room { opacity:.5; cursor:not-allowed; }
+        .assign-room-item.conflict-room:hover { border-color:#e5e7eb; background:white; }
     </style>
 </head>
 <body>
-
 <div class="dash-shell">
 
-    <!-- =============================================
-         SIDEBAR
-    ============================================== -->
     <aside class="dash-sidebar">
-
         <a href="/" class="dash-sidebar-brand">
-            <div class="dash-sidebar-brand-icon" style="background:transparent;box-shadow:none;padding:2px;"><img src="/images/logo.jpeg" alt="UNILAK" style="width:34px;height:34px;border-radius:50%;object-fit:cover;" /></div>
+            <div class="dash-sidebar-brand-icon" style="background:transparent;box-shadow:none;padding:2px;">
+                <img src="/images/logo.jpeg" alt="UNILAK" style="width:34px;height:34px;border-radius:50%;object-fit:cover;" />
+            </div>
             <div class="dash-sidebar-brand-text">
                 <strong>CSAS</strong>
                 <span>HOD Portal</span>
@@ -133,942 +74,703 @@
         </a>
 
         <div class="dash-sidebar-section">Main Menu</div>
-
         <nav class="dash-sidebar-nav">
-            <a href="/" class="dash-nav-link">
-                <i class="bi bi-house-fill"></i> Home
+            <a href="/" class="dash-nav-link"><i class="bi bi-house-fill"></i> Home</a>
+            <a href="/HOD/Dashboard" class="dash-nav-link active"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="#section-issues" class="dash-nav-link" onclick="revealAndScroll('section-issues')">
+                <i class="bi bi-bug-fill" style="color:#dc2626;"></i> Platform Issues
+                @if (Model.OpenIssues > 0)
+                {
+                    <span style="margin-left:auto;background:#dc2626;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;">@Model.OpenIssues</span>
+                }
             </a>
-            <a href="/HOD/Dashboard" class="dash-nav-link active">
-                <i class="bi bi-speedometer2"></i> Dashboard
-            </a>
-            <a href="#section-courses" class="dash-nav-link">
-                <i class="bi bi-journal-bookmark-fill"></i> Courses
-            </a>
-            <a href="#section-approvals" class="dash-nav-link">
+            <a href="#section-approvals" class="dash-nav-link" onclick="revealAndScroll('section-approvals')">
                 <i class="bi bi-check2-square"></i> Approve Sessions
                 @if (Model.PendingApprovals > 0)
                 {
-                    <span style="margin-left:auto;background:#dc2626;color:white;
-                                 font-size:10px;font-weight:700;padding:1px 7px;
-                                 border-radius:20px;">@Model.PendingApprovals</span>
+                    <span style="margin-left:auto;background:#dc2626;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;">@Model.PendingApprovals</span>
                 }
             </a>
-            <a href="#section-rooms" class="dash-nav-link">
-                <i class="bi bi-door-open-fill"></i> Room Arrangement
-            </a>
-            <a href="#section-lecturers" class="dash-nav-link">
-                <i class="bi bi-people-fill"></i> Lecturers
-            </a>
-            <a href="/HOD/Chat" class="dash-nav-link">
-                <i class="bi bi-chat-dots-fill"></i> Messages to CPs
-                @{
-                    var unreadCount = CourseScheduleSystem.Web.Data.ChatData.UnreadCount(
-                        Model.CurrentUser.Email, "HOD");
-                }
-                @if (unreadCount > 0)
-                {
-                    <span style="margin-left:auto;background:#dc2626;color:white;
-                                 font-size:10px;font-weight:700;padding:1px 7px;
-                                 border-radius:20px;">@unreadCount</span>
-                }
-            </a>
-            <a href="#" class="dash-nav-link">
-                <i class="bi bi-bell"></i> Notifications
+            <a href="#section-courses" class="dash-nav-link" onclick="revealAndScroll('section-courses')"><i class="bi bi-journal-bookmark-fill"></i> Courses</a>
+            <a href="#section-rooms" class="dash-nav-link" onclick="revealAndScroll('section-rooms')"><i class="bi bi-door-open-fill"></i> Room Arrangement</a>
+            <a href="#section-lecturers" class="dash-nav-link" onclick="revealAndScroll('section-lecturers')"><i class="bi bi-people-fill"></i> Lecturers</a>
+            <a href="/HOD/Chat" class="dash-nav-link"><i class="bi bi-chat-dots-fill"></i> Messages to CPs</a>
+        </nav>
+
+        <div class="dash-sidebar-section">Support</div>
+        <nav class="dash-sidebar-nav">
+            <a href="https://umurongosmart.com/" target="_blank" class="dash-nav-link">
+                <i class="bi bi-headset"></i> UmurongoSmart
             </a>
         </nav>
 
         <div class="dash-sidebar-section">Account</div>
-
         <nav class="dash-sidebar-nav">
-            <a href="#" class="dash-nav-link">
-                <i class="bi bi-person"></i> My Profile
-            </a>
-            <a href="/Logout" class="dash-nav-link">
-                <i class="bi bi-box-arrow-left"></i> Logout
-            </a>
+            <a href="/HOD/Dashboard" class="dash-nav-link"><i class="bi bi-person"></i> My Profile</a>
+            <a href="/Logout" class="dash-nav-link"><i class="bi bi-box-arrow-left"></i> Logout</a>
         </nav>
 
         <div class="dash-sidebar-footer">
             <div class="dash-sidebar-user">
-                <div class="dash-user-avatar">
-                    <i class="bi bi-building"></i>
-                </div>
+                <div class="dash-user-avatar"><i class="bi bi-building"></i></div>
                 <div class="dash-user-info">
                     <strong>@Model.CurrentUser.FullName</strong>
                     <span>HOD · @Model.CurrentUser.Department</span>
                 </div>
             </div>
         </div>
-
     </aside>
 
-
-    <!-- =============================================
-         MAIN CONTENT
-    ============================================== -->
     <div class="dash-main">
-
-        <!-- TOP BAR -->
         <div class="dash-topbar">
             <div class="dash-topbar-title">
-                <h1>Head of Department Dashboard</h1>
-                <p>@Model.CurrentUser.Department — Academic Overview</p>
+                <h1>Head of Department</h1>
+                <p>@Model.CurrentUser.Department</p>
             </div>
             <div class="dash-topbar-actions">
                 <button class="btn-dash-primary btn-dash-sm" onclick="openModal('addCourseModal')">
                     <i class="bi bi-plus-lg"></i> Add Course
                 </button>
-                <a href="#" class="dash-icon-btn" title="Notifications">
-                    <i class="bi bi-bell"></i>
-                </a>
-                <div class="dash-topbar-avatar">
-                    <i class="bi bi-building"></i>
-                </div>
+                <a href="/HOD/Chat" class="dash-icon-btn" title="Messages"><i class="bi bi-chat-dots-fill"></i></a>
             </div>
         </div>
 
-        <!-- CONTENT -->
         <div class="dash-content">
 
-            <!-- STATUS MESSAGE (after POST) -->
             @if (TempData["StatusMessage"] != null)
             {
-                var type = TempData["StatusType"]?.ToString() ?? "info";
-                var alertClass = type == "success" ? "dash-alert-success"
-                               : type == "danger"  ? "dash-alert-danger"
-                               : type == "warning" ? "dash-alert-warning"
-                               : "dash-alert-info";
-                var icon = type == "success" ? "bi-check-circle-fill"
-                         : type == "danger"  ? "bi-x-circle-fill"
-                         : type == "warning" ? "bi-exclamation-triangle-fill"
-                         : "bi-info-circle-fill";
-                <div class="dash-alert @alertClass">
-                    <i class="bi @icon"></i>
-                    <div>@TempData["StatusMessage"]</div>
-                </div>
+                var tp = TempData["StatusType"]?.ToString() ?? "info";
+                var ac = tp == "success" ? "dash-alert-success" : tp == "danger" ? "dash-alert-danger" : tp == "warning" ? "dash-alert-warning" : "dash-alert-info";
+                var ic = tp == "success" ? "bi-check-circle-fill" : tp == "danger" ? "bi-x-circle-fill" : "bi-exclamation-triangle-fill";
+                <div class="dash-alert @ac"><i class="bi @ic"></i><div>@TempData["StatusMessage"]</div></div>
             }
 
-            <!-- PENDING APPROVAL ALERT -->
-            @if (Model.PendingApprovals > 0)
+            @if (Model.PendingApprovals > 0 || Model.OpenIssues > 0)
             {
-                <div class="dash-alert dash-alert-info">
-                    <i class="bi bi-info-circle-fill"></i>
+                <div class="dash-alert @(Model.OpenIssues > 0 ? "dash-alert-danger" : "dash-alert-info")">
+                    <i class="bi @(Model.OpenIssues > 0 ? "bi-bug-fill" : "bi-info-circle-fill")"></i>
                     <div>
-                        <strong>Approval Required:</strong>
-                        <strong>@Model.PendingApprovals session @(Model.PendingApprovals == 1 ? "report" : "reports")</strong>
-                        signed off by Class Representatives — awaiting your approval.
-                        <a href="#section-approvals" style="color:#1e3a8a;font-weight:700;margin-left:8px;">
-                            Review now →
-                        </a>
+                        @if (Model.OpenIssues > 0)
+                        {
+                            <strong>@Model.OpenIssues open platform issue@(Model.OpenIssues != 1 ? "s" : "")</strong><text> from UmurongoSmart require your attention.</text>
+                            <a href="#section-issues" onclick="revealAndScroll('section-issues')" style="font-weight:700;margin-left:8px;">View issues &rarr;</a>
+                        }
+                        @if (Model.PendingApprovals > 0)
+                        {
+                            <span style="margin-left:@(Model.OpenIssues > 0 ? "16px" : "0");"><strong>@Model.PendingApprovals session@(Model.PendingApprovals != 1 ? "s" : "")</strong> awaiting your approval.</span>
+                            <a href="#section-approvals" onclick="revealAndScroll('section-approvals')" style="font-weight:700;margin-left:8px;">Review &rarr;</a>
+                        }
                     </div>
                 </div>
             }
 
-            <!-- STAT CARDS -->
-            <div class="dash-stats dash-stats-4">
-
-                <div class="dash-stat-card">
-                    <div class="dash-stat-icon icon-blue">
-                        <i class="bi bi-journal-bookmark-fill"></i>
+            <div style="background:linear-gradient(135deg,#0D1E47 0%,#1C3B83 60%,#2952C8 100%);border-radius:16px;padding:32px 36px;margin-bottom:24px;position:relative;overflow:hidden;">
+                <div style="position:absolute;top:-50px;right:-50px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,0.04);"></div>
+                <div style="position:absolute;bottom:-70px;right:60px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,0.03);"></div>
+                <div style="position:relative;z-index:1;">
+                    <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.12);color:#93c5fd;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:14px;">
+                        <i class="bi bi-building"></i> Head of Department
                     </div>
-                    <div class="dash-stat-body">
-                        <strong>@Model.TotalCourses</strong>
-                        <span>Courses in Department</span>
-                    </div>
-                </div>
-
-                <div class="dash-stat-card">
-                    <div class="dash-stat-icon icon-teal">
-                        <i class="bi bi-people-fill"></i>
-                    </div>
-                    <div class="dash-stat-body">
-                        <strong>@Model.TotalLecturers</strong>
-                        <span>Active Lecturers</span>
-                    </div>
-                </div>
-
-                <div class="dash-stat-card">
-                    <div class="dash-stat-icon icon-amber">
-                        <i class="bi bi-check2-square"></i>
-                    </div>
-                    <div class="dash-stat-body">
-                        <strong>@Model.PendingApprovals</strong>
-                        <span>Sessions to Approve</span>
-                    </div>
-                </div>
-
-                <div class="dash-stat-card">
-                    <div class="dash-stat-icon @(Model.DeptDeliveryRate >= 80 ? "icon-green" : "icon-amber")">
-                        <i class="bi bi-bar-chart-fill"></i>
-                    </div>
-                    <div class="dash-stat-body">
-                        <strong>@Model.DeptDeliveryRate%</strong>
-                        <span>Dept. Delivery Rate</span>
-                    </div>
-                </div>
-
-            </div>
-
-
-            <!-- =============================================
-                 COURSES TABLE
-            ============================================== -->
-            <div class="dash-card" id="section-courses">
-                <div class="dash-card-header">
-                    <div>
-                        <h5>Department Courses</h5>
-                        <p>All courses — click a room to reassign</p>
-                    </div>
-                    <div style="display:flex;gap:8px;">
-                        <a href="#" class="btn-dash-outline btn-dash-sm">
-                            <i class="bi bi-download"></i> Export
-                        </a>
-                        <button class="btn-dash-primary btn-dash-sm" onclick="openModal('addCourseModal')">
+                    <h2 style="color:white;font-size:26px;font-weight:800;margin:0 0 4px;">Welcome, @Model.CurrentUser.FullName</h2>
+                    <p style="color:rgba(255,255,255,0.6);font-size:13px;margin:0 0 20px;">
+                        @Model.CurrentUser.Department &nbsp;&middot;&nbsp;
+                        @Model.TotalCourses course@(Model.TotalCourses != 1 ? "s" : "") &nbsp;&middot;&nbsp;
+                        @Model.TotalLecturers lecturer@(Model.TotalLecturers != 1 ? "s" : "")
+                        @if (Model.PendingApprovals > 0) { <text>&nbsp;&middot;&nbsp; <span style="color:#fca5a5;">@Model.PendingApprovals pending approval@(Model.PendingApprovals != 1 ? "s" : "")</span></text> }
+                    </p>
+                    <div style="display:flex;flex-wrap:wrap;gap:10px;">
+                        <button type="button" onclick="openModal('addCourseModal')" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:white;color:#1C3B83;">
                             <i class="bi bi-plus-lg"></i> Add Course
                         </button>
+                        <button type="button" onclick="revealAndScroll('section-approvals')" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);">
+                            <i class="bi bi-check2-square"></i> Approve Sessions
+                            @if (Model.PendingApprovals > 0) { <span style="background:#dc2626;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;">@Model.PendingApprovals</span> }
+                        </button>
+                        <button type="button" onclick="revealAndScroll('section-issues')" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);">
+                            <i class="bi bi-bug-fill"></i> Platform Issues
+                            @if (Model.OpenIssues > 0) { <span style="background:#dc2626;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;">@Model.OpenIssues</span> }
+                        </button>
+                        <button type="button" onclick="revealAndScroll('section-courses')" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);">
+                            <i class="bi bi-journal-bookmark-fill"></i> Courses
+                        </button>
+                        <button type="button" onclick="revealAndScroll('section-rooms')" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);">
+                            <i class="bi bi-door-open-fill"></i> Room Arrangement
+                        </button>
+                        <button type="button" onclick="revealAndScroll('section-lecturers')" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);">
+                            <i class="bi bi-people-fill"></i> Lecturers
+                        </button>
+                        <a href="/HOD/Chat" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);text-decoration:none;">
+                            <i class="bi bi-chat-dots-fill"></i> Message CPs
+                        </a>
                     </div>
-                </div>
-                <div class="dash-card-body" style="padding:0;">
-                    <table class="dash-table">
-                        <thead>
-                            <tr>
-                                <th>Course</th>
-                                <th>Lecturer</th>
-                                <th>Schedule</th>
-                                <th>Venue</th>
-                                <th>Progress</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var c in Model.Courses)
-                            {
-                                var pct = c.ScheduledHours > 0
-                                    ? (double)c.DeliveredHours / c.ScheduledHours * 100
-                                    : 0;
-                                var barColor = pct >= 90 ? "#059669"
-                                             : pct >= 70 ? "#1e3a8a"
-                                             : pct >= 50 ? "#d97706"
-                                             : "#dc2626";
-                                var statusBadge = pct >= 100 ? ("badge-approved", "bi-patch-check-fill", "Complete")
-                                               : pct >= 70  ? ("badge-verified", "bi-check-circle-fill", "On Track")
-                                               : pct >= 50  ? ("badge-pending", "bi-clock-history", "In Progress")
-                                               : ("badge-missed", "bi-exclamation-circle-fill", "Behind");
-
-                                // Detect room conflict
-                                var conflict = Model.Courses.Any(other =>
-                                    other.Id != c.Id &&
-                                    !string.IsNullOrEmpty(c.Venue) &&
-                                    !string.IsNullOrEmpty(c.ScheduleTime) &&
-                                    other.Venue == c.Venue &&
-                                    other.ScheduleTime == c.ScheduleTime);
-
-                                <tr class="@(conflict ? "conflict-row" : "")">
-                                    <td>
-                                        <strong style="display:block;font-size:13px;">@c.Code</strong>
-                                        <span style="font-size:11px;color:#9ca3af;">@c.Title</span>
-                                    </td>
-                                    <td style="font-size:12px;">@c.Lecturer</td>
-                                    <td style="font-size:12px;">@c.ScheduleTime</td>
-                                    <td>
-                                        <button onclick="openAssignRoom(@c.Id, '@c.Code', '@c.ScheduleTime')"
-                                                style="background:none;border:none;cursor:pointer;
-                                                       font-size:12px;color:#1e3a8a;font-weight:600;
-                                                       text-decoration:underline;padding:0;">
-                                            @(string.IsNullOrEmpty(c.Venue) ? "— Assign Room" : c.Venue)
-                                        </button>
-                                        @if (conflict)
-                                        {
-                                            <span style="display:block;font-size:10px;color:#dc2626;
-                                                         font-weight:600;margin-top:2px;">
-                                                <i class="bi bi-exclamation-triangle-fill"></i> Conflict!
-                                            </span>
-                                        }
-                                    </td>
-                                    <td style="min-width:110px;">
-                                        <div style="display:flex;align-items:center;gap:6px;">
-                                            <div style="flex:1;height:5px;background:#f1f5f9;
-                                                        border-radius:5px;overflow:hidden;">
-                                                <div style="width:@(pct.ToString("F0"))%;height:100%;
-                                                            background:@barColor;border-radius:5px;"></div>
-                                            </div>
-                                            <span style="font-size:10px;font-weight:700;color:@barColor;
-                                                         white-space:nowrap;">
-                                                @c.DeliveredHours/@c.ScheduledHours h
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge-status @statusBadge.Item1">
-                                            <i class="bi @statusBadge.Item2"></i>
-                                            @statusBadge.Item3
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div style="display:flex;gap:5px;">
-                                            <button class="btn-dash-icon" title="View details">
-                                                <i class="bi bi-eye"></i>
-                                            </button>
-                                            <button class="btn-dash-icon" title="Edit course">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
                 </div>
             </div>
 
+            <div id="hodContent" style="display:none;">
 
-            <!-- =============================================
-                 SESSIONS AWAITING HOD APPROVAL
-            ============================================== -->
+            <div class="dash-stats dash-stats-4" style="margin-bottom:24px;">
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon icon-blue"><i class="bi bi-journal-bookmark-fill"></i></div>
+                    <div class="dash-stat-body"><strong>@Model.TotalCourses</strong><span>Courses</span></div>
+                </div>
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon icon-teal"><i class="bi bi-people-fill"></i></div>
+                    <div class="dash-stat-body"><strong>@Model.TotalLecturers</strong><span>Lecturers</span></div>
+                </div>
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon icon-amber"><i class="bi bi-check2-square"></i></div>
+                    <div class="dash-stat-body"><strong>@Model.PendingApprovals</strong><span>Pending Approvals</span></div>
+                </div>
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon @(Model.OpenIssues > 0 ? "icon-red" : "icon-green")">
+                        <i class="bi @(Model.OpenIssues > 0 ? "bi-bug-fill" : "bi-check-circle-fill")"></i>
+                    </div>
+                    <div class="dash-stat-body">
+                        <strong>@Model.OpenIssues</strong><span>Open Issues</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dash-card" id="section-issues">
+                <div class="dash-card-header section-toggle" onclick="toggleSection('issues-body','issues-icon')">
+                    <div>
+                        <h5>
+                            <i class="bi bi-bug-fill" style="color:#dc2626;margin-right:8px;"></i>
+                            UmurongoSmart Platform Issues
+                        </h5>
+                        <p>Issues reported via <a href="https://umurongosmart.com/" target="_blank" style="color:#1C3B83;">umurongosmart.com</a> — review, update and escalate to Dean if needed</p>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span class="badge-status @(Model.OpenIssues > 0 ? "badge-missed" : "badge-approved")">
+                            @Model.OpenIssues open
+                        </span>
+                        <i class="bi bi-chevron-down toggle-icon" id="issues-icon"></i>
+                    </div>
+                </div>
+                <div id="issues-body">
+                    @if (!Model.Issues.Any())
+                    {
+                        <div class="dash-empty"><i class="bi bi-check2-circle"></i><p>No issues reported. Everything is running smoothly.</p></div>
+                    }
+                    else
+                    {
+                        <div class="dash-card-body" style="padding:0;">
+                            <table class="dash-table">
+                                <thead>
+                                    <tr>
+                                        <th>Issue</th>
+                                        <th>Category</th>
+                                        <th>Priority</th>
+                                        <th>Reported By</th>
+                                        <th>Reported</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var issue in Model.Issues)
+                                    {
+                                        var priorityColor = issue.Priority switch {
+                                            IssuePriority.Critical => "#dc2626",
+                                            IssuePriority.High     => "#d97706",
+                                            IssuePriority.Medium   => "#1C3B83",
+                                            _                      => "#059669"
+                                        };
+                                        var statusBadge = issue.Status switch {
+                                            IssueStatus.Resolved   => "badge-approved",
+                                            IssueStatus.InProgress => "badge-pending",
+                                            IssueStatus.Escalated  => "badge-missed",
+                                            _                      => "badge-inactive"
+                                        };
+                                        <tr class="issue-priority-@issue.Priority">
+                                            <td style="max-width:200px;">
+                                                <strong style="display:block;font-size:13px;">@issue.Title</strong>
+                                                <span style="font-size:11px;color:#6b7280;display:block;margin-top:2px;">
+                                                    @(issue.Description.Length > 80 ? issue.Description.Substring(0,80) + "…" : issue.Description)
+                                                </span>
+                                                @if (!string.IsNullOrEmpty(issue.HODNotes))
+                                                {
+                                                    <span style="font-size:10px;color:#9ca3af;font-style:italic;">Note: @issue.HODNotes</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span style="background:#eff6ff;color:#1C3B83;padding:3px 8px;border-radius:10px;font-size:10px;font-weight:600;">@issue.Category</span>
+                                            </td>
+                                            <td>
+                                                <span style="color:@priorityColor;font-size:12px;font-weight:700;">
+                                                    <i class="bi bi-circle-fill" style="font-size:8px;margin-right:4px;"></i>@issue.Priority
+                                                </span>
+                                            </td>
+                                            <td style="font-size:11px;color:#6b7280;max-width:120px;">@issue.ReportedBy</td>
+                                            <td style="font-size:11px;color:#9ca3af;white-space:nowrap;">
+                                                @{
+                                                    var ago = (DateTime.Now - issue.ReportedOn) switch {
+                                                        var t when t.TotalMinutes < 60 => $"{(int)t.TotalMinutes}m ago",
+                                                        var t when t.TotalHours   < 24 => $"{(int)t.TotalHours}h ago",
+                                                        _ => issue.ReportedOn.ToString("dd MMM")
+                                                    };
+                                                }
+                                                @ago
+                                            </td>
+                                            <td><span class="badge-status @statusBadge">@issue.Status</span></td>
+                                            <td>
+                                                @if (issue.Status != IssueStatus.Resolved)
+                                                {
+                                                    <button class="btn-dash-primary btn-dash-sm"
+                                                            onclick="openIssueModal(@issue.Id,'@issue.Title.Replace("'","\\'")')">
+                                                        <i class="bi bi-pencil-square"></i> Update
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <span style="font-size:11px;color:#059669;font-weight:600;">
+                                                        <i class="bi bi-check-circle-fill"></i>
+                                                        @(issue.ResolvedOn.HasValue ? issue.ResolvedOn.Value.ToString("dd MMM") : "Resolved")
+                                                    </span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+
             <div class="dash-card" id="section-approvals">
-                <div class="dash-card-header">
+                <div class="dash-card-header section-toggle" onclick="toggleSection('approvals-body','approvals-icon')">
                     <div>
                         <h5>Sessions Awaiting HOD Approval</h5>
                         <p>Signed off by Class Representatives — approve to forward to the Dean</p>
                     </div>
-                    @if (Model.PendingApprovals == 0)
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        @if (Model.PendingApprovals == 0)
+                        {
+                            <span class="badge-status badge-approved"><i class="bi bi-check-circle-fill"></i> All clear</span>
+                        }
+                        else
+                        {
+                            <span class="badge-status badge-pending">@Model.PendingApprovals pending</span>
+                        }
+                        <i class="bi bi-chevron-down toggle-icon" id="approvals-icon"></i>
+                    </div>
+                </div>
+                <div id="approvals-body">
+                    @if (!Model.AwaitingApproval.Any())
                     {
-                        <span class="badge-status badge-approved">
-                            <i class="bi bi-check-circle-fill"></i> All clear
-                        </span>
+                        <div class="dash-empty"><i class="bi bi-check2-circle"></i><p>No sessions waiting for approval.</p></div>
+                    }
+                    else
+                    {
+                        <div class="dash-card-body" style="padding:0;">
+                            <table class="dash-table">
+                                <thead>
+                                    <tr><th>Date</th><th>Course</th><th>Lecturer</th><th>Topic</th><th>CP Sign-Off</th><th>Hrs</th><th>Action</th></tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var r in Model.AwaitingApproval)
+                                    {
+                                        <tr>
+                                            <td style="font-size:12px;">@r.SessionDate.ToString("ddd dd MMM")</td>
+                                            <td>
+                                                <strong style="display:block;font-size:13px;">@r.CourseCode</strong>
+                                                <span style="font-size:11px;color:#9ca3af;">@r.CourseTitle</span>
+                                            </td>
+                                            <td style="font-size:12px;">@r.LecturerName</td>
+                                            <td style="font-size:12px;max-width:140px;">@(string.IsNullOrEmpty(r.TopicCovered) ? "—" : r.TopicCovered)</td>
+                                            <td><span class="badge-status badge-verified"><i class="bi bi-check-circle-fill"></i> @r.ClassRepresentativeName</span></td>
+                                            <td style="font-size:12px;">@r.DurationHours h</td>
+                                            <td>
+                                                <div style="display:flex;gap:6px;">
+                                                    <form method="post" asp-page-handler="ApproveSession" style="display:inline;">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="reportId" value="@r.Id" />
+                                                        <button type="submit" class="btn-dash-primary btn-dash-sm">
+                                                            <i class="bi bi-check-lg"></i> Approve
+                                                        </button>
+                                                    </form>
+                                                    <button class="btn-dash-outline btn-dash-sm"
+                                                            style="color:#dc2626;border-color:#fecaca;"
+                                                            onclick="openRejectModal(@r.Id,'@r.CourseCode','@r.SessionDate.ToString("dd MMM")')">
+                                                        <i class="bi bi-x-lg"></i> Reject
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     }
                 </div>
+            </div>
 
-                @if (!Model.AwaitingApproval.Any())
-                {
-                    <div class="dash-empty">
-                        <i class="bi bi-check2-circle"></i>
-                        <p>No sessions waiting for approval. All up to date.</p>
+            <div class="dash-card" id="section-courses">
+                <div class="dash-card-header section-toggle" onclick="toggleSection('courses-body','courses-icon')">
+                    <div>
+                        <h5>Department Courses</h5>
+                        <p>@Model.TotalCourses courses — click a venue to reassign room</p>
                     </div>
-                }
-                else
-                {
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <button class="btn-dash-primary btn-dash-sm" onclick="event.stopPropagation();openModal('addCourseModal')">
+                            <i class="bi bi-plus-lg"></i> Add Course
+                        </button>
+                        <i class="bi bi-chevron-down toggle-icon" id="courses-icon"></i>
+                    </div>
+                </div>
+                <div id="courses-body" style="display:none;">
                     <div class="dash-card-body" style="padding:0;">
                         <table class="dash-table">
                             <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Course</th>
-                                    <th>Lecturer</th>
-                                    <th>Topic Covered</th>
-                                    <th>CP Sign-Off</th>
-                                    <th>Duration</th>
-                                    <th>Action</th>
-                                </tr>
+                                <tr><th>Course</th><th>Lecturer</th><th>Schedule</th><th>Venue</th><th>Progress</th><th>Status</th></tr>
                             </thead>
                             <tbody>
-                                @foreach (var r in Model.AwaitingApproval)
+                                @foreach (var c in Model.Courses)
                                 {
-                                    <tr>
-                                        <td style="font-size:12px;">
-                                            @r.SessionDate.ToString("ddd dd MMM")
-                                        </td>
+                                    var pct = c.ScheduledHours > 0 ? (int)Math.Round((double)c.DeliveredHours / c.ScheduledHours * 100) : 0;
+                                    var barColor = pct >= 90 ? "#059669" : pct >= 70 ? "#1C3B83" : pct >= 50 ? "#d97706" : "#dc2626";
+                                    var statusBadge = pct >= 100 ? ("badge-approved","bi-patch-check-fill","Complete") : pct >= 70 ? ("badge-verified","bi-check-circle-fill","On Track") : pct >= 50 ? ("badge-pending","bi-clock-history","In Progress") : ("badge-missed","bi-exclamation-circle-fill","Behind");
+                                    var conflict = Model.Courses.Any(o => o.Id != c.Id && !string.IsNullOrEmpty(c.Venue) && !string.IsNullOrEmpty(c.ScheduleTime) && o.Venue == c.Venue && o.ScheduleTime == c.ScheduleTime);
+                                    <tr class="@(conflict ? "conflict-row" : "")">
                                         <td>
-                                            <strong style="display:block;font-size:13px;">@r.CourseCode</strong>
-                                            <span style="font-size:11px;color:#9ca3af;">@r.CourseTitle</span>
+                                            <strong style="display:block;font-size:13px;">@c.Code</strong>
+                                            <span style="font-size:11px;color:#9ca3af;">@c.Title</span>
                                         </td>
-                                        <td style="font-size:12px;">@r.LecturerName</td>
-                                        <td style="font-size:12px;max-width:150px;">
-                                            @(string.IsNullOrEmpty(r.TopicCovered) ? "—" : r.TopicCovered)
-                                        </td>
+                                        <td style="font-size:12px;">@c.Lecturer</td>
+                                        <td style="font-size:12px;">@c.ScheduleTime</td>
                                         <td>
-                                            <span class="badge-status badge-verified">
-                                                <i class="bi bi-check-circle-fill"></i>
-                                                @r.ClassRepresentativeName
-                                            </span>
+                                            <button onclick="openAssignRoom(@c.Id,'@c.Code','@c.ScheduleTime')"
+                                                    style="background:none;border:none;cursor:pointer;font-size:12px;color:#1C3B83;font-weight:600;text-decoration:underline;padding:0;">
+                                                @(string.IsNullOrEmpty(c.Venue) ? "— Assign Room" : c.Venue)
+                                            </button>
+                                            @if (conflict)
+                                            {
+                                                <span style="display:block;font-size:10px;color:#dc2626;font-weight:600;"><i class="bi bi-exclamation-triangle-fill"></i> Conflict!</span>
+                                            }
                                         </td>
-                                        <td style="font-size:12px;">@r.DurationHours hrs</td>
-                                        <td>
-                                            <div style="display:flex;gap:6px;flex-wrap:wrap;">
-
-                                                <!-- APPROVE form -->
-                                                <form method="post"
-                                                      asp-page-handler="ApproveSession"
-                                                      style="display:inline;">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="reportId" value="@r.Id" />
-                                                    <button type="submit" class="btn-dash-primary btn-dash-sm">
-                                                        <i class="bi bi-check-lg"></i> Approve
-                                                    </button>
-                                                </form>
-
-                                                <!-- REJECT — opens modal -->
-                                                <button class="btn-dash-outline btn-dash-sm"
-                                                        style="color:#dc2626;border-color:#fecaca;"
-                                                        onclick="openRejectModal(@r.Id, '@r.CourseCode', '@r.SessionDate.ToString("dd MMM")')">
-                                                    <i class="bi bi-x-lg"></i> Reject
-                                                </button>
-
+                                        <td style="min-width:100px;">
+                                            <div style="display:flex;align-items:center;gap:6px;">
+                                                <div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
+                                                    <div style="width:@pct%;height:100%;background:@barColor;border-radius:5px;"></div>
+                                                </div>
+                                                <span style="font-size:10px;font-weight:700;color:@barColor;">@c.DeliveredHours/@c.ScheduledHours h</span>
                                             </div>
                                         </td>
+                                        <td><span class="badge-status @statusBadge.Item1"><i class="bi @statusBadge.Item2"></i> @statusBadge.Item3</span></td>
                                     </tr>
                                 }
                             </tbody>
                         </table>
                     </div>
-                }
+                </div>
             </div>
 
-
-            <!-- =============================================
-                 ROOM ARRANGEMENT
-            ============================================== -->
             <div class="dash-card" id="section-rooms">
-                <div class="dash-card-header">
+                <div class="dash-card-header section-toggle" onclick="toggleSection('rooms-body','rooms-icon')">
                     <div>
                         <h5>Room Arrangement</h5>
-                        <p>Campus venues — booked slots, capacity and availability at a glance</p>
+                        <p>Campus venues — booked slots and availability</p>
                     </div>
-                    <div style="display:flex;gap:8px;align-items:center;">
-                        <span style="font-size:11px;display:flex;align-items:center;gap:4px;">
-                            <span style="width:10px;height:10px;border-radius:50%;background:#ecfdf5;border:1px solid #059669;display:inline-block;"></span> Free
-                        </span>
-                        <span style="font-size:11px;display:flex;align-items:center;gap:4px;">
-                            <span style="width:10px;height:10px;border-radius:50%;background:#fef3c7;border:1px solid #d97706;display:inline-block;"></span> Booked
-                        </span>
-                        <span style="font-size:11px;display:flex;align-items:center;gap:4px;">
-                            <span style="width:10px;height:10px;border-radius:50%;background:#f3f4f6;border:1px solid #9ca3af;display:inline-block;"></span> Unavailable
-                        </span>
-                    </div>
+                    <i class="bi bi-chevron-down toggle-icon" id="rooms-icon"></i>
                 </div>
-                <div class="dash-card-body">
-
-                    @foreach (var block in Model.Rooms.GroupBy(r => r.Block).OrderBy(g => g.Key))
-                    {
-                        <div style="margin-bottom:24px;">
-                            <div style="font-size:11px;font-weight:700;color:#1e3a8a;
-                                        text-transform:uppercase;letter-spacing:.08em;
-                                        margin-bottom:12px;padding-bottom:6px;
-                                        border-bottom:1px solid #e5e7eb;">
-                                <i class="bi bi-building-fill" style="margin-right:6px;"></i>
-                                @block.Key
-                            </div>
-
-                            <div class="room-grid">
-                                @foreach (var room in block.OrderBy(r => r.Number))
-                                {
-                                    var typeClass = room.Type switch {
-                                        CourseScheduleSystem.Web.Models.RoomType.Laboratory   => "rb-lab",
-                                        CourseScheduleSystem.Web.Models.RoomType.ComputerLab  => "rb-computer",
-                                        CourseScheduleSystem.Web.Models.RoomType.Seminar      => "rb-seminar",
-                                        CourseScheduleSystem.Web.Models.RoomType.Auditorium   => "rb-auditorium",
-                                        _                                                      => "rb-lecture"
-                                    };
-                                    var cardClass = !room.IsAvailable ? "unavailable" : "";
-
-                                    <div class="room-card @cardClass">
-
-                                        <!-- Header row -->
-                                        <div style="display:flex;justify-content:space-between;
-                                                    align-items:flex-start;margin-bottom:4px;">
-                                            <div>
-                                                <span class="room-badge @(room.IsAvailable ? typeClass : "rb-unavailable")">
-                                                    @room.Type
-                                                </span>
-                                                <div style="font-size:14px;font-weight:700;
-                                                            color:#0f1a3a;">@room.Number</div>
+                <div id="rooms-body" style="display:none;">
+                    <div class="dash-card-body">
+                        @foreach (var block in Model.Rooms.GroupBy(r => r.Block).OrderBy(g => g.Key))
+                        {
+                            <div style="margin-bottom:20px;">
+                                <div style="font-size:11px;font-weight:700;color:#1C3B83;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid #e5e7eb;">
+                                    <i class="bi bi-building-fill" style="margin-right:6px;"></i>@block.Key
+                                </div>
+                                <div class="room-grid">
+                                    @foreach (var room in block.OrderBy(r => r.Number))
+                                    {
+                                        var tc = room.Type switch {
+                                            CourseScheduleSystem.Web.Models.RoomType.Laboratory   => "rb-lab",
+                                            CourseScheduleSystem.Web.Models.RoomType.ComputerLab  => "rb-computer",
+                                            CourseScheduleSystem.Web.Models.RoomType.Seminar      => "rb-seminar",
+                                            CourseScheduleSystem.Web.Models.RoomType.Auditorium   => "rb-auditorium",
+                                            _ => "rb-lecture"
+                                        };
+                                        <div class="room-card @(!room.IsAvailable ? "unavailable" : "")">
+                                            <span class="room-badge @(room.IsAvailable ? tc : "rb-unavailable")">@room.Type</span>
+                                            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                                                <div style="font-size:14px;font-weight:700;color:#0D1E47;">@room.Number</div>
+                                                <div style="font-size:10px;color:#6b7280;"><i class="bi bi-people-fill"></i> @room.Capacity</div>
                                             </div>
-                                            <div style="text-align:right;">
-                                                <div style="font-size:11px;color:#6b7280;">
-                                                    <i class="bi bi-people-fill"></i> @room.Capacity
+                                            @if (room.BookedSlots.Any())
+                                            {
+                                                <div style="margin-top:8px;">
+                                                    @foreach (var slot in room.BookedSlots)
+                                                    {
+                                                        <span class="slot-booked"><i class="bi bi-clock-fill" style="margin-right:3px;"></i>@slot.Key — @slot.Value</span>
+                                                    }
                                                 </div>
-                                                @if (!room.IsAvailable)
-                                                {
-                                                    <span style="font-size:9px;color:#dc2626;
-                                                                 font-weight:700;">UNAVAILABLE</span>
-                                                }
-                                                else if (room.BookedSlots.Count == 0)
-                                                {
-                                                    <span style="font-size:9px;color:#059669;
-                                                                 font-weight:700;">ALL FREE</span>
-                                                }
-                                            </div>
+                                            }
+                                            else if (room.IsAvailable)
+                                            {
+                                                <span class="slot-free" style="margin-top:8px;"><i class="bi bi-calendar-check" style="margin-right:3px;"></i>Free</span>
+                                            }
+                                            @if (!string.IsNullOrEmpty(room.Notes))
+                                            {
+                                                <div style="font-size:10px;color:#9ca3af;font-style:italic;margin-top:5px;">@room.Notes</div>
+                                            }
                                         </div>
-
-                                        <!-- Booked slots -->
-                                        @if (room.BookedSlots.Any())
-                                        {
-                                            <div class="room-slots">
-                                                @foreach (var slot in room.BookedSlots)
-                                                {
-                                                    <div class="room-slot-item slot-booked">
-                                                        <span><i class="bi bi-clock-fill" style="margin-right:4px;"></i>@slot.Key</span>
-                                                        <span style="font-weight:700;">@slot.Value</span>
-                                                    </div>
-                                                }
-                                            </div>
-                                        }
-                                        else if (room.IsAvailable)
-                                        {
-                                            <div class="room-slot-item slot-free" style="margin-top:8px;">
-                                                <span><i class="bi bi-calendar-check" style="margin-right:4px;"></i>No sessions booked</span>
-                                            </div>
-                                        }
-
-                                        <!-- Notes -->
-                                        @if (!string.IsNullOrEmpty(room.Notes))
-                                        {
-                                            <div style="margin-top:8px;font-size:10px;
-                                                        color:#9ca3af;font-style:italic;">
-                                                <i class="bi bi-info-circle"></i> @room.Notes
-                                            </div>
-                                        }
-
-                                    </div>
-                                }
+                                    }
+                                </div>
                             </div>
-                        </div>
-                    }
-
-                </div>
-            </div>
-
-
-            <!-- =============================================
-                 DELIVERY PROGRESS
-            ============================================== -->
-            <div class="dash-card">
-                <div class="dash-card-header">
-                    <div>
-                        <h5>Delivery Progress per Course</h5>
-                        <p>Hours delivered vs scheduled this semester</p>
+                        }
                     </div>
                 </div>
-                <div class="dash-card-body">
-                    @foreach (var c in Model.Courses)
-                    {
-                        var pct = c.ScheduledHours > 0
-                            ? Math.Round((double)c.DeliveredHours / c.ScheduledHours * 100, 0)
-                            : 0;
-                        var barColor = pct >= 90 ? "#059669"
-                                     : pct >= 70 ? "#1e3a8a"
-                                     : pct >= 50 ? "#d97706"
-                                     : "#dc2626";
-                        <div class="dash-progress-row">
-                            <span class="dash-progress-label">@c.Code – @c.Title</span>
-                            <div class="dash-progress-bar-wrap">
-                                <div class="dash-progress-bar-fill"
-                                     style="width:@(pct)%;background:@barColor;"></div>
-                            </div>
-                            <span class="dash-progress-pct">@pct%</span>
-                        </div>
-                    }
-                </div>
             </div>
 
-
-            <!-- =============================================
-                 LECTURERS
-            ============================================== -->
             <div class="dash-card" id="section-lecturers">
-                <div class="dash-card-header">
+                <div class="dash-card-header section-toggle" onclick="toggleSection('lecturers-body','lecturers-icon')">
                     <div>
                         <h5>Lecturers</h5>
-                        <p>Teaching staff in your department</p>
+                        <p>@Model.TotalLecturers teaching staff in your department</p>
                     </div>
-                    <button class="btn-dash-primary btn-dash-sm" onclick="openModal('addLecturerModal')">
-                        <i class="bi bi-plus-lg"></i> Add Lecturer
-                    </button>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <button class="btn-dash-primary btn-dash-sm" onclick="event.stopPropagation();openModal('addLecturerModal')">
+                            <i class="bi bi-plus-lg"></i> Add Lecturer
+                        </button>
+                        <i class="bi bi-chevron-down toggle-icon" id="lecturers-icon"></i>
+                    </div>
                 </div>
-                <div class="dash-card-body" style="padding:0;">
-                    <table class="dash-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Courses</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var l in Model.Lecturers)
-                            {
-                                var courseCount = Model.Courses.Count(c =>
-                                    c.Lecturer.Contains(l.LastName, StringComparison.OrdinalIgnoreCase));
-                                <tr>
-                                    <td>
-                                        <strong style="font-size:13px;">@l.FullName</strong>
-                                    </td>
-                                    <td style="font-size:12px;color:#6b7280;">@l.Email</td>
-                                    <td>
-                                        <span class="badge-status badge-active">
-                                            @courseCount course@(courseCount != 1 ? "s" : "")
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge-status @(l.IsActive ? "badge-verified" : "badge-inactive")">
-                                            @(l.IsActive ? "Active" : "Inactive")
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div style="display:flex;gap:5px;">
-                                            <button class="btn-dash-icon" title="View profile">
-                                                <i class="bi bi-eye"></i>
-                                            </button>
-                                            <button class="btn-dash-icon" title="Edit">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                <div id="lecturers-body" style="display:none;">
+                    <div class="dash-card-body" style="padding:0;">
+                        <table class="dash-table">
+                            <thead>
+                                <tr><th>Name</th><th>Email</th><th>Courses</th><th>Status</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var l in Model.Lecturers)
+                                {
+                                    var cnt = Model.Courses.Count(c => c.Lecturer.Contains(l.LastName, StringComparison.OrdinalIgnoreCase));
+                                    <tr>
+                                        <td><strong style="font-size:13px;">@l.FullName</strong></td>
+                                        <td style="font-size:12px;color:#6b7280;">@l.Email</td>
+                                        <td><span class="badge-status badge-active">@cnt course@(cnt != 1 ? "s" : "")</span></td>
+                                        <td><span class="badge-status @(l.IsActive ? "badge-verified" : "badge-inactive")">@(l.IsActive ? "Active" : "Inactive")</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
+            </div><!-- /#hodContent -->
+
         </div>
-        <!-- /dash-content -->
     </div>
-    <!-- /dash-main -->
-
 </div>
-<!-- /dash-shell -->
 
-
-<!-- =====================================================
-     MODAL 1 — ADD COURSE
-====================================================== -->
 <div id="addCourseModal" class="hod-modal-overlay">
     <div class="hod-modal">
         <div class="hod-modal-header">
-            <h5><i class="bi bi-journal-plus" style="color:#1e3a8a;margin-right:8px;"></i>Add New Course</h5>
-            <button class="hod-close" onclick="closeModal('addCourseModal')">
-                <i class="bi bi-x-lg"></i>
-            </button>
+            <h5><i class="bi bi-journal-plus" style="color:#1C3B83;margin-right:8px;"></i>Add New Course</h5>
+            <button class="hod-close" onclick="closeModal('addCourseModal')"><i class="bi bi-x-lg"></i></button>
         </div>
-
-        <div class="dash-alert dash-alert-info" style="margin-bottom:16px;">
-            <i class="bi bi-info-circle-fill"></i>
-            <div style="font-size:12px;">
-                Room conflicts are checked automatically. If the selected room is already booked
-                at the chosen time, the course will not be saved.
-            </div>
-        </div>
-
         <form method="post" asp-page-handler="AddCourse">
             @Html.AntiForgeryToken()
-
             <div class="form-row-2">
-                <div class="form-field">
-                    <label>Course Code <span style="color:#dc2626;">*</span></label>
-                    <input type="text" name="code" placeholder="e.g. CSE415" required />
-                </div>
-                <div class="form-field">
-                    <label>Year / Level</label>
-                    <select name="year">
-                        <option value="1">Year 1</option>
-                        <option value="2">Year 2</option>
-                        <option value="3" selected>Year 3</option>
-                        <option value="4">Year 4</option>
-                    </select>
-                </div>
+                <div class="form-field"><label>Course Code *</label><input type="text" name="code" placeholder="e.g. CSE415" required /></div>
+                <div class="form-field"><label>Year</label><select name="year"><option value="1">Year 1</option><option value="2">Year 2</option><option value="3" selected>Year 3</option><option value="4">Year 4</option></select></div>
             </div>
-
-            <div class="form-field">
-                <label>Course Title <span style="color:#dc2626;">*</span></label>
-                <input type="text" name="title" placeholder="e.g. Advanced Algorithms" required />
-            </div>
-
+            <div class="form-field"><label>Course Title *</label><input type="text" name="title" placeholder="e.g. Advanced Algorithms" required /></div>
             <div class="form-row-2">
-                <div class="form-field">
-                    <label>Assigned Lecturer</label>
-                    <select name="lecturer">
-                        <option value="">— Select Lecturer —</option>
-                        @foreach (var l in Model.Lecturers)
-                        {
-                            <option value="@l.FullName">@l.FullName</option>
-                        }
-                    </select>
-                </div>
-                <div class="form-field">
-                    <label>Semester</label>
-                    <select name="semester">
-                        <option value="1" selected>Semester 1</option>
-                        <option value="2">Semester 2</option>
-                    </select>
-                </div>
+                <div class="form-field"><label>Assigned Lecturer</label><select name="lecturer"><option value="">— Select —</option>@foreach (var l in Model.Lecturers){<option value="@l.FullName">@l.FullName</option>}</select></div>
+                <div class="form-field"><label>Semester</label><select name="semester"><option value="1" selected>Semester 1</option><option value="2">Semester 2</option></select></div>
             </div>
-
             <div class="form-row-2">
-                <div class="form-field">
-                    <label>Schedule Time</label>
-                    <select name="scheduleTime">
-                        <option value="">— Select Slot —</option>
-                        <option>Mon 08:00 - 10:00</option>
-                        <option>Mon 10:00 - 12:00</option>
-                        <option>Mon 13:00 - 15:00</option>
-                        <option>Tue 08:00 - 10:00</option>
-                        <option>Tue 10:00 - 12:00</option>
-                        <option>Tue 13:00 - 15:00</option>
-                        <option>Wed 08:00 - 10:00</option>
-                        <option>Wed 10:00 - 12:00</option>
-                        <option>Wed 13:00 - 15:00</option>
-                        <option>Thu 08:00 - 10:00</option>
-                        <option>Thu 10:00 - 12:00</option>
-                        <option>Thu 13:00 - 15:00</option>
-                        <option>Fri 08:00 - 10:00</option>
-                        <option>Fri 10:00 - 12:00</option>
-                        <option>Fri 13:00 - 15:00</option>
-                    </select>
-                </div>
-                <div class="form-field">
-                    <label>Venue / Room</label>
-                    <select name="venue">
-                        <option value="">— Select Room —</option>
-                        @foreach (var r in Model.AvailableRooms)
-                        {
-                            <option value="@r.FullName">
-                                @r.FullName (@r.Type, cap. @r.Capacity)
-                                @(r.BookedSlots.Any() ? "— " + r.BookedSlots.Count + " slot(s) booked" : "— Free")
-                            </option>
-                        }
-                    </select>
-                </div>
+                <div class="form-field"><label>Schedule Time</label><select name="scheduleTime"><option value="">— Select Slot —</option><option>Mon 08:00 - 10:00</option><option>Mon 10:00 - 12:00</option><option>Mon 13:00 - 15:00</option><option>Tue 08:00 - 10:00</option><option>Tue 10:00 - 12:00</option><option>Tue 13:00 - 15:00</option><option>Wed 08:00 - 10:00</option><option>Wed 10:00 - 12:00</option><option>Wed 13:00 - 15:00</option><option>Thu 08:00 - 10:00</option><option>Thu 10:00 - 12:00</option><option>Thu 13:00 - 15:00</option><option>Fri 08:00 - 10:00</option><option>Fri 10:00 - 12:00</option><option>Fri 13:00 - 15:00</option></select></div>
+                <div class="form-field"><label>Venue / Room</label><select name="venue"><option value="">— Select Room —</option>@foreach (var r in Model.AvailableRooms){<option value="@r.FullName">@r.FullName (@r.Type, cap. @r.Capacity)</option>}</select></div>
             </div>
-
-            <div class="form-row-2">
-                <div class="form-field">
-                    <label>Scheduled Hours</label>
-                    <input type="number" name="scheduledHours" value="36" min="1" max="120" />
-                </div>
-                <div class="form-field">
-                    <label style="color:#9ca3af;">WhatsApp Group</label>
-                    <div style="padding:9px 12px;background:#f8fafc;border:1px solid #e5e7eb;
-                                border-radius:7px;font-size:12px;color:#9ca3af;">
-                        <i class="bi bi-info-circle"></i>
-                        Set by the Class Representative after course creation.
-                    </div>
-                </div>
-            </div>
-            <!-- hidden empty value so the POST handler still receives whatsappUrl -->
+            <div class="form-field"><label>Scheduled Hours</label><input type="number" name="scheduledHours" value="36" min="1" max="120" /></div>
             <input type="hidden" name="whatsappUrl" value="" />
-
             <div class="form-actions">
-                <button type="button" class="btn-dash-outline" onclick="closeModal('addCourseModal')">
-                    Cancel
-                </button>
-                <button type="submit" class="btn-dash-primary">
-                    <i class="bi bi-plus-lg"></i> Add Course
-                </button>
+                <button type="button" class="btn-dash-outline" onclick="closeModal('addCourseModal')">Cancel</button>
+                <button type="submit" class="btn-dash-primary"><i class="bi bi-plus-lg"></i> Add Course</button>
             </div>
         </form>
     </div>
 </div>
 
-
-<!-- =====================================================
-     MODAL 2 — REJECT SESSION
-====================================================== -->
 <div id="rejectModal" class="hod-modal-overlay">
-    <div class="hod-modal">
+    <div class="hod-modal" style="max-width:420px;">
         <div class="hod-modal-header">
             <h5><i class="bi bi-x-circle-fill" style="color:#dc2626;margin-right:8px;"></i>Reject Session Report</h5>
-            <button class="hod-close" onclick="closeModal('rejectModal')">
-                <i class="bi bi-x-lg"></i>
-            </button>
+            <button class="hod-close" onclick="closeModal('rejectModal')"><i class="bi bi-x-lg"></i></button>
         </div>
-        <p id="rejectModalDesc" style="font-size:13px;color:#6b7280;margin-bottom:16px;"></p>
-        <form method="post" asp-page-handler="RejectSession" id="rejectForm">
+        <p id="rejectModalDesc" style="font-size:13px;color:#6b7280;margin-bottom:14px;"></p>
+        <form method="post" asp-page-handler="RejectSession">
             @Html.AntiForgeryToken()
             <input type="hidden" name="reportId" id="rejectReportId" />
-            <div class="form-field">
-                <label>Reason for Rejection <span style="color:#dc2626;">*</span></label>
-                <textarea name="reason" id="rejectReason" rows="3" required
-                          placeholder="Explain why this session report is being returned..."></textarea>
-            </div>
+            <div class="form-field"><label>Reason *</label><textarea name="reason" id="rejectReason" rows="3" required placeholder="Explain why this report is being returned..."></textarea></div>
             <div class="form-actions">
-                <button type="button" class="btn-dash-outline" onclick="closeModal('rejectModal')">
-                    Cancel
-                </button>
-                <button type="submit" class="btn-dash-primary" style="background:#dc2626;">
-                    <i class="bi bi-x-lg"></i> Confirm Rejection
-                </button>
+                <button type="button" class="btn-dash-outline" onclick="closeModal('rejectModal')">Cancel</button>
+                <button type="submit" class="btn-dash-primary" style="background:#dc2626;"><i class="bi bi-x-lg"></i> Confirm Rejection</button>
             </div>
         </form>
     </div>
 </div>
 
-
-<!-- =====================================================
-     MODAL 3 — ASSIGN ROOM
-====================================================== -->
 <div id="assignRoomModal" class="hod-modal-overlay">
-    <div class="hod-modal">
+    <div class="hod-modal" style="max-width:480px;">
         <div class="hod-modal-header">
-            <h5><i class="bi bi-door-open-fill" style="color:#1e3a8a;margin-right:8px;"></i>Assign Room</h5>
-            <button class="hod-close" onclick="closeModal('assignRoomModal')">
-                <i class="bi bi-x-lg"></i>
-            </button>
+            <h5><i class="bi bi-door-open-fill" style="color:#1C3B83;margin-right:8px;"></i>Assign Room</h5>
+            <button class="hod-close" onclick="closeModal('assignRoomModal')"><i class="bi bi-x-lg"></i></button>
         </div>
         <p id="assignRoomDesc" style="font-size:13px;color:#6b7280;margin-bottom:14px;"></p>
         <div id="assignRoomList"></div>
     </div>
 </div>
 
-
-<!-- =====================================================
-     MODAL 4 — ADD LECTURER
-====================================================== -->
-<div id="addLecturerModal" class="hod-modal-overlay">
-    <div class="hod-modal">
+<div id="issueModal" class="hod-modal-overlay">
+    <div class="hod-modal" style="max-width:480px;">
         <div class="hod-modal-header">
-            <h5><i class="bi bi-person-plus-fill" style="color:#1e3a8a;margin-right:8px;"></i>Add Lecturer</h5>
-            <button class="hod-close" onclick="closeModal('addLecturerModal')">
-                <i class="bi bi-x-lg"></i>
-            </button>
+            <h5><i class="bi bi-pencil-square" style="color:#1C3B83;margin-right:8px;"></i>Update Issue</h5>
+            <button class="hod-close" onclick="closeModal('issueModal')"><i class="bi bi-x-lg"></i></button>
         </div>
-        <form onsubmit="submitAddLecturer(event)">
-            <div class="form-row-2">
-                <div class="form-field">
-                    <label>First Name <span style="color:#dc2626;">*</span></label>
-                    <input type="text" id="lec-fname" placeholder="e.g. Paul" required />
-                </div>
-                <div class="form-field">
-                    <label>Last Name <span style="color:#dc2626;">*</span></label>
-                    <input type="text" id="lec-lname" placeholder="e.g. Habimana" required />
-                </div>
-            </div>
+        <p id="issueModalTitle" style="font-size:13px;font-weight:600;color:#374151;margin-bottom:14px;"></p>
+        <form method="post" asp-page-handler="UpdateIssue">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="issueId" id="issueModalId" />
             <div class="form-field">
-                <label>Email <span style="color:#dc2626;">*</span></label>
-                <input type="email" id="lec-email" placeholder="e.g. p.habimana@unilak.ac.rw" required />
+                <label>Update Status</label>
+                <select name="status">
+                    <option value="Open">Open</option>
+                    <option value="InProgress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                    <option value="Escalated">Escalate to Dean</option>
+                </select>
             </div>
-            <div class="form-row-2">
-                <div class="form-field">
-                    <label>Staff ID</label>
-                    <input type="text" id="lec-staff" placeholder="e.g. STAFF/012" />
-                </div>
-                <div class="form-field">
-                    <label>Title</label>
-                    <select id="lec-title">
-                        <option>Dr.</option>
-                        <option>Prof.</option>
-                        <option>Mr.</option>
-                        <option>Mrs.</option>
-                        <option>Ms.</option>
-                    </select>
-                </div>
-            </div>
-            <div class="dash-alert dash-alert-info" style="margin:4px 0 14px;">
-                <i class="bi bi-info-circle-fill"></i>
-                <div style="font-size:12px;">
-                    A temporary password <strong>lecturer123</strong> will be assigned.
-                    The lecturer can change it after first login.
-                </div>
-            </div>
+            <div class="form-field"><label>Your Notes</label><textarea name="notes" rows="3" placeholder="Add notes about what you found or what action you took..."></textarea></div>
             <div class="form-actions">
-                <button type="button" class="btn-dash-outline" onclick="closeModal('addLecturerModal')">
-                    Cancel
-                </button>
-                <button type="submit" class="btn-dash-primary">
-                    <i class="bi bi-person-plus-fill"></i> Add Lecturer
-                </button>
+                <button type="button" class="btn-dash-outline" onclick="closeModal('issueModal')">Cancel</button>
+                <button type="submit" class="btn-dash-primary"><i class="bi bi-send-fill"></i> Save Update</button>
             </div>
         </form>
     </div>
 </div>
 
+<div id="addLecturerModal" class="hod-modal-overlay">
+    <div class="hod-modal">
+        <div class="hod-modal-header">
+            <h5><i class="bi bi-person-plus-fill" style="color:#1C3B83;margin-right:8px;"></i>Add Lecturer</h5>
+            <button class="hod-close" onclick="closeModal('addLecturerModal')"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <form method="post" asp-page-handler="AddLecturer">
+            @Html.AntiForgeryToken()
+            <div class="form-row-2">
+                <div class="form-field"><label>First Name *</label><input type="text" name="firstName" placeholder="e.g. Paul" required /></div>
+                <div class="form-field"><label>Last Name *</label><input type="text" name="lastName" placeholder="e.g. Habimana" required /></div>
+            </div>
+            <div class="form-field"><label>Email *</label><input type="email" name="email" placeholder="e.g. p.habimana@unilak.ac.rw" required /></div>
+            <div class="form-row-2">
+                <div class="form-field"><label>Staff ID</label><input type="text" name="staffId" placeholder="e.g. STAFF/012" /></div>
+                <div class="form-field"><label>Title</label><select name="title"><option>Dr.</option><option>Prof.</option><option>Mr.</option><option>Mrs.</option><option>Ms.</option></select></div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn-dash-outline" onclick="closeModal('addLecturerModal')">Cancel</button>
+                <button type="submit" class="btn-dash-primary"><i class="bi bi-person-plus-fill"></i> Add Lecturer</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-<!-- =====================================================
-     ROOM DATA for JS (assign modal)
-====================================================== -->
 <div id="roomDataStore" style="display:none;">
     @foreach (var r in Model.AvailableRooms)
     {
         <div class="room-data-item"
-             data-id="@r.Id"
-             data-name="@r.FullName"
-             data-type="@r.Type"
+             data-id="@r.Id" data-name="@r.FullName" data-type="@r.Type"
              data-capacity="@r.Capacity"
              data-slots="@string.Join('|', r.BookedSlots.Select(s => s.Key + "=" + s.Value))">
         </div>
     }
 </div>
 
-
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    /* ── Modal helpers ───────────────────────────────── */
-    function openModal(id) {
-        document.getElementById(id).classList.add('open');
+    function revealAndScroll(sectionId) {
+        var content = document.getElementById('hodContent');
+        if (content) content.style.display = 'block';
+        var el = document.getElementById(sectionId);
+        if (!el) return;
+        var bodyId = sectionId.replace('section-', '') + '-body';
+        var body = document.getElementById(bodyId);
+        if (body && (body.style.display === 'none' || body.style.display === '')) {
+            body.style.display = 'block';
+            var icon = document.getElementById(sectionId.replace('section-', '') + '-icon');
+            if (icon) icon.style.transform = 'rotate(0deg)';
+        }
+        setTimeout(function() { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);
     }
-    function closeModal(id) {
-        document.getElementById(id).classList.remove('open');
-    }
-    // Close on backdrop click
-    document.querySelectorAll('.hod-modal-overlay').forEach(function(overlay) {
-        overlay.addEventListener('click', function(e) {
-            if (e.target === overlay) overlay.classList.remove('open');
-        });
+
+    function openModal(id)  { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    document.querySelectorAll('.hod-modal-overlay').forEach(function(o) {
+        o.addEventListener('click', function(e) { if (e.target === o) o.classList.remove('open'); });
     });
 
-    /* ── Reject modal ────────────────────────────────── */
+    function toggleSection(bodyId, iconId) {
+        var body = document.getElementById(bodyId);
+        var icon = document.getElementById(iconId);
+        var isHidden = body.style.display === 'none' || body.style.display === '';
+        body.style.display = isHidden ? 'block' : 'none';
+        if (icon) {
+            icon.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(-90deg)';
+        }
+    }
+
+    function expandSection(id) {
+        var card = document.getElementById(id);
+        if (!card) return;
+        var bodyId = id.replace('section-', '') + '-body';
+        var body = document.getElementById(bodyId);
+        if (body && (body.style.display === 'none' || body.style.display === '')) {
+            body.style.display = 'block';
+            var icon = document.getElementById(id.replace('section-','') + '-icon');
+            if (icon) icon.style.transform = 'rotate(0deg)';
+        }
+        setTimeout(function() { card.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+    }
+
     function openRejectModal(reportId, courseCode, date) {
         document.getElementById('rejectReportId').value = reportId;
         document.getElementById('rejectReason').value   = '';
-        document.getElementById('rejectModalDesc').textContent =
-            'You are rejecting the session report for ' + courseCode + ' on ' + date + '.';
+        document.getElementById('rejectModalDesc').textContent = 'Rejecting session report for ' + courseCode + ' on ' + date + '.';
         openModal('rejectModal');
     }
 
-    /* ── Assign Room modal ───────────────────────────── */
+    function openIssueModal(issueId, title) {
+        document.getElementById('issueModalId').value    = issueId;
+        document.getElementById('issueModalTitle').textContent = 'Issue: ' + title;
+        openModal('issueModal');
+    }
+
     function openAssignRoom(courseId, courseCode, scheduleTime) {
         document.getElementById('assignRoomDesc').textContent =
-            'Select a room for ' + courseCode +
-            (scheduleTime ? ' (' + scheduleTime + ')' : '') +
-            '. Rooms with a conflict at that time are shown as unavailable.';
-
-        var list = document.getElementById('assignRoomList');
+            'Select a room for ' + courseCode + (scheduleTime ? ' (' + scheduleTime + ')' : '') + '.';
+        var list  = document.getElementById('assignRoomList');
         list.innerHTML = '';
-
-        var items = document.querySelectorAll('#roomDataStore .room-data-item');
-
-        items.forEach(function(item) {
-            var slots    = item.dataset.slots ? item.dataset.slots.split('|') : [];
-            var bookedAt = {};
-            slots.forEach(function(s) {
-                if (s) {
-                    var parts = s.split('=');
-                    if (parts.length === 2) bookedAt[parts[0].trim()] = parts[1].trim();
-                }
-            });
-
-            var hasConflict = scheduleTime && bookedAt.hasOwnProperty(scheduleTime.trim());
-            var div         = document.createElement('div');
-            div.className   = 'assign-room-item' + (hasConflict ? ' conflict-room' : '');
-
-            var slotInfo = hasConflict
-                ? '<span style="font-size:11px;color:#dc2626;font-weight:600;">' +
-                  '⚠ Booked for ' + bookedAt[scheduleTime.trim()] + ' at this time</span>'
-                : '<span style="font-size:11px;color:#059669;font-weight:600;">✓ Available</span>';
-
-            div.innerHTML =
-                '<div style="width:40px;height:40px;border-radius:10px;background:#eff6ff;' +
-                'color:#1e3a8a;display:flex;align-items:center;justify-content:center;' +
-                'font-size:16px;flex-shrink:0;"><i class="bi bi-door-open-fill"></i></div>' +
-                '<div style="flex:1;">' +
-                '<strong style="font-size:13px;">' + item.dataset.name + '</strong>' +
-                '<div style="font-size:11px;color:#6b7280;">' +
-                item.dataset.type + ' · Cap. ' + item.dataset.capacity + '</div>' +
-                slotInfo +
-                '</div>';
-
+        document.querySelectorAll('#roomDataStore .room-data-item').forEach(function(item) {
+            var slots = item.dataset.slots ? item.dataset.slots.split('|') : [];
+            var booked = {};
+            slots.forEach(function(s) { if (s) { var p = s.split('='); if (p.length === 2) booked[p[0].trim()] = p[1].trim(); } });
+            var hasConflict = scheduleTime && booked.hasOwnProperty(scheduleTime.trim());
+            var div = document.createElement('div');
+            div.className = 'assign-room-item' + (hasConflict ? ' conflict-room' : '');
+            div.innerHTML = '<div style="width:36px;height:36px;border-radius:8px;background:#eff6ff;color:#1C3B83;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;"><i class="bi bi-door-open-fill"></i></div>' +
+                '<div style="flex:1;"><strong style="font-size:13px;">' + item.dataset.name + '</strong><div style="font-size:11px;color:#6b7280;">' + item.dataset.type + ' · Cap. ' + item.dataset.capacity + '</div>' +
+                (hasConflict ? '<span style="font-size:11px;color:#dc2626;font-weight:600;">⚠ Booked for ' + booked[scheduleTime.trim()] + '</span>' : '<span style="font-size:11px;color:#059669;font-weight:600;">✓ Available</span>') + '</div>';
             if (!hasConflict) {
-                div.addEventListener('click', function() {
-                    submitAssignRoom(courseId, parseInt(item.dataset.id));
-                });
+                div.addEventListener('click', function() { submitAssignRoom(courseId, parseInt(item.dataset.id)); });
             }
-
             list.appendChild(div);
         });
-
         openModal('assignRoomModal');
     }
 
@@ -1076,49 +778,13 @@
         var form = document.createElement('form');
         form.method = 'post';
         form.action = '?handler=AssignRoom';
-
         var token = document.querySelector('input[name="__RequestVerificationToken"]');
-        if (token) {
-            var t = document.createElement('input');
-            t.type  = 'hidden';
-            t.name  = '__RequestVerificationToken';
-            t.value = token.value;
-            form.appendChild(t);
-        }
-
-        function addField(name, val) {
-            var i = document.createElement('input');
-            i.type  = 'hidden';
-            i.name  = name;
-            i.value = val;
-            form.appendChild(i);
-        }
-
-        addField('courseId', courseId);
-        addField('roomId',   roomId);
-
+        if (token) { var t = document.createElement('input'); t.type='hidden'; t.name='__RequestVerificationToken'; t.value=token.value; form.appendChild(t); }
+        [['courseId',courseId],['roomId',roomId]].forEach(function(p){ var i=document.createElement('input'); i.type='hidden'; i.name=p[0]; i.value=p[1]; form.appendChild(i); });
         document.body.appendChild(form);
         form.submit();
     }
 
-    /* ── Add Lecturer (client-side only for now) ─────── */
-    function submitAddLecturer(e) {
-        e.preventDefault();
-        closeModal('addLecturerModal');
-        showToast('✓ Lecturer added successfully (demo — backend pending).');
-    }
-
-    /* ── Toast ───────────────────────────────────────── */
-    function showToast(msg) {
-        var t = document.createElement('div');
-        t.textContent = msg;
-        t.style.cssText =
-            'position:fixed;bottom:24px;right:24px;background:#059669;color:white;' +
-            'padding:14px 20px;border-radius:10px;font-size:13px;font-weight:600;' +
-            'z-index:9999;box-shadow:0 8px 20px rgba(0,0,0,.15);';
-        document.body.appendChild(t);
-        setTimeout(function() { t.remove(); }, 4000);
-    }
 </script>
 </body>
 </html>

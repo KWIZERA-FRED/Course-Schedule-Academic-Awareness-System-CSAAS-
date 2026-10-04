@@ -30,7 +30,7 @@
             display: flex; justify-content: space-between;
             align-items: center; margin-bottom: 18px;
         }
-        .cp-modal-header h5 { margin: 0; font-size: 16px; font-weight: 700; color: #0f1a3a; }
+        .cp-modal-header h5 { margin: 0; font-size: 16px; font-weight: 700; color: #0D1E47; }
         .cp-close {
             background: none; border: none; font-size: 18px;
             color: #9ca3af; cursor: pointer; line-height: 1;
@@ -45,7 +45,7 @@
             border: 1px solid #d1d5db; border-radius: 7px;
             font-size: 13px; outline: none;
         }
-        .form-field input:focus, .form-field select:focus { border-color: #1e3a8a; }
+        .form-field input:focus, .form-field select:focus { border-color: #1C3B83; }
         .form-actions { display: flex; gap: 10px; justify-content: flex-end; }
 
         .group-card {
@@ -64,22 +64,61 @@
         .group-icon.open   { background: #ecfdf5; color: #25d366; }
         .group-icon.closed { background: #f3f4f6; color: #9ca3af; }
         .group-body { flex: 1; }
-        .group-body strong { display: block; font-size: 13px; font-weight: 700; color: #0f1a3a; }
+        .group-body strong { display: block; font-size: 13px; font-weight: 700; color: #0D1E47; }
         .group-body span   { font-size: 11px; color: #9ca3af; }
         .group-actions { display: flex; gap: 6px; align-items: center; }
+
+        .cp-welcome-card {
+            background: linear-gradient(135deg, #0D1E47 0%, #1C3B83 60%, #2952C8 100%);
+            border-radius: 16px; padding: 32px 36px; margin-bottom: 24px;
+            position: relative; overflow: hidden;
+        }
+        .cp-welcome-card::before {
+            content: ''; position: absolute; top: -50px; right: -50px;
+            width: 220px; height: 220px; border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+        }
+        .cp-welcome-card::after {
+            content: ''; position: absolute; bottom: -70px; right: 60px;
+            width: 300px; height: 300px; border-radius: 50%;
+            background: rgba(255,255,255,0.03);
+        }
+        .cp-welcome-inner { position: relative; z-index: 1; }
+        .cp-welcome-badge {
+            display: inline-flex; align-items: center; gap: 7px;
+            background: rgba(255,255,255,0.12); color: #93c5fd;
+            font-size: 11px; font-weight: 700; letter-spacing: .08em;
+            text-transform: uppercase; padding: 5px 14px;
+            border-radius: 20px; margin-bottom: 14px;
+        }
+        .cp-quick-btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+        .cp-quick-btn {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 9px 18px; border-radius: 10px; font-size: 13px;
+            font-weight: 600; cursor: pointer; border: none;
+            transition: .15s ease; text-decoration: none;
+        }
+        .cp-quick-btn-primary {
+            background: white; color: #1C3B83;
+        }
+        .cp-quick-btn-primary:hover { background: #eff6ff; }
+        .cp-quick-btn-outline {
+            background: rgba(255,255,255,0.12); color: white;
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+        .cp-quick-btn-outline:hover { background: rgba(255,255,255,0.22); }
     </style>
 </head>
 <body>
 
 <div class="dash-shell">
 
-    <!-- =============================================
-         SIDEBAR
-    ============================================== -->
     <aside class="dash-sidebar">
 
         <a href="/" class="dash-sidebar-brand">
-            <div class="dash-sidebar-brand-icon" style="background:transparent;box-shadow:none;padding:2px;"><img src="/images/logo.jpeg" alt="UNILAK" style="width:34px;height:34px;border-radius:50%;object-fit:cover;" /></div>
+            <div class="dash-sidebar-brand-icon" style="background:transparent;box-shadow:none;padding:2px;">
+                <img src="/images/logo.jpeg" alt="UNILAK" style="width:34px;height:34px;border-radius:50%;object-fit:cover;" />
+            </div>
             <div class="dash-sidebar-brand-text">
                 <strong>CSAS</strong>
                 <span>Class Rep Portal</span>
@@ -95,7 +134,8 @@
             <a href="/CP/Dashboard" class="dash-nav-link active">
                 <i class="bi bi-speedometer2"></i> Dashboard
             </a>
-            <a href="#section-signoffs" class="dash-nav-link">
+            <a href="#section-signoffs" class="dash-nav-link"
+               onclick="revealAndScroll('section-signoffs')">
                 <i class="bi bi-clipboard-check"></i> Sign-Off Sessions
                 @if (Model.PendingSignOffs.Count > 0)
                 {
@@ -104,7 +144,8 @@
                                  border-radius:20px;">@Model.PendingSignOffs.Count</span>
                 }
             </a>
-            <a href="#section-groups" class="dash-nav-link">
+            <a href="#section-groups" class="dash-nav-link"
+               onclick="revealAndScroll('section-groups')">
                 <i class="bi bi-whatsapp"></i> Manage Groups
             </a>
             <a href="/CP/Chat" class="dash-nav-link">
@@ -120,18 +161,24 @@
                                  border-radius:20px;">@cpUnread</span>
                 }
             </a>
-            <a href="#" class="dash-nav-link">
-                <i class="bi bi-megaphone"></i> Announcements
+            <a href="#section-activity" class="dash-nav-link"
+               onclick="revealAndScroll('section-activity')">
+                <i class="bi bi-megaphone"></i> Recent Activity
             </a>
-            <a href="#" class="dash-nav-link">
+            <a href="/CP/Chat" class="dash-nav-link">
                 <i class="bi bi-bell"></i> Notifications
+            </a>
+            <a href="https://umurongosmart.com/" target="_blank" class="dash-nav-link"
+               title="UmurongoSmart Support"
+               style="border-top:1px solid rgba(255,255,255,0.07);margin-top:4px;padding-top:12px;">
+                <i class="bi bi-headset"></i> UmurongoSmart Support
             </a>
         </nav>
 
         <div class="dash-sidebar-section">Account</div>
 
         <nav class="dash-sidebar-nav">
-            <a href="#" class="dash-nav-link">
+            <a href="/CP/Dashboard" class="dash-nav-link">
                 <i class="bi bi-person"></i> My Profile
             </a>
             <a href="/Logout" class="dash-nav-link">
@@ -146,27 +193,22 @@
                 </div>
                 <div class="dash-user-info">
                     <strong>@Model.CurrentUser.FullName</strong>
-                    <span>Class Rep · @Model.CurrentUser.Department</span>
+                    <span>Class Rep &middot; @Model.CurrentUser.Department</span>
                 </div>
             </div>
         </div>
 
     </aside>
 
-
-    <!-- =============================================
-         MAIN CONTENT
-    ============================================== -->
     <div class="dash-main">
 
-        <!-- TOP BAR -->
         <div class="dash-topbar">
             <div class="dash-topbar-title">
                 <h1>Class Representative Dashboard</h1>
-                <p>Manage sessions, sign-offs and class WhatsApp groups</p>
+                <p>Welcome, @Model.CurrentUser.FirstName &mdash; manage your class sessions and groups</p>
             </div>
             <div class="dash-topbar-actions">
-                <a href="#" class="dash-icon-btn" title="Notifications">
+                <a href="/CP/Chat" class="dash-icon-btn" title="Messages">
                     <i class="bi bi-bell"></i>
                 </a>
                 <div class="dash-topbar-avatar">
@@ -175,10 +217,8 @@
             </div>
         </div>
 
-        <!-- CONTENT -->
         <div class="dash-content">
 
-            <!-- STATUS MESSAGE -->
             @if (TempData["StatusMessage"] != null)
             {
                 var type = TempData["StatusType"]?.ToString() ?? "info";
@@ -195,7 +235,6 @@
                 </div>
             }
 
-            <!-- PENDING SIGN-OFF ALERT -->
             @if (Model.PendingSignOffs.Count > 0)
             {
                 <div class="dash-alert dash-alert-warning">
@@ -204,341 +243,357 @@
                         <strong>Action Required:</strong>
                         <strong>@Model.PendingSignOffs.Count session @(Model.PendingSignOffs.Count == 1 ? "report" : "reports")</strong>
                         awaiting your sign-off.
-                        <a href="#section-signoffs" style="color:#92400e;font-weight:700;margin-left:8px;">Review now →</a>
+                        <a href="#section-signoffs" onclick="revealAndScroll('section-signoffs')"
+                           style="color:#92400e;font-weight:700;margin-left:8px;">Review now &rarr;</a>
                     </div>
                 </div>
             }
 
-            <!-- STAT CARDS -->
-            <div class="dash-stats dash-stats-4">
-
-                <div class="dash-stat-card">
-                    <div class="dash-stat-icon icon-blue">
-                        <i class="bi bi-calendar3"></i>
+            <div class="cp-welcome-card">
+                <div class="cp-welcome-inner">
+                    <div class="cp-welcome-badge">
+                        <i class="bi bi-person-badge-fill"></i>
+                        Class Representative
                     </div>
-                    <div class="dash-stat-body">
-                        <strong>@Model.Courses.Count</strong>
-                        <span>Courses This Semester</span>
+                    <h2 style="color:white;font-size:26px;font-weight:800;margin:0 0 4px;">
+                        Welcome, @Model.CurrentUser.FullName
+                    </h2>
+                    <p style="color:rgba(255,255,255,0.6);font-size:13px;margin:0;">
+                        @Model.CurrentUser.Department &nbsp;&middot;&nbsp;
+                        @Model.Courses.Count course@(Model.Courses.Count != 1 ? "s" : "") this semester &nbsp;&middot;&nbsp;
+                        @Model.PendingSignOffs.Count pending sign-off@(Model.PendingSignOffs.Count != 1 ? "s" : "")
+                    </p>
+
+                    <div class="cp-quick-btns">
+                        <button type="button" class="cp-quick-btn cp-quick-btn-primary"
+                                onclick="revealAndScroll('section-signoffs')">
+                            <i class="bi bi-clipboard-check"></i>
+                            Sign-Off Sessions
+                            @if (Model.PendingSignOffs.Count > 0)
+                            {
+                                <span style="background:#dc2626;color:white;font-size:10px;font-weight:700;
+                                             padding:1px 7px;border-radius:20px;">@Model.PendingSignOffs.Count</span>
+                            }
+                        </button>
+                        <button type="button" class="cp-quick-btn cp-quick-btn-outline"
+                                onclick="revealAndScroll('section-groups')">
+                            <i class="bi bi-whatsapp"></i>
+                            Manage Groups
+                        </button>
+                        <a href="/CP/Chat" class="cp-quick-btn cp-quick-btn-outline">
+                            <i class="bi bi-chat-dots-fill"></i>
+                            Message HOD
+                            @if (cpUnread > 0)
+                            {
+                                <span style="background:#dc2626;color:white;font-size:10px;font-weight:700;
+                                             padding:1px 7px;border-radius:20px;">@cpUnread</span>
+                            }
+                        </a>
+                        <button type="button" class="cp-quick-btn cp-quick-btn-outline"
+                                onclick="revealAndScroll('section-activity')">
+                            <i class="bi bi-clock-history"></i>
+                            Recent Activity
+                        </button>
                     </div>
                 </div>
-
-                <div class="dash-stat-card">
-                    <div class="dash-stat-icon icon-amber">
-                        <i class="bi bi-clipboard-check"></i>
-                    </div>
-                    <div class="dash-stat-body">
-                        <strong>@Model.PendingSignOffs.Count</strong>
-                        <span>Pending Sign-Offs</span>
-                    </div>
-                </div>
-
-                <div class="dash-stat-card">
-                    <div class="dash-stat-icon icon-green">
-                        <i class="bi bi-check2-all"></i>
-                    </div>
-                    <div class="dash-stat-body">
-                        <strong>@Model.TotalSignedOff</strong>
-                        <span>Sessions Signed Off</span>
-                    </div>
-                </div>
-
-                <div class="dash-stat-card">
-                    <div class="dash-stat-icon icon-teal">
-                        <i class="bi bi-whatsapp"></i>
-                    </div>
-                    <div class="dash-stat-body">
-                        <strong>@Model.OpenGroupCount</strong>
-                        <span>Open WhatsApp Groups</span>
-                    </div>
-                </div>
-
             </div>
 
+            <div id="cpContent" style="display:none;">
 
-            <!-- =============================================
-                 SESSION SIGN-OFF
-            ============================================== -->
-            <div class="dash-card" id="section-signoffs">
-                <div class="dash-card-header">
-                    <div>
-                        <h5>Session Sign-Off List</h5>
-                        <p>Confirm sessions were delivered — each approval is forwarded to the HOD</p>
-                    </div>
-                </div>
-
-                @if (!Model.PendingSignOffs.Any())
-                {
-                    <div class="dash-empty">
-                        <i class="bi bi-check2-circle"></i>
-                        <p>No sessions awaiting sign-off. All up to date.</p>
-                    </div>
-                }
-                else
-                {
-                    <div class="dash-card-body" style="padding:0;">
-                        <table class="dash-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Course</th>
-                                    <th>Lecturer</th>
-                                    <th>Topic</th>
-                                    <th>Venue</th>
-                                    <th>Hrs</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var r in Model.PendingSignOffs)
-                                {
-                                    <tr>
-                                        <td style="font-size:12px;">@r.SessionDate.ToString("ddd dd MMM")</td>
-                                        <td>
-                                            <strong style="display:block;font-size:13px;">@r.CourseCode</strong>
-                                            <span style="font-size:11px;color:#9ca3af;">@r.CourseTitle</span>
-                                        </td>
-                                        <td style="font-size:12px;">@r.LecturerName</td>
-                                        <td style="font-size:12px;max-width:140px;">
-                                            @(string.IsNullOrEmpty(r.TopicCovered) ? "—" : r.TopicCovered)
-                                        </td>
-                                        <td style="font-size:12px;">@r.Venue</td>
-                                        <td style="font-size:12px;">@r.DurationHours h</td>
-                                        <td>
-                                            <div style="display:flex;gap:6px;">
-
-                                                <!-- SIGN OFF -->
-                                                <button class="btn-dash-primary btn-dash-sm"
-                                                        onclick="openSignOffModal(@r.Id, '@r.CourseCode', '@r.SessionDate.ToString("dd MMM")')">
-                                                    <i class="bi bi-check-lg"></i> Sign Off
-                                                </button>
-
-                                                <!-- REJECT -->
-                                                <button class="btn-dash-outline btn-dash-sm"
-                                                        style="color:#dc2626;border-color:#fecaca;"
-                                                        onclick="openRejectModal(@r.Id, '@r.CourseCode')">
-                                                    <i class="bi bi-x-lg"></i> Reject
-                                                </button>
-
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-
-                <!-- All signed-off sessions history -->
-                @{
-                    var signedOff = Model.SessionReports
-                        .Where(r => r.Status >= SessionReportStatus.CPSignedOff)
-                        .OrderByDescending(r => r.CPSignedOffOn)
-                        .Take(5)
-                        .ToList();
-                }
-                @if (signedOff.Any())
-                {
-                    <div style="padding:14px 20px;border-top:1px solid #f1f5f9;">
-                        <div style="font-size:11px;font-weight:700;color:#9ca3af;
-                                    text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">
-                            Recent Sign-Offs
+                <div class="dash-stats dash-stats-4">
+                    <div class="dash-stat-card">
+                        <div class="dash-stat-icon icon-blue">
+                            <i class="bi bi-calendar3"></i>
                         </div>
-                        @foreach (var r in signedOff)
-                        {
-                            <div style="display:flex;align-items:center;gap:12px;
-                                        padding:8px 0;border-bottom:1px solid #f9fafb;font-size:12px;">
-                                <span class="badge-status badge-verified" style="white-space:nowrap;">
-                                    <i class="bi bi-check-circle-fill"></i> Signed Off
-                                </span>
-                                <strong>@r.CourseCode</strong>
-                                <span style="color:#6b7280;">@r.SessionDate.ToString("dd MMM yyyy")</span>
-                                <span style="color:#9ca3af;">@r.TopicCovered</span>
-                                <span style="margin-left:auto;color:#9ca3af;">
-                                    @(r.CPSignedOffOn.HasValue ? r.CPSignedOffOn.Value.ToString("dd MMM HH:mm") : "")
-                                </span>
-                            </div>
-                        }
+                        <div class="dash-stat-body">
+                            <strong>@Model.Courses.Count</strong>
+                            <span>Courses This Semester</span>
+                        </div>
                     </div>
-                }
-            </div>
-
-
-            <!-- =============================================
-                 WHATSAPP GROUP MANAGEMENT
-            ============================================== -->
-            <div class="dash-card" id="section-groups">
-                <div class="dash-card-header">
-                    <div>
-                        <h5>WhatsApp Group Management</h5>
-                        <p>You create, update and close official class communication groups</p>
+                    <div class="dash-stat-card">
+                        <div class="dash-stat-icon icon-amber">
+                            <i class="bi bi-clipboard-check"></i>
+                        </div>
+                        <div class="dash-stat-body">
+                            <strong>@Model.PendingSignOffs.Count</strong>
+                            <span>Pending Sign-Offs</span>
+                        </div>
                     </div>
-                    <div style="display:flex;gap:8px;align-items:center;">
-                        <span class="badge-status badge-verified" style="font-size:11px;">
-                            @Model.OpenGroupCount open
-                        </span>
-                        @if (Model.ClosedGroupCount > 0)
-                        {
-                            <span class="badge-status badge-inactive" style="font-size:11px;">
-                                @Model.ClosedGroupCount closed
-                            </span>
-                        }
+                    <div class="dash-stat-card">
+                        <div class="dash-stat-icon icon-green">
+                            <i class="bi bi-check2-all"></i>
+                        </div>
+                        <div class="dash-stat-body">
+                            <strong>@Model.TotalSignedOff</strong>
+                            <span>Sessions Signed Off</span>
+                        </div>
+                    </div>
+                    <div class="dash-stat-card">
+                        <div class="dash-stat-icon icon-teal">
+                            <i class="bi bi-whatsapp"></i>
+                        </div>
+                        <div class="dash-stat-body">
+                            <strong>@Model.OpenGroupCount</strong>
+                            <span>Open WhatsApp Groups</span>
+                        </div>
                     </div>
                 </div>
-                <div class="dash-card-body">
 
-                    @foreach (var c in Model.Courses)
+                <div class="dash-card" id="section-signoffs">
+                    <div class="dash-card-header">
+                        <div>
+                            <h5>Session Sign-Off List</h5>
+                            <p>Confirm sessions were delivered — each approval is forwarded to the HOD</p>
+                        </div>
+                    </div>
+
+                    @if (!Model.PendingSignOffs.Any())
                     {
-                        var isOpen    = c.JoinDeadline >= DateTime.Now;
-                        var hasGroup  = !string.IsNullOrEmpty(c.WhatsappGroupUrl);
-                        var daysLeft  = (c.JoinDeadline - DateTime.Now).Days;
-
-                        <div class="group-card @(!isOpen && hasGroup ? "expired" : "")">
-
-                            <!-- Icon -->
-                            <div class="group-icon @(isOpen && hasGroup ? "open" : "closed")">
-                                <i class="bi bi-whatsapp"></i>
-                            </div>
-
-                            <!-- Info -->
-                            <div class="group-body">
-                                <strong>@c.Code – @c.Title</strong>
-                                @if (hasGroup)
-                                {
-                                    <span>
-                                        <a href="@c.WhatsappGroupUrl" target="_blank"
-                                           style="color:#1e3a8a;font-size:11px;word-break:break-all;">
-                                            @c.WhatsappGroupUrl
-                                        </a>
-                                    </span>
-                                    if (isOpen)
+                        <div class="dash-empty">
+                            <i class="bi bi-check2-circle"></i>
+                            <p>No sessions awaiting sign-off. All up to date.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="dash-card-body" style="padding:0;">
+                            <table class="dash-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Course</th>
+                                        <th>Lecturer</th>
+                                        <th>Topic</th>
+                                        <th>Venue</th>
+                                        <th>Hrs</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var r in Model.PendingSignOffs)
                                     {
-                                        <span style="display:block;font-size:11px;color:#059669;font-weight:600;margin-top:2px;">
-                                            <i class="bi bi-clock-fill"></i>
-                                            @daysLeft day@(daysLeft != 1 ? "s" : "") left to join
-                                        </span>
+                                        <tr>
+                                            <td style="font-size:12px;">@r.SessionDate.ToString("ddd dd MMM")</td>
+                                            <td>
+                                                <strong style="display:block;font-size:13px;">@r.CourseCode</strong>
+                                                <span style="font-size:11px;color:#9ca3af;">@r.CourseTitle</span>
+                                            </td>
+                                            <td style="font-size:12px;">@r.LecturerName</td>
+                                            <td style="font-size:12px;max-width:140px;">
+                                                @(string.IsNullOrEmpty(r.TopicCovered) ? "—" : r.TopicCovered)
+                                            </td>
+                                            <td style="font-size:12px;">@r.Venue</td>
+                                            <td style="font-size:12px;">@r.DurationHours h</td>
+                                            <td>
+                                                <div style="display:flex;gap:6px;">
+                                                    <button type="button" class="btn-dash-primary btn-dash-sm"
+                                                            onclick="openSignOffModal(@r.Id, '@r.CourseCode', '@r.SessionDate.ToString("dd MMM")')">
+                                                        <i class="bi bi-check-lg"></i> Sign Off
+                                                    </button>
+                                                    <button type="button" class="btn-dash-outline btn-dash-sm"
+                                                            style="color:#dc2626;border-color:#fecaca;"
+                                                            onclick="openRejectModal(@r.Id, '@r.CourseCode')">
+                                                        <i class="bi bi-x-lg"></i> Reject
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
                                     }
-                                    else
-                                    {
-                                        <span style="display:block;font-size:11px;color:#dc2626;font-weight:600;margin-top:2px;">
-                                            <i class="bi bi-x-circle-fill"></i> Joining deadline passed
-                                        </span>
-                                    }
-                                }
-                                else
-                                {
-                                    <span style="color:#d97706;font-size:11px;font-weight:600;">
-                                        <i class="bi bi-exclamation-triangle-fill"></i>
-                                        No group link set yet
-                                    </span>
-                                }
-                            </div>
-
-                            <!-- Actions -->
-                            <div class="group-actions">
-                                @if (!hasGroup)
-                                {
-                                    <!-- CREATE group -->
-                                    <button class="btn-dash-primary btn-dash-sm"
-                                            onclick="openGroupModal(@c.Id, '@c.Code', '@c.Title', '', 14, false)">
-                                        <i class="bi bi-plus-lg"></i> Create Group
-                                    </button>
-                                }
-                                else
-                                {
-                                    <!-- EDIT -->
-                                    <button class="btn-dash-outline btn-dash-sm"
-                                            onclick="openGroupModal(@c.Id, '@c.Code', '@c.Title', '@c.WhatsappGroupUrl', @Math.Max(1, daysLeft), true)">
-                                        <i class="bi bi-pencil"></i> Edit
-                                    </button>
-
-                                    @if (isOpen)
-                                    {
-                                        <!-- CLOSE -->
-                                        <form method="post" asp-page-handler="CloseGroup" style="display:inline;">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="courseId" value="@c.Id" />
-                                            <button type="submit" class="btn-dash-outline btn-dash-sm"
-                                                    style="color:#dc2626;border-color:#fecaca;"
-                                                    onclick="return confirm('Close this group? Students will no longer be able to join.')">
-                                                <i class="bi bi-door-closed"></i> Close
-                                            </button>
-                                        </form>
-                                    }
-                                    else
-                                    {
-                                        <!-- REOPEN (just set a new deadline via Edit) -->
-                                        <button class="btn-dash-outline btn-dash-sm"
-                                                onclick="openGroupModal(@c.Id, '@c.Code', '@c.Title', '@c.WhatsappGroupUrl', 7, true)"
-                                                style="color:#059669;border-color:#a7f3d0;">
-                                            <i class="bi bi-arrow-repeat"></i> Reopen
-                                        </button>
-                                    }
-                                }
-                            </div>
-
+                                </tbody>
+                            </table>
                         </div>
                     }
 
-                </div>
-            </div>
-
-
-            <!-- ACTIVITY TIMELINE -->
-            <div class="dash-card">
-                <div class="dash-card-header">
-                    <div>
-                        <h5>Recent Activity</h5>
-                        <p>Latest actions in your class</p>
-                    </div>
-                </div>
-                <div class="dash-card-body">
-                    <div class="dash-timeline">
-
-                        @foreach (var r in Model.SessionReports
+                    @{
+                        var signedOff = Model.SessionReports
                             .Where(r => r.Status >= SessionReportStatus.CPSignedOff)
                             .OrderByDescending(r => r.CPSignedOffOn)
-                            .Take(4))
-                        {
-                            <div class="dash-timeline-item">
-                                <div class="dash-timeline-dot icon-green">
-                                    <i class="bi bi-check-circle-fill" style="color:#059669;font-size:14px;"></i>
+                            .Take(5)
+                            .ToList();
+                    }
+                    @if (signedOff.Any())
+                    {
+                        <div style="padding:14px 20px;border-top:1px solid #f1f5f9;">
+                            <div style="font-size:11px;font-weight:700;color:#9ca3af;
+                                        text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">
+                                Recent Sign-Offs
+                            </div>
+                            @foreach (var r in signedOff)
+                            {
+                                <div style="display:flex;align-items:center;gap:12px;
+                                            padding:8px 0;border-bottom:1px solid #f9fafb;font-size:12px;">
+                                    <span class="badge-status badge-verified" style="white-space:nowrap;">
+                                        <i class="bi bi-check-circle-fill"></i> Signed Off
+                                    </span>
+                                    <strong>@r.CourseCode</strong>
+                                    <span style="color:#6b7280;">@r.SessionDate.ToString("dd MMM yyyy")</span>
+                                    <span style="color:#9ca3af;">@r.TopicCovered</span>
+                                    <span style="margin-left:auto;color:#9ca3af;">
+                                        @(r.CPSignedOffOn.HasValue ? r.CPSignedOffOn.Value.ToString("dd MMM HH:mm") : "")
+                                    </span>
                                 </div>
-                                <div class="dash-timeline-body">
-                                    <strong>@r.CourseCode – @r.CourseTitle signed off</strong>
-                                    <span>@(r.CPSignedOffOn.HasValue ? r.CPSignedOffOn.Value.ToString("dd MMM, HH:mm") : r.SessionDate.ToString("dd MMM"))</span>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <div class="dash-card" id="section-groups">
+                    <div class="dash-card-header">
+                        <div>
+                            <h5>WhatsApp Group Management</h5>
+                            <p>You create, update and close official class communication groups</p>
+                        </div>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <span class="badge-status badge-verified" style="font-size:11px;">
+                                @Model.OpenGroupCount open
+                            </span>
+                            @if (Model.ClosedGroupCount > 0)
+                            {
+                                <span class="badge-status badge-inactive" style="font-size:11px;">
+                                    @Model.ClosedGroupCount closed
+                                </span>
+                            }
+                        </div>
+                    </div>
+                    <div class="dash-card-body">
+                        @foreach (var c in Model.Courses)
+                        {
+                            var isOpen   = c.JoinDeadline >= DateTime.Now;
+                            var hasGroup = !string.IsNullOrEmpty(c.WhatsappGroupUrl);
+                            var daysLeft = (c.JoinDeadline - DateTime.Now).Days;
+                            <div class="group-card @(!isOpen && hasGroup ? "expired" : "")">
+                                <div class="group-icon @(isOpen && hasGroup ? "open" : "closed")">
+                                    <i class="bi bi-whatsapp"></i>
+                                </div>
+                                <div class="group-body">
+                                    <strong>@c.Code &ndash; @c.Title</strong>
+                                    @if (hasGroup)
+                                    {
+                                        <span>
+                                            <a href="@c.WhatsappGroupUrl" target="_blank"
+                                               style="color:#1C3B83;font-size:11px;word-break:break-all;">
+                                                @c.WhatsappGroupUrl
+                                            </a>
+                                        </span>
+                                        if (isOpen)
+                                        {
+                                            <span style="display:block;font-size:11px;color:#059669;font-weight:600;margin-top:2px;">
+                                                <i class="bi bi-clock-fill"></i>
+                                                @daysLeft day@(daysLeft != 1 ? "s" : "") left to join
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span style="display:block;font-size:11px;color:#dc2626;font-weight:600;margin-top:2px;">
+                                                <i class="bi bi-x-circle-fill"></i> Joining deadline passed
+                                            </span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span style="color:#d97706;font-size:11px;font-weight:600;">
+                                            <i class="bi bi-exclamation-triangle-fill"></i>
+                                            No group link set yet
+                                        </span>
+                                    }
+                                </div>
+                                <div class="group-actions">
+                                    @if (!hasGroup)
+                                    {
+                                        <button type="button" class="btn-dash-primary btn-dash-sm"
+                                                onclick="openGroupModal(@c.Id, '@c.Code', '@c.Title', '', 14, false)">
+                                            <i class="bi bi-plus-lg"></i> Create Group
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn-dash-outline btn-dash-sm"
+                                                onclick="openGroupModal(@c.Id, '@c.Code', '@c.Title', '@c.WhatsappGroupUrl', @Math.Max(1, daysLeft), true)">
+                                            <i class="bi bi-pencil"></i> Edit
+                                        </button>
+                                        @if (isOpen)
+                                        {
+                                            <form method="post" asp-page-handler="CloseGroup" style="display:inline;">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="courseId" value="@c.Id" />
+                                                <button type="submit" class="btn-dash-outline btn-dash-sm"
+                                                        style="color:#dc2626;border-color:#fecaca;"
+                                                        onclick="return confirm('Close this group? Students will no longer be able to join.')">
+                                                    <i class="bi bi-door-closed"></i> Close
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="btn-dash-outline btn-dash-sm"
+                                                    onclick="openGroupModal(@c.Id, '@c.Code', '@c.Title', '@c.WhatsappGroupUrl', 7, true)"
+                                                    style="color:#059669;border-color:#a7f3d0;">
+                                                <i class="bi bi-arrow-repeat"></i> Reopen
+                                            </button>
+                                        }
+                                    }
                                 </div>
                             </div>
                         }
-
-                        @foreach (var c in Model.Courses.Where(c => !string.IsNullOrEmpty(c.WhatsappGroupUrl)).Take(2))
-                        {
-                            <div class="dash-timeline-item">
-                                <div class="dash-timeline-dot icon-teal">
-                                    <i class="bi bi-whatsapp" style="color:#25d366;font-size:14px;"></i>
-                                </div>
-                                <div class="dash-timeline-body">
-                                    <strong>WhatsApp group set for @c.Code</strong>
-                                    <span>Deadline: @c.JoinDeadline.ToString("dd MMM yyyy")</span>
-                                </div>
-                            </div>
-                        }
-
                     </div>
                 </div>
-            </div>
+
+                <div class="dash-card" id="section-activity">
+                    <div class="dash-card-header">
+                        <div>
+                            <h5>Recent Activity</h5>
+                            <p>Latest actions in your class</p>
+                        </div>
+                    </div>
+                    <div class="dash-card-body">
+                        <div class="dash-timeline">
+                            @foreach (var r in Model.SessionReports
+                                .Where(r => r.Status >= SessionReportStatus.CPSignedOff)
+                                .OrderByDescending(r => r.CPSignedOffOn)
+                                .Take(4))
+                            {
+                                <div class="dash-timeline-item">
+                                    <div class="dash-timeline-dot icon-green">
+                                        <i class="bi bi-check-circle-fill" style="color:#059669;font-size:14px;"></i>
+                                    </div>
+                                    <div class="dash-timeline-body">
+                                        <strong>@r.CourseCode &ndash; @r.CourseTitle signed off</strong>
+                                        <span>@(r.CPSignedOffOn.HasValue ? r.CPSignedOffOn.Value.ToString("dd MMM, HH:mm") : r.SessionDate.ToString("dd MMM"))</span>
+                                    </div>
+                                </div>
+                            }
+                            @foreach (var c in Model.Courses.Where(c => !string.IsNullOrEmpty(c.WhatsappGroupUrl)).Take(2))
+                            {
+                                <div class="dash-timeline-item">
+                                    <div class="dash-timeline-dot icon-teal">
+                                        <i class="bi bi-whatsapp" style="color:#25d366;font-size:14px;"></i>
+                                    </div>
+                                    <div class="dash-timeline-body">
+                                        <strong>WhatsApp group set for @c.Code</strong>
+                                        <span>Deadline: @c.JoinDeadline.ToString("dd MMM yyyy")</span>
+                                    </div>
+                                </div>
+                            }
+                            @if (!Model.SessionReports.Any(r => r.Status >= SessionReportStatus.CPSignedOff) &&
+                                 !Model.Courses.Any(c => !string.IsNullOrEmpty(c.WhatsappGroupUrl)))
+                            {
+                                <div class="dash-empty">
+                                    <i class="bi bi-clock-history"></i>
+                                    <p>No recent activity yet.</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /#cpContent -->
 
         </div>
-        <!-- /dash-content -->
+
     </div>
-    <!-- /dash-main -->
 
 </div>
-<!-- /dash-shell -->
 
-
-<!-- ═══════════════════════════════════════════
-     MODAL — SIGN OFF SESSION
-════════════════════════════════════════════ -->
 <div id="signOffModal" class="cp-modal-overlay">
     <div class="cp-modal">
         <div class="cp-modal-header">
@@ -564,10 +619,6 @@
     </div>
 </div>
 
-
-<!-- ═══════════════════════════════════════════
-     MODAL — REJECT SESSION
-════════════════════════════════════════════ -->
 <div id="rejectModal" class="cp-modal-overlay">
     <div class="cp-modal">
         <div class="cp-modal-header">
@@ -593,10 +644,6 @@
     </div>
 </div>
 
-
-<!-- ═══════════════════════════════════════════
-     MODAL — CREATE / EDIT WHATSAPP GROUP
-════════════════════════════════════════════ -->
 <div id="groupModal" class="cp-modal-overlay">
     <div class="cp-modal">
         <div class="cp-modal-header">
@@ -606,7 +653,6 @@
             </h5>
             <button class="cp-close" onclick="closeModal('groupModal')"><i class="bi bi-x-lg"></i></button>
         </div>
-
         <div class="dash-alert dash-alert-info" style="margin-bottom:16px;">
             <i class="bi bi-info-circle-fill"></i>
             <div style="font-size:12px;">
@@ -614,35 +660,28 @@
                 Students will see this link on their dashboard and can join before the deadline.
             </div>
         </div>
-
         <form method="post" id="groupForm">
             @Html.AntiForgeryToken()
             <input type="hidden" name="courseId" id="groupCourseId" />
-
             <div class="form-field">
                 <label>Course</label>
-                <input type="text" id="groupCourseName" readonly
-                       style="background:#f8fafc;color:#6b7280;" />
+                <input type="text" id="groupCourseName" readonly style="background:#f8fafc;color:#6b7280;" />
             </div>
-
             <div class="form-field">
                 <label>WhatsApp Group Invite Link <span style="color:#dc2626;">*</span></label>
                 <input type="url" name="groupUrl" id="groupUrl" required
                        placeholder="https://chat.whatsapp.com/XXXXXXXXXXXXXXXXX" />
                 <div style="font-size:11px;color:#9ca3af;margin-top:4px;">
-                    Open WhatsApp → Group → Invite via link → Copy link
+                    Open WhatsApp &rarr; Group &rarr; Invite via link &rarr; Copy link
                 </div>
             </div>
-
             <div class="form-field">
                 <label>Joining Deadline (days from today)</label>
-                <input type="number" name="deadlineDays" id="groupDeadline"
-                       min="1" max="60" value="14" />
+                <input type="number" name="deadlineDays" id="groupDeadline" min="1" max="60" value="14" />
                 <div style="font-size:11px;color:#9ca3af;margin-top:4px;">
                     After this many days, the group will be closed to new joiners.
                 </div>
             </div>
-
             <div class="form-actions">
                 <button type="button" class="btn-dash-outline" onclick="closeModal('groupModal')">Cancel</button>
                 <button type="submit" class="btn-dash-primary" id="groupSubmitBtn">
@@ -653,20 +692,27 @@
     </div>
 </div>
 
-
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+
+    function revealAndScroll(sectionId) {
+        var content = document.getElementById('cpContent');
+        if (content) content.style.display = 'block';
+        setTimeout(function() {
+            var el = document.getElementById(sectionId);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
+    }
+
     function openModal(id)  { document.getElementById(id).classList.add('open'); }
     function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-    // Close on backdrop click
     document.querySelectorAll('.cp-modal-overlay').forEach(function(o) {
         o.addEventListener('click', function(e) {
             if (e.target === o) o.classList.remove('open');
         });
     });
 
-    /* ── Sign-Off modal ─────────────────────────── */
     function openSignOffModal(reportId, courseCode, date) {
         document.getElementById('signOffReportId').value = reportId;
         document.getElementById('signOffDesc').textContent =
@@ -674,7 +720,6 @@
         openModal('signOffModal');
     }
 
-    /* ── Reject modal ───────────────────────────── */
     function openRejectModal(reportId, courseCode) {
         document.getElementById('rejectReportId').value = reportId;
         document.getElementById('rejectDesc').textContent =
@@ -682,23 +727,29 @@
         openModal('rejectModal');
     }
 
-    /* ── Group modal ────────────────────────────── */
     function openGroupModal(courseId, code, title, url, days, isEdit) {
-        document.getElementById('groupCourseId').value    = courseId;
-        document.getElementById('groupCourseName').value  = code + ' – ' + title;
-        document.getElementById('groupUrl').value         = url || '';
-        document.getElementById('groupDeadline').value    = days || 14;
+        document.getElementById('groupCourseId').value   = courseId;
+        document.getElementById('groupCourseName').value = code + ' \u2013 ' + title;
+        document.getElementById('groupUrl').value        = url || '';
+        document.getElementById('groupDeadline').value   = days || 14;
 
-        var form = document.getElementById('groupForm');
+        var form    = document.getElementById('groupForm');
+        var titleEl = document.getElementById('groupModalTitle');
+        var btnEl   = document.getElementById('groupSubmitBtn');
+
         form.action = isEdit ? '?handler=UpdateGroup' : '?handler=CreateGroup';
 
-        var title_el = document.getElementById('groupModalTitle');
-        title_el.innerHTML = isEdit
-            ? '<i class="bi bi-pencil-square" style="color:#1e3a8a;margin-right:8px;"></i>Edit WhatsApp Group'
+        titleEl.innerHTML = isEdit
+            ? '<i class="bi bi-pencil-square" style="color:#1C3B83;margin-right:8px;"></i>Edit WhatsApp Group'
             : '<i class="bi bi-whatsapp" style="color:#25d366;margin-right:8px;"></i>Create WhatsApp Group';
+
+        if (btnEl) btnEl.innerHTML = isEdit
+            ? '<i class="bi bi-save-fill"></i> Save Changes'
+            : '<i class="bi bi-whatsapp"></i> Save Group Link';
 
         openModal('groupModal');
     }
+
 </script>
 </body>
 </html>

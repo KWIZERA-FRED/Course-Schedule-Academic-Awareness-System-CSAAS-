@@ -16,16 +16,13 @@
     <link rel="stylesheet" href="~/css/dashboard.css" />
 </head>
 <body>
-
 <div class="dash-shell">
 
-    <!-- =============================================
-         SIDEBAR
-    ============================================== -->
     <aside class="dash-sidebar">
-
         <a href="/" class="dash-sidebar-brand">
-            <div class="dash-sidebar-brand-icon" style="background:transparent;box-shadow:none;padding:2px;"><img src="/images/logo.jpeg" alt="UNILAK" style="width:34px;height:34px;border-radius:50%;object-fit:cover;" /></div>
+            <div class="dash-sidebar-brand-icon" style="background:transparent;box-shadow:none;padding:2px;">
+                <img src="/images/logo.jpeg" alt="UNILAK" style="width:34px;height:34px;border-radius:50%;object-fit:cover;" />
+            </div>
             <div class="dash-sidebar-brand-text">
                 <strong>CSAS</strong>
                 <span>Lecturer Portal</span>
@@ -33,894 +30,601 @@
         </a>
 
         <div class="dash-sidebar-section">Main Menu</div>
-
         <nav class="dash-sidebar-nav">
-            <a href="/" class="dash-nav-link">
-                <i class="bi bi-house-fill"></i> Home
+            <a href="/" class="dash-nav-link"><i class="bi bi-house-fill"></i> Home</a>
+            <a href="/Lecturer/Dashboard" class="dash-nav-link active"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="#section-schedule" class="dash-nav-link" onclick="revealAndScroll('section-schedule')">
+                <i class="bi bi-calendar3-week"></i> My Schedule
             </a>
-            <a href="/Lecturer/Dashboard" class="dash-nav-link active">
-                <i class="bi bi-speedometer2"></i> Dashboard
+            <a href="#section-sessions" class="dash-nav-link" onclick="revealAndScroll('section-sessions')">
+                <i class="bi bi-upload"></i> Session Reports
             </a>
-            <a href="#" class="dash-nav-link">
-                <i class="bi bi-calendar3-week"></i> My Teaching Schedule
-            </a>
-            <a href="#" class="dash-nav-link">
-                <i class="bi bi-journal-text"></i> My Courses
-            </a>
-            <a href="#section-marks" class="dash-nav-link">
+            <a href="#section-marks" class="dash-nav-link" onclick="revealAndScroll('section-marks')">
                 <i class="bi bi-pencil-square"></i> Send Marks
+                @if (Model.DraftMarks.Count > 0)
+                {
+                    <span style="margin-left:auto;background:#d97706;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;">@Model.DraftMarks.Count draft</span>
+                }
             </a>
-            <a href="#section-claims" class="dash-nav-link">
+            <a href="#section-claims" class="dash-nav-link" onclick="revealAndScroll('section-claims')">
                 <i class="bi bi-chat-left-text-fill"></i> Student Claims
+                @if (Model.PendingClaims.Count > 0)
+                {
+                    <span style="margin-left:auto;background:#dc2626;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;">@Model.PendingClaims.Count</span>
+                }
             </a>
-            <a href="#" class="dash-nav-link" onclick="event.preventDefault();openSubmitSessionModal()">
-                <i class="bi bi-upload"></i> Submit Session Report
-            </a>
-            <a href="#" class="dash-nav-link">
-                <i class="bi bi-bell"></i> Notifications
+            <a href="https://umurongosmart.com/" target="_blank" class="dash-nav-link"
+               style="border-top:1px solid rgba(255,255,255,0.07);margin-top:4px;padding-top:12px;">
+                <i class="bi bi-headset"></i> UmurongoSmart Support
             </a>
         </nav>
 
         <div class="dash-sidebar-section">Account</div>
-
         <nav class="dash-sidebar-nav">
-            <a href="#" class="dash-nav-link">
-                <i class="bi bi-person"></i> My Profile
-            </a>
-            <a href="/Logout" class="dash-nav-link"><i class="bi bi-box-arrow-left"></i> Logout
-            </a>
+            <a href="/Lecturer/Dashboard" class="dash-nav-link"><i class="bi bi-person"></i> My Profile</a>
+            <a href="/Logout" class="dash-nav-link"><i class="bi bi-box-arrow-left"></i> Logout</a>
         </nav>
 
         <div class="dash-sidebar-footer">
             <div class="dash-sidebar-user">
-                <div class="dash-user-avatar">
-                    <i class="bi bi-person-workspace"></i>
-                </div>
+                <div class="dash-user-avatar"><i class="bi bi-person-workspace"></i></div>
                 <div class="dash-user-info">
-                    <strong>Dr. J. Mugisha</strong>
-                    <span>Lecturer · Computer Science</span>
+                    <strong>@Model.CurrentUser.FullName</strong>
+                    <span>Lecturer &middot; @Model.CurrentUser.Department</span>
                 </div>
             </div>
         </div>
-
     </aside>
 
-
-    <!-- =============================================
-         MAIN CONTENT
-    ============================================== -->
     <div class="dash-main">
-
-        <!-- TOP BAR -->
         <div class="dash-topbar">
             <div class="dash-topbar-title">
                 <h1>Lecturer Dashboard</h1>
-                <p>Welcome, Dr. Mugisha — your courses and teaching overview</p>
+                <p>Welcome, @Model.CurrentUser.FirstName &mdash; your courses and teaching overview</p>
             </div>
             <div class="dash-topbar-actions">
-                <button class="btn-dash-primary btn-dash-sm" onclick="openSubmitSessionModal()">
+                <button type="button" class="btn-dash-primary btn-dash-sm" onclick="openSessionModal()">
                     <i class="bi bi-upload"></i> Submit Session Report
                 </button>
-                <a href="#" class="dash-icon-btn" title="Notifications">
-                    <i class="bi bi-bell"></i>
-                </a>
-                <div class="dash-topbar-avatar">
-                    <i class="bi bi-person-workspace"></i>
-                </div>
+                <div class="dash-topbar-avatar"><i class="bi bi-person-workspace"></i></div>
             </div>
         </div>
 
-        <!-- CONTENT -->
         <div class="dash-content">
 
-            <!-- STATUS MESSAGE -->
             @if (TempData["StatusMessage"] != null)
             {
                 var type = TempData["StatusType"]?.ToString() ?? "info";
-                var alertClass = type == "success" ? "dash-alert-success"
-                               : type == "danger"  ? "dash-alert-danger"
-                               : type == "warning" ? "dash-alert-warning"
-                               : "dash-alert-info";
-                var icon = type == "success" ? "bi-check-circle-fill"
-                         : type == "danger"  ? "bi-x-circle-fill"
-                         : "bi-exclamation-triangle-fill";
-                <div class="dash-alert @alertClass">
-                    <i class="bi @icon"></i>
-                    <div>@TempData["StatusMessage"]</div>
+                var alertClass = type == "success" ? "dash-alert-success" : type == "danger" ? "dash-alert-danger" : type == "warning" ? "dash-alert-warning" : "dash-alert-info";
+                var icon = type == "success" ? "bi-check-circle-fill" : type == "danger" ? "bi-x-circle-fill" : "bi-exclamation-triangle-fill";
+                <div class="dash-alert @alertClass"><i class="bi @icon"></i><div>@TempData["StatusMessage"]</div></div>
+            }
+
+            @if (Model.PendingClaims.Count > 0)
+            {
+                <div class="dash-alert dash-alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <div>
+                        <strong>@Model.PendingClaims.Count student claim@(Model.PendingClaims.Count != 1 ? "s" : "")</strong>
+                        awaiting your response &mdash; please respond within 3 working days.
+                        <a href="#" onclick="event.preventDefault();revealAndScroll('section-claims')" style="font-weight:700;margin-left:8px;">Respond &rarr;</a>
+                    </div>
                 </div>
             }
 
-            <!-- ALERT -->
-            <div class="dash-alert dash-alert-warning">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                <div>
-                    <strong>Session Report Pending:</strong>
-                    Your <strong>CSE301 – Software Engineering</strong> session on
-                    Thursday 02 Oct has not yet been submitted for CP sign-off.
-                    Please submit before end of day.
+            <div style="background:linear-gradient(135deg,#0D1E47 0%,#1C3B83 60%,#2952C8 100%);border-radius:16px;padding:32px 36px;margin-bottom:24px;position:relative;overflow:hidden;">
+                <div style="position:absolute;top:-50px;right:-50px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,0.04);"></div>
+                <div style="position:absolute;bottom:-70px;right:60px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,0.03);"></div>
+                <div style="position:relative;z-index:1;">
+                    <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.12);color:#93c5fd;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:14px;">
+                        <i class="bi bi-person-workspace"></i> Lecturer
+                    </div>
+                    <h2 style="color:white;font-size:26px;font-weight:800;margin:0 0 4px;">Welcome, @Model.CurrentUser.FullName</h2>
+                    <p style="color:rgba(255,255,255,0.6);font-size:13px;margin:0 0 20px;">
+                        @Model.CurrentUser.Department &nbsp;&middot;&nbsp;
+                        @Model.Courses.Count course@(Model.Courses.Count != 1 ? "s" : "") assigned &nbsp;&middot;&nbsp;
+                        @Model.TotalStudents student@(Model.TotalStudents != 1 ? "s" : "")
+                        @if (Model.PendingClaims.Count > 0) { <text>&nbsp;&middot;&nbsp; <span style="color:#fca5a5;">@Model.PendingClaims.Count claim@(Model.PendingClaims.Count != 1 ? "s" : "") pending</span></text> }
+                    </p>
+                    <div style="display:flex;flex-wrap:wrap;gap:10px;">
+                        <button type="button" onclick="openSessionModal()" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:white;color:#1C3B83;">
+                            <i class="bi bi-upload"></i> Submit Session Report
+                        </button>
+                        <button type="button" onclick="revealAndScroll('section-schedule')" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);">
+                            <i class="bi bi-calendar3-week"></i> My Schedule
+                        </button>
+                        <button type="button" onclick="revealAndScroll('section-sessions')" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);">
+                            <i class="bi bi-clipboard-check"></i> Session History
+                        </button>
+                        <button type="button" onclick="revealAndScroll('section-marks')" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);">
+                            <i class="bi bi-pencil-square"></i> Send Marks
+                            @if (Model.DraftMarks.Count > 0) { <span style="background:#d97706;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;">@Model.DraftMarks.Count draft</span> }
+                        </button>
+                        <button type="button" onclick="revealAndScroll('section-claims')" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);">
+                            <i class="bi bi-chat-left-text-fill"></i> Student Claims
+                            @if (Model.PendingClaims.Count > 0) { <span style="background:#dc2626;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;">@Model.PendingClaims.Count</span> }
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- STAT CARDS -->
-            <div class="dash-stats dash-stats-4">
+            <div id="lecturerContent" style="display:none;">
 
-                <div class="dash-stat-card">
-                    <div class="dash-stat-icon icon-blue">
-                        <i class="bi bi-journal-text"></i>
+                <div class="dash-stats dash-stats-4">
+                    <div class="dash-stat-card">
+                        <div class="dash-stat-icon icon-blue"><i class="bi bi-journal-text"></i></div>
+                        <div class="dash-stat-body"><strong>@Model.Courses.Count</strong><span>Assigned Courses</span></div>
                     </div>
-                    <div class="dash-stat-body">
-                        <strong>2</strong>
-                        <span>Assigned Courses</span>
+                    <div class="dash-stat-card">
+                        <div class="dash-stat-icon icon-green"><i class="bi bi-check2-all"></i></div>
+                        <div class="dash-stat-body"><strong>@Model.TotalDeliveredHours hrs</strong><span>Hours Delivered</span></div>
                     </div>
-                </div>
-
-                <div class="dash-stat-card">
-                    <div class="dash-stat-icon icon-green">
-                        <i class="bi bi-check2-all"></i>
+                    <div class="dash-stat-card">
+                        <div class="dash-stat-icon icon-amber"><i class="bi bi-clock-history"></i></div>
+                        <div class="dash-stat-body"><strong>@Model.PendingSubmissions</strong><span>Pending Submissions</span></div>
                     </div>
-                    <div class="dash-stat-body">
-                        <strong>34 hrs</strong>
-                        <span>Hours Delivered</span>
+                    <div class="dash-stat-card">
+                        <div class="dash-stat-icon icon-teal"><i class="bi bi-people-fill"></i></div>
+                        <div class="dash-stat-body"><strong>@Model.TotalStudents</strong><span>Total Students</span></div>
                     </div>
                 </div>
 
-                <div class="dash-stat-card">
-                    <div class="dash-stat-icon icon-amber">
-                        <i class="bi bi-clock-history"></i>
+                <div class="dash-grid-2">
+
+                    <div class="dash-card" id="section-schedule">
+                        <div class="dash-card-header">
+                            <div>
+                                <h5>My Teaching Schedule</h5>
+                                <p>Weekly recurring sessions for this semester</p>
+                            </div>
+                        </div>
+                        <div class="dash-card-body" style="padding:0 0 4px;">
+                            @foreach (var c in Model.Courses)
+                            {
+                                var parts = c.ScheduleTime.Split(' ');
+                                var day   = parts.Length > 0 ? parts[0].ToUpper().Substring(0, Math.Min(3, parts[0].Length)) : "—";
+                                var time  = parts.Length > 1 ? parts[1] : "";
+                                var pct   = c.ScheduledHours > 0 ? (double)c.DeliveredHours / c.ScheduledHours * 100 : 0;
+                                var badge = pct >= 100 ? ("badge-approved","patch-check-fill","Complete")
+                                          : pct >= 70  ? ("badge-verified","check-circle-fill","Active")
+                                          : pct > 0    ? ("badge-pending","clock-history","In Progress")
+                                                       : ("badge-inactive","dash-circle","Not Started");
+                                <div class="dash-schedule-item" style="padding:14px 20px;">
+                                    <div class="dash-schedule-time">@day<br/>@time</div>
+                                    <div class="dash-schedule-detail">
+                                        <strong>@c.Code &ndash; @c.Title</strong>
+                                        <span>@c.Venue &nbsp;&middot;&nbsp; @c.DeliveredHours/@c.ScheduledHours hrs</span>
+                                    </div>
+                                    <div class="dash-schedule-badge">
+                                        <span class="badge-status @badge.Item1">
+                                            <i class="bi bi-@badge.Item2"></i> @badge.Item3
+                                        </span>
+                                    </div>
+                                </div>
+                            }
+                            @if (!Model.Courses.Any())
+                            {
+                                <div class="dash-empty"><i class="bi bi-calendar3"></i><p>No courses assigned yet.</p></div>
+                            }
+                        </div>
                     </div>
-                    <div class="dash-stat-body">
-                        <strong>1</strong>
-                        <span>Pending Submission</span>
+
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <div>
+                                <h5>Course Delivery Progress</h5>
+                                <p>Hours delivered vs scheduled this semester</p>
+                            </div>
+                        </div>
+                        <div class="dash-card-body">
+                            @foreach (var c in Model.Courses)
+                            {
+                                var pct      = c.ScheduledHours > 0 ? (int)Math.Round((double)c.DeliveredHours / c.ScheduledHours * 100) : 0;
+                                var barColor = pct >= 100 ? "#059669" : pct >= 70 ? "#1C3B83" : pct >= 40 ? "#d97706" : "#dc2626";
+                                var status   = pct >= 100 ? "badge-approved" : pct >= 70 ? "badge-active" : "badge-pending";
+                                var label    = pct >= 100 ? "Complete" : "Ongoing";
+                                <div style="padding:16px;border:1px solid #e5e7eb;border-radius:10px;margin-bottom:14px;">
+                                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                                        <div>
+                                            <strong style="font-size:14px;color:#0D1E47;">@c.Code &ndash; @c.Title</strong>
+                                            <div style="font-size:11px;color:#9ca3af;margin-top:2px;">@c.ScheduleTime &nbsp;&middot;&nbsp; @c.Venue</div>
+                                        </div>
+                                        <span class="badge-status @status">@label</span>
+                                    </div>
+                                    <div class="dash-progress-row" style="margin-bottom:6px;">
+                                        <span class="dash-progress-label" style="width:110px;">Hours Delivered</span>
+                                        <div class="dash-progress-bar-wrap">
+                                            <div class="dash-progress-bar-fill" style="width:@pct%;background:@barColor;"></div>
+                                        </div>
+                                        <span class="dash-progress-pct">@pct%</span>
+                                    </div>
+                                    <div style="font-size:11px;color:#6b7280;">@c.DeliveredHours of @c.ScheduledHours scheduled hours delivered</div>
+                                </div>
+                            }
+                        </div>
                     </div>
+
                 </div>
 
-                <div class="dash-stat-card">
-                    <div class="dash-stat-icon icon-teal">
-                        <i class="bi bi-people-fill"></i>
-                    </div>
-                    <div class="dash-stat-body">
-                        <strong>82</strong>
-                        <span>Total Students</span>
-                    </div>
-                </div>
-
-            </div>
-
-
-            <!-- TEACHING SCHEDULE + COURSE SUMMARY -->
-            <div class="dash-grid-2">
-
-                <!-- TEACHING SCHEDULE -->
-                <div class="dash-card">
+                <div class="dash-card" id="section-sessions">
                     <div class="dash-card-header">
                         <div>
-                            <h5>My Teaching Schedule</h5>
-                            <p>Weekly recurring sessions for this semester</p>
+                            <h5>Session Report History</h5>
+                            <p>All submitted sessions and their approval status</p>
                         </div>
-                        <a href="#" class="btn-dash-outline btn-dash-sm">
-                            <i class="bi bi-download"></i> Export
-                        </a>
+                        <button type="button" class="btn-dash-primary btn-dash-sm" onclick="openSessionModal()">
+                            <i class="bi bi-upload"></i> New Submission
+                        </button>
                     </div>
-                    <div class="dash-card-body" style="padding:0 0 4px;">
+                    <div class="dash-card-body" style="padding:0;">
+                        @if (!Model.SessionReports.Any())
+                        {
+                            <div class="dash-empty"><i class="bi bi-clipboard"></i><p>No session reports submitted yet. Use "New Submission" to get started.</p></div>
+                        }
+                        else
+                        {
+                            <table class="dash-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Course</th>
+                                        <th>Topic Covered</th>
+                                        <th>Duration</th>
+                                        <th>CP Sign-Off</th>
+                                        <th>HOD Approval</th>
+                                        <th>Dean Final</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var r in Model.SessionReports.OrderByDescending(r => r.SessionDate).Take(10))
+                                    {
+                                        string cpClass, cpIcon, cpLabel;
+                                        if (r.Status >= SessionReportStatus.CPSignedOff)       { cpClass = "badge-verified"; cpIcon = "check-circle-fill"; cpLabel = "Done"; }
+                                        else if (r.Status == SessionReportStatus.Rejected)    { cpClass = "badge-missed";   cpIcon = "x-circle-fill";     cpLabel = "Rejected"; }
+                                        else                                                   { cpClass = "badge-missed";   cpIcon = "x-circle-fill";     cpLabel = "Not Submitted"; }
 
-                        <div class="dash-schedule-item" style="padding:14px 20px;">
-                            <div class="dash-schedule-time">MON<br/>08:00</div>
-                            <div class="dash-schedule-detail">
-                                <strong>CSE301 – Software Engineering</strong>
-                                <span>Block A – Room 204 &nbsp;·&nbsp; 2 hrs &nbsp;·&nbsp; 42 students</span>
-                            </div>
-                            <div class="dash-schedule-badge">
-                                <span class="badge-status badge-verified">
-                                    <i class="bi bi-check-circle-fill"></i> Active
-                                </span>
-                            </div>
-                        </div>
+                                        string hodClass, hodIcon, hodLabel;
+                                        if (r.Status >= SessionReportStatus.HODApproved)      { hodClass = "badge-approved"; hodIcon = "patch-check-fill"; hodLabel = "Approved"; }
+                                        else if (r.Status == SessionReportStatus.Rejected)    { hodClass = "badge-missed";   hodIcon = "x-circle-fill";    hodLabel = "Rejected"; }
+                                        else                                                   { hodClass = "badge-inactive"; hodIcon = "dash-circle";       hodLabel = "Waiting"; }
 
-                        <div class="dash-schedule-item" style="padding:14px 20px;">
-                            <div class="dash-schedule-time">WED<br/>10:00</div>
-                            <div class="dash-schedule-detail">
-                                <strong>CSE301 – Software Engineering</strong>
-                                <span>Block A – Room 204 &nbsp;·&nbsp; 2 hrs &nbsp;·&nbsp; 42 students</span>
-                            </div>
-                            <div class="dash-schedule-badge">
-                                <span class="badge-status badge-verified">
-                                    <i class="bi bi-check-circle-fill"></i> Active
-                                </span>
-                            </div>
-                        </div>
+                                        string deanClass, deanIcon, deanLabel;
+                                        if (r.Status >= SessionReportStatus.DeanApproved)     { deanClass = "badge-approved"; deanIcon = "patch-check-fill"; deanLabel = "Approved"; }
+                                        else if (r.Status == SessionReportStatus.Rejected)    { deanClass = "badge-missed";   deanIcon = "x-circle-fill";    deanLabel = "Rejected"; }
+                                        else                                                   { deanClass = "badge-inactive"; deanIcon = "dash-circle";       deanLabel = "Waiting"; }
 
-                        <div class="dash-schedule-item" style="padding:14px 20px;">
-                            <div class="dash-schedule-time">TUE<br/>14:00</div>
-                            <div class="dash-schedule-detail">
-                                <strong>CSE402 – Software Architecture</strong>
-                                <span>Block C – Room 302 &nbsp;·&nbsp; 2 hrs &nbsp;·&nbsp; 40 students</span>
-                            </div>
-                            <div class="dash-schedule-badge">
-                                <span class="badge-status badge-verified">
-                                    <i class="bi bi-check-circle-fill"></i> Active
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="dash-schedule-item" style="padding:14px 20px;">
-                            <div class="dash-schedule-time">THU<br/>08:00</div>
-                            <div class="dash-schedule-detail">
-                                <strong>CSE402 – Software Architecture</strong>
-                                <span>Block C – Room 302 &nbsp;·&nbsp; 2 hrs &nbsp;·&nbsp; 40 students</span>
-                            </div>
-                            <div class="dash-schedule-badge">
-                                <span class="badge-status badge-pending">
-                                    <i class="bi bi-clock-history"></i> Pending
-                                </span>
-                            </div>
-                        </div>
-
+                                        <tr>
+                                            <td style="font-size:12px;">@r.SessionDate.ToString("ddd dd MMM")</td>
+                                            <td>
+                                                <strong style="display:block;font-size:13px;">@r.CourseCode</strong>
+                                                <span style="font-size:11px;color:#9ca3af;">@r.CourseTitle</span>
+                                            </td>
+                                            <td style="font-size:12px;">@(string.IsNullOrEmpty(r.TopicCovered) ? "—" : r.TopicCovered)</td>
+                                            <td style="font-size:12px;">@r.DurationHours hrs</td>
+                                            <td><span class="badge-status @cpClass"><i class="bi bi-@cpIcon"></i> @cpLabel</span></td>
+                                            <td><span class="badge-status @hodClass"><i class="bi bi-@hodIcon"></i> @hodLabel</span></td>
+                                            <td><span class="badge-status @deanClass"><i class="bi bi-@deanIcon"></i> @deanLabel</span></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
                     </div>
                 </div>
 
-                <!-- COURSE SUMMARY -->
-                <div class="dash-card">
+                <div class="dash-card" id="section-marks">
                     <div class="dash-card-header">
                         <div>
-                            <h5>Course Summary</h5>
-                            <p>Delivery progress for assigned courses</p>
+                            <h5>Send Marks to Students</h5>
+                            <p>Post assessment results &mdash; students see them immediately on their dashboard</p>
                         </div>
-                    </div>
-                    <div class="dash-card-body">
-
-                        <!-- Course 1 -->
-                        <div style="padding:16px;border:1px solid #e5e7eb;border-radius:10px;margin-bottom:14px;">
-                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                                <div>
-                                    <strong style="font-size:14px;color:#0f1a3a;">CSE301 – Software Engineering</strong>
-                                    <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Mon &amp; Wed · Block A – Room 204 · 42 students</div>
-                                </div>
-                                <span class="badge-status badge-active">Ongoing</span>
-                            </div>
-                            <div class="dash-progress-row" style="margin-bottom:6px;">
-                                <span class="dash-progress-label" style="width:110px;">Hours Delivered</span>
-                                <div class="dash-progress-bar-wrap">
-                                    <div class="dash-progress-bar-fill" style="width:94%;"></div>
-                                </div>
-                                <span class="dash-progress-pct">94%</span>
-                            </div>
-                            <div style="font-size:11px;color:#6b7280;">34 of 36 scheduled hours delivered</div>
-                        </div>
-
-                        <!-- Course 2 -->
-                        <div style="padding:16px;border:1px solid #e5e7eb;border-radius:10px;">
-                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                                <div>
-                                    <strong style="font-size:14px;color:#0f1a3a;">CSE402 – Software Architecture</strong>
-                                    <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Tue &amp; Thu · Block C – Room 302 · 40 students</div>
-                                </div>
-                                <span class="badge-status badge-approved">Complete</span>
-                            </div>
-                            <div class="dash-progress-row" style="margin-bottom:6px;">
-                                <span class="dash-progress-label" style="width:110px;">Hours Delivered</span>
-                                <div class="dash-progress-bar-wrap">
-                                    <div class="dash-progress-bar-fill" style="width:100%;background:#059669;"></div>
-                                </div>
-                                <span class="dash-progress-pct">100%</span>
-                            </div>
-                            <div style="font-size:11px;color:#6b7280;">36 of 36 scheduled hours delivered</div>
-                        </div>
-
-                    </div>
-                </div>
-
-            </div>
-
-
-            <!-- SESSION REPORT HISTORY -->
-            <div class="dash-card">
-                <div class="dash-card-header">
-                    <div>
-                        <h5>Session Report History</h5>
-                        <p>All submitted sessions and their approval status</p>
-                    </div>
-                    <button class="btn-dash-primary btn-dash-sm" onclick="openSubmitSessionModal()">
-                        <i class="bi bi-upload"></i> New Submission
-                    </button>
-                </div>
-                <div class="dash-card-body" style="padding:0;">
-                    <table class="dash-table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Course</th>
-                                <th>Topic Covered</th>
-                                <th>Duration</th>
-                                <th>CP Sign-Off</th>
-                                <th>HOD Approval</th>
-                                <th>Dean Final</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Mon 29 Sep</td>
-                                <td>
-                                    <strong style="display:block;font-size:13px;">CSE301</strong>
-                                    <span style="font-size:11px;color:#9ca3af;">Software Engineering</span>
-                                </td>
-                                <td style="font-size:12px;">Requirements Engineering</td>
-                                <td>2 hrs</td>
-                                <td><span class="badge-status badge-verified"><i class="bi bi-check-circle-fill"></i> Done</span></td>
-                                <td><span class="badge-status badge-approved"><i class="bi bi-patch-check-fill"></i> Approved</span></td>
-                                <td><span class="badge-status badge-approved"><i class="bi bi-patch-check-fill"></i> Approved</span></td>
-                            </tr>
-                            <tr>
-                                <td>Wed 01 Oct</td>
-                                <td>
-                                    <strong style="display:block;font-size:13px;">CSE301</strong>
-                                    <span style="font-size:11px;color:#9ca3af;">Software Engineering</span>
-                                </td>
-                                <td style="font-size:12px;">UML Diagrams &amp; Use Cases</td>
-                                <td>2 hrs</td>
-                                <td><span class="badge-status badge-verified"><i class="bi bi-check-circle-fill"></i> Done</span></td>
-                                <td><span class="badge-status badge-pending"><i class="bi bi-clock-history"></i> Pending</span></td>
-                                <td><span class="badge-status badge-inactive">Waiting</span></td>
-                            </tr>
-                            <tr>
-                                <td>Thu 02 Oct</td>
-                                <td>
-                                    <strong style="display:block;font-size:13px;">CSE301</strong>
-                                    <span style="font-size:11px;color:#9ca3af;">Software Engineering</span>
-                                </td>
-                                <td style="font-size:12px;">Design Patterns</td>
-                                <td>2 hrs</td>
-                                <td><span class="badge-status badge-missed"><i class="bi bi-x-circle-fill"></i> Not Submitted</span></td>
-                                <td><span class="badge-status badge-inactive">Waiting</span></td>
-                                <td><span class="badge-status badge-inactive">Waiting</span></td>
-                            </tr>
-                            <tr>
-                                <td>Tue 30 Sep</td>
-                                <td>
-                                    <strong style="display:block;font-size:13px;">CSE402</strong>
-                                    <span style="font-size:11px;color:#9ca3af;">Software Architecture</span>
-                                </td>
-                                <td style="font-size:12px;">Microservices Architecture</td>
-                                <td>2 hrs</td>
-                                <td><span class="badge-status badge-verified"><i class="bi bi-check-circle-fill"></i> Done</span></td>
-                                <td><span class="badge-status badge-approved"><i class="bi bi-patch-check-fill"></i> Approved</span></td>
-                                <td><span class="badge-status badge-approved"><i class="bi bi-patch-check-fill"></i> Approved</span></td>
-                            </tr>
-                            <tr>
-                                <td>Thu 25 Sep</td>
-                                <td>
-                                    <strong style="display:block;font-size:13px;">CSE402</strong>
-                                    <span style="font-size:11px;color:#9ca3af;">Software Architecture</span>
-                                </td>
-                                <td style="font-size:12px;">Event-Driven Systems</td>
-                                <td>2 hrs</td>
-                                <td><span class="badge-status badge-verified"><i class="bi bi-check-circle-fill"></i> Done</span></td>
-                                <td><span class="badge-status badge-approved"><i class="bi bi-patch-check-fill"></i> Approved</span></td>
-                                <td><span class="badge-status badge-approved"><i class="bi bi-patch-check-fill"></i> Approved</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-
-
-            <!-- =============================================
-                 SEND MARKS
-            ============================================== -->
-            <div class="dash-card" id="section-marks">
-                <div class="dash-card-header">
-                    <div>
-                        <h5>Send Marks to Students</h5>
-                        <p>Post assessment results — students will see them immediately on their dashboard</p>
-                    </div>
-                    <div style="display:flex;gap:8px;">
-                        <a href="#" class="btn-dash-outline btn-dash-sm">
-                            <i class="bi bi-upload"></i> Bulk Upload CSV
-                        </a>
-                        <button class="btn-dash-primary btn-dash-sm" onclick="openMarksModal()">
+                        <button type="button" class="btn-dash-primary btn-dash-sm" onclick="openMarksModal()">
                             <i class="bi bi-plus"></i> Add Entry
                         </button>
                     </div>
-                </div>
-                <div class="dash-card-body" style="padding:0;">
-                    <table class="dash-table">
-                        <thead>
-                            <tr>
-                                <th>Course</th>
-                                <th>Assessment Type</th>
-                                <th>Max Marks</th>
-                                <th>Student</th>
-                                <th>Reg. No.</th>
-                                <th>Score</th>
-                                <th>Grade</th>
-                                <th>Published</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (!Model.Marks.Any())
-                            {
-                                <tr><td colspan="9" style="text-align:center;padding:20px;color:#9ca3af;">No marks posted yet. Use "Add Entry" to post a mark.</td></tr>
-                            }
-                            @foreach (var m in Model.Marks)
-                            {
-                                var scoreColor = m.Percentage >= 80 ? "#059669"
-                                              : m.Percentage >= 60 ? "#d97706" : "#dc2626";
-                                var gradeBadge = m.Percentage >= 80 ? "badge-approved"
-                                              : m.Percentage >= 60 ? "badge-pending" : "badge-missed";
-                                var isPublished = m.Status == MarkStatus.Published || m.Status == MarkStatus.Corrected;
-
-                                <tr>
-                                    <td>
-                                        <strong style="display:block;font-size:13px;">@m.CourseCode</strong>
-                                        <span style="font-size:11px;color:#9ca3af;">@m.CourseTitle</span>
-                                    </td>
-                                    <td style="font-size:12px;">@m.AssessmentLabel</td>
-                                    <td style="font-size:13px;">@m.MaxScore</td>
-                                    <td>@m.StudentFullName</td>
-                                    <td style="font-size:11px;color:#9ca3af;">@m.StudentRegistrationNumber</td>
-                                    <td><strong style="color:@scoreColor;">@m.Score</strong></td>
-                                    <td><span class="badge-status @gradeBadge">@m.Grade</span></td>
-                                    <td>
-                                        @if (isPublished)
-                                        {
-                                            <span class="badge-status badge-verified"><i class="bi bi-patch-check-fill"></i> Yes</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge-status badge-inactive"><i class="bi bi-eye-slash"></i> Draft</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        <div style="display:flex;gap:5px;">
-                                            @if (isPublished)
-                                            {
-                                                <!-- UNPUBLISH -->
-                                                <form method="post" asp-page-handler="UnpublishMark" style="display:inline;">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="markId" value="@m.Id" />
-                                                    <button type="submit" class="btn-dash-icon" title="Unpublish" style="color:#dc2626;">
-                                                        <i class="bi bi-eye-slash"></i>
-                                                    </button>
-                                                </form>
-                                            }
-                                            else
-                                            {
-                                                <!-- PUBLISH -->
-                                                <form method="post" asp-page-handler="PublishMark" style="display:inline;">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="markId" value="@m.Id" />
-                                                    <button type="submit" class="btn-dash-primary btn-dash-sm" title="Publish to student">
-                                                        <i class="bi bi-send-fill"></i> Publish
-                                                    </button>
-                                                </form>
-                                            }
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-
-            <!-- =============================================
-                 STUDENT CLAIMS
-            ============================================== -->
-            <div class="dash-card" id="section-claims">
-                <div class="dash-card-header">
-                    <div>
-                        <h5>Student Mark Claims</h5>
-                        <p>Claims raised by students about your posted marks — respond within 3 working days</p>
-                    </div>
-                    <span class="badge-status badge-pending">
-                        <i class="bi bi-clock-history"></i> 1 Pending
-                    </span>
-                </div>
-                <div class="dash-card-body" style="padding:0;">
-                    <table class="dash-table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Student</th>
-                                <th>Course</th>
-                                <th>Assessment</th>
-                                <th>Their Reason</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (!Model.PendingClaims.Any())
-                            {
-                                <tr>
-                                    <td colspan="7" style="text-align:center;padding:24px;color:#9ca3af;">
-                                        No pending claims. All student queries have been resolved.
-                                    </td>
-                                </tr>
-                            }
-                            @foreach (var claim in Model.PendingClaims)
-                            {
-                                <tr>
-                                    <td style="font-size:12px;">@claim.RaisedOn.ToString("dd MMM yyyy")</td>
-                                    <td>
-                                        <strong style="display:block;font-size:13px;">@claim.StudentFullName</strong>
-                                        <span style="font-size:11px;color:#9ca3af;">@claim.StudentRegistrationNumber</span>
-                                    </td>
-                                    <td>
-                                        <strong style="display:block;font-size:13px;">@claim.CourseCode</strong>
-                                        <span style="font-size:11px;color:#9ca3af;">@claim.CourseTitle</span>
-                                    </td>
-                                    <td style="font-size:12px;">@claim.AssessmentLabel</td>
-                                    <td style="font-size:12px;max-width:200px;color:#374151;">@claim.Reason</td>
-                                    <td><span class="badge-status badge-pending"><i class="bi bi-clock-history"></i> Pending</span></td>
-                                    <td>
-                                        <button class="btn-dash-primary btn-dash-sm"
-                                                onclick="openResponseModal(@claim.Id, '@claim.StudentFullName', '@claim.CourseCode', '@claim.AssessmentLabel')">
-                                            <i class="bi bi-reply-fill"></i> Respond
-                                        </button>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-
-            <!-- =============================================
-                 SUBMIT SESSION REPORT MODAL
-            ============================================== -->
-            <div id="sessionModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);
-                 z-index:3000;align-items:center;justify-content:center;">
-                <div style="background:white;border-radius:14px;padding:28px;width:100%;max-width:500px;
-                            margin:20px;box-shadow:0 20px 50px rgba(0,0,0,.2);">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
-                        <h5 style="margin:0;font-size:16px;color:#0f1a3a;font-weight:700;">
-                            <i class="bi bi-upload" style="color:#1e3a8a;margin-right:8px;"></i>
-                            Submit Session Report
-                        </h5>
-                        <button onclick="closeSessionModal()" style="background:none;border:none;font-size:18px;color:#9ca3af;cursor:pointer;">
-                            <i class="bi bi-x-lg"></i>
-                        </button>
-                    </div>
-                    <form method="post" asp-page-handler="SubmitSessionReport">
-                        @Html.AntiForgeryToken()
-                        <div style="margin-bottom:14px;">
-                            <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">
-                                Course <span style="color:#dc2626;">*</span>
-                            </label>
-                            <select name="courseId" style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;outline:none;">
-                                @foreach (var c in Model.Courses)
-                                {
-                                    <option value="@c.Id">@c.Code – @c.Title</option>
-                                }
-                            </select>
-                        </div>
-                        <div style="margin-bottom:14px;">
-                            <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">
-                                Topic Covered <span style="color:#dc2626;">*</span>
-                            </label>
-                            <input type="text" name="topicCovered" required
-                                   style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;outline:none;"
-                                   placeholder="e.g. UML Diagrams & Use Cases" />
-                        </div>
-                        <div style="margin-bottom:20px;">
-                            <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">
-                                Duration (hours)
-                            </label>
-                            <input type="number" name="durationHours" value="2" min="1" max="8" step="0.5"
-                                   style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;outline:none;" />
-                        </div>
-                        <div style="display:flex;gap:10px;justify-content:flex-end;">
-                            <button type="button" onclick="closeSessionModal()" class="btn-dash-outline">Cancel</button>
-                            <button type="submit" class="btn-dash-primary">
-                                <i class="bi bi-send-fill"></i> Submit for CP Sign-Off
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- =============================================
-                 ADD MARKS MODAL
-            ============================================== -->            <div id="marksModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);
-                 z-index:3000;align-items:center;justify-content:center;">
-                <div style="background:white;border-radius:14px;padding:28px;width:100%;max-width:520px;
-                            margin:20px;box-shadow:0 20px 50px rgba(0,0,0,0.2);">
-
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-                        <h5 style="margin:0;font-size:16px;color:#0f1a3a;font-weight:700;">
-                            <i class="bi bi-pencil-square" style="color:#1e3a8a;margin-right:8px;"></i>
-                            Post Student Mark
-                        </h5>
-                        <button onclick="closeMarksModal()" style="background:none;border:none;font-size:18px;
-                                color:#9ca3af;cursor:pointer;line-height:1;">
-                            <i class="bi bi-x-lg"></i>
-                        </button>
-                    </div>
-
-                    <form method="post" asp-page-handler="SaveMark" id="marksForm">
-                        @Html.AntiForgeryToken()
-
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-                            <div>
-                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">Course</label>
-                                <select name="courseId" style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;outline:none;">
-                                    @foreach (var c in Model.Courses)
+                    <div class="dash-card-body" style="padding:0;">
+                        @if (!Model.Marks.Any())
+                        {
+                            <div class="dash-empty"><i class="bi bi-pencil-square"></i><p>No marks posted yet. Use "Add Entry" to post a mark.</p></div>
+                        }
+                        else
+                        {
+                            <table class="dash-table">
+                                <thead>
+                                    <tr>
+                                        <th>Course</th>
+                                        <th>Assessment</th>
+                                        <th>Max</th>
+                                        <th>Student</th>
+                                        <th>Reg. No.</th>
+                                        <th>Score</th>
+                                        <th>Grade</th>
+                                        <th>Published</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var m in Model.Marks)
                                     {
-                                        <option value="@c.Id">@c.Code – @c.Title</option>
+                                        var scoreColor  = m.Percentage >= 80 ? "#059669" : m.Percentage >= 60 ? "#d97706" : "#dc2626";
+                                        var gradeBadge  = m.Percentage >= 80 ? "badge-approved" : m.Percentage >= 60 ? "badge-pending" : "badge-missed";
+                                        var isPublished = m.Status == MarkStatus.Published || m.Status == MarkStatus.Corrected;
+                                        <tr>
+                                            <td>
+                                                <strong style="display:block;font-size:13px;">@m.CourseCode</strong>
+                                                <span style="font-size:11px;color:#9ca3af;">@m.CourseTitle</span>
+                                            </td>
+                                            <td style="font-size:12px;">@m.AssessmentLabel</td>
+                                            <td style="font-size:13px;">@m.MaxScore</td>
+                                            <td style="font-size:13px;">@m.StudentFullName</td>
+                                            <td style="font-size:11px;color:#9ca3af;">@m.StudentRegistrationNumber</td>
+                                            <td><strong style="color:@scoreColor;">@m.Score</strong></td>
+                                            <td><span class="badge-status @gradeBadge">@m.Grade</span></td>
+                                            <td>
+                                                @if (isPublished)
+                                                {
+                                                    <span class="badge-status badge-verified"><i class="bi bi-patch-check-fill"></i> Yes</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge-status badge-inactive"><i class="bi bi-eye-slash"></i> Draft</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (isPublished)
+                                                {
+                                                    <form method="post" asp-page-handler="UnpublishMark" style="display:inline;">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="markId" value="@m.Id" />
+                                                        <button type="submit" class="btn-dash-icon" title="Unpublish" style="color:#dc2626;">
+                                                            <i class="bi bi-eye-slash"></i>
+                                                        </button>
+                                                    </form>
+                                                }
+                                                else
+                                                {
+                                                    <form method="post" asp-page-handler="PublishMark" style="display:inline;">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="markId" value="@m.Id" />
+                                                        <button type="submit" class="btn-dash-primary btn-dash-sm">
+                                                            <i class="bi bi-send-fill"></i> Publish
+                                                        </button>
+                                                    </form>
+                                                }
+                                            </td>
+                                        </tr>
                                     }
-                                </select>
-                            </div>
-                            <div>
-                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">Assessment Type</label>
-                                <select name="assessmentType" style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;outline:none;">
-                                    <option value="CAT1">CAT 1</option>
-                                    <option value="CAT2">CAT 2</option>
-                                    <option value="Assignment1">Assignment 1</option>
-                                    <option value="Assignment2">Assignment 2</option>
-                                    <option value="FinalExam">Final Exam</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-                            <div>
-                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">Student Reg. No.</label>
-                                <input type="text" name="studentRegNo" style="width:100%;padding:9px 12px;border:1px solid #d1d5db;
-                                       border-radius:7px;font-size:13px;outline:none;"
-                                       placeholder="UNILAK/2024/001" required />
-                            </div>
-                            <div>
-                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">Max Marks</label>
-                                <input type="number" name="maxScore" style="width:100%;padding:9px 12px;border:1px solid #d1d5db;
-                                       border-radius:7px;font-size:13px;outline:none;"
-                                       placeholder="e.g. 30" value="30" />
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom:14px;">
-                            <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">
-                                Score Obtained <span style="color:#dc2626;">*</span>
-                            </label>
-                            <input type="number" name="score" step="0.5" required style="width:100%;padding:9px 12px;border:1px solid #d1d5db;
-                                   border-radius:7px;font-size:13px;outline:none;"
-                                   placeholder="e.g. 24" />
-                        </div>
-
-                        <div style="margin-bottom:20px;">
-                            <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">Remarks (optional)</label>
-                            <textarea name="remarks" rows="2" style="width:100%;padding:9px 12px;border:1px solid #d1d5db;
-                                      border-radius:7px;font-size:13px;outline:none;resize:vertical;"
-                                      placeholder="e.g. Good performance on section B..."></textarea>
-                        </div>
-
-                        <div style="display:flex;align-items:center;gap:10px;justify-content:space-between;">
-                            <label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;">
-                                <input type="checkbox" name="publishNow" value="true" checked /> Publish immediately to student
-                            </label>
-                            <div style="display:flex;gap:10px;">
-                                <button type="button" onclick="closeMarksModal()" class="btn-dash-outline">Cancel</button>
-                                <button type="submit" class="btn-dash-primary">
-                                    <i class="bi bi-send-fill"></i> Save &amp; Post
-                                </button>
-                            </div>
-                        </div>
-
-                    </form>
-                </div>
-            </div>
-
-
-            <!-- =============================================
-                 RESPOND TO CLAIM MODAL
-            ============================================== -->
-            <div id="responseModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);
-                 z-index:3000;align-items:center;justify-content:center;">
-                <div style="background:white;border-radius:14px;padding:28px;width:100%;max-width:480px;
-                            margin:20px;box-shadow:0 20px 50px rgba(0,0,0,0.2);">
-
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-                        <h5 style="margin:0;font-size:16px;color:#0f1a3a;font-weight:700;">
-                            <i class="bi bi-reply-fill" style="color:#1e3a8a;margin-right:8px;"></i>
-                            Respond to Claim
-                        </h5>
-                        <button onclick="closeResponseModal()" style="background:none;border:none;font-size:18px;
-                                color:#9ca3af;cursor:pointer;line-height:1;">
-                            <i class="bi bi-x-lg"></i>
-                        </button>
-                    </div>
-
-                    <div id="response-info" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;
-                         padding:12px 14px;margin-bottom:16px;font-size:12px;color:#374151;">
-                    </div>
-
-                    <form method="post" asp-page-handler="RespondClaim" id="respondForm">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="claimId" id="respondClaimId" />
-
-                        <div style="margin-bottom:14px;">
-                            <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">Your Decision</label>
-                            <select name="decision" style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;outline:none;">
-                                <option value="upheld">Claim Upheld — I will correct the mark</option>
-                                <option value="rejected">Claim Rejected — Mark stands as posted</option>
-                                <option value="partial">Partial Correction — Mark partially updated</option>
-                            </select>
-                        </div>
-
-                        <div style="margin-bottom:14px;">
-                            <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">
-                                New Score (if correcting)
-                            </label>
-                            <input type="number" name="correctedScore" step="0.5" style="width:100%;padding:9px 12px;border:1px solid #d1d5db;
-                                   border-radius:7px;font-size:13px;outline:none;"
-                                   placeholder="Leave blank if mark is unchanged" />
-                        </div>
-
-                        <div style="margin-bottom:20px;">
-                            <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">
-                                Explanation to Student <span style="color:#dc2626;">*</span>
-                            </label>
-                            <textarea name="explanation" rows="4" required style="width:100%;padding:9px 12px;border:1px solid #d1d5db;
-                                      border-radius:7px;font-size:13px;outline:none;resize:vertical;"
-                                      placeholder="Explain your decision clearly to the student..."></textarea>
-                        </div>
-
-                        <div style="display:flex;gap:10px;justify-content:flex-end;">
-                            <button type="button" onclick="closeResponseModal()" class="btn-dash-outline">Cancel</button>
-                            <button type="submit" class="btn-dash-primary">
-                                <i class="bi bi-send-fill"></i> Send Response
-                            </button>
-                        </div>
-
-                    </form>
-                </div>
-            </div>
-
-
-            <!-- CLASS LIST SUMMARY -->
-            <div class="dash-card">
-                <div class="dash-card-header">
-                    <div>
-                        <h5>Class Lists</h5>
-                        <p>Enrolled students per course</p>
+                                </tbody>
+                            </table>
+                        }
                     </div>
                 </div>
-                <div class="dash-grid-2" style="padding:20px;margin-bottom:0;">
 
-                    <!-- CSE301 -->
-                    <div style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;">
-                        <div style="padding:12px 16px;background:#f8fafc;border-bottom:1px solid #e5e7eb;
-                                    display:flex;justify-content:space-between;align-items:center;">
-                            <strong style="font-size:13px;">CSE301 – Software Engineering</strong>
-                            <span class="badge-status badge-active">42 Students</span>
+                <div class="dash-card" id="section-claims">
+                    <div class="dash-card-header">
+                        <div>
+                            <h5>Student Mark Claims</h5>
+                            <p>Claims raised by students &mdash; respond within 3 working days</p>
                         </div>
-                        <table class="dash-table">
-                            <thead>
-                                <tr>
-                                    <th>Reg. No.</th>
-                                    <th>Name</th>
-                                    <th>Attendance</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td style="font-size:12px;">UNILAK/2024/001</td>
-                                    <td>Jane Uwase</td>
-                                    <td><span class="badge-status badge-verified">92%</span></td>
-                                </tr>
-                                <tr>
-                                    <td style="font-size:12px;">UNILAK/2024/002</td>
-                                    <td>Eric Nshimiye</td>
-                                    <td><span class="badge-status badge-verified">88%</span></td>
-                                </tr>
-                                <tr>
-                                    <td style="font-size:12px;">UNILAK/2024/003</td>
-                                    <td>Alice Mutesi</td>
-                                    <td><span class="badge-status badge-pending">74%</span></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3"
-                                        style="text-align:center;font-size:11px;color:#9ca3af;padding:10px;">
-                                        + 39 more students
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        @if (Model.PendingClaims.Count > 0)
+                        {
+                            <span class="badge-status badge-pending">
+                                <i class="bi bi-clock-history"></i> @Model.PendingClaims.Count pending
+                            </span>
+                        }
                     </div>
-
-                    <!-- CSE402 -->
-                    <div style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;">
-                        <div style="padding:12px 16px;background:#f8fafc;border-bottom:1px solid #e5e7eb;
-                                    display:flex;justify-content:space-between;align-items:center;">
-                            <strong style="font-size:13px;">CSE402 – Software Architecture</strong>
-                            <span class="badge-status badge-active">40 Students</span>
-                        </div>
-                        <table class="dash-table">
-                            <thead>
-                                <tr>
-                                    <th>Reg. No.</th>
-                                    <th>Name</th>
-                                    <th>Attendance</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td style="font-size:12px;">UNILAK/2024/005</td>
-                                    <td>Patrick Habimana</td>
-                                    <td><span class="badge-status badge-verified">96%</span></td>
-                                </tr>
-                                <tr>
-                                    <td style="font-size:12px;">UNILAK/2024/006</td>
-                                    <td>Grace Iradukunda</td>
-                                    <td><span class="badge-status badge-verified">90%</span></td>
-                                </tr>
-                                <tr>
-                                    <td style="font-size:12px;">UNILAK/2024/007</td>
-                                    <td>Jean Nsanzimana</td>
-                                    <td><span class="badge-status badge-missed">65%</span></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3"
-                                        style="text-align:center;font-size:11px;color:#9ca3af;padding:10px;">
-                                        + 37 more students
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="dash-card-body" style="padding:0;">
+                        @if (!Model.PendingClaims.Any())
+                        {
+                            <div class="dash-empty"><i class="bi bi-chat-left-text"></i><p>No pending claims. All student queries resolved.</p></div>
+                        }
+                        else
+                        {
+                            <table class="dash-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Student</th>
+                                        <th>Course</th>
+                                        <th>Assessment</th>
+                                        <th>Their Reason</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var claim in Model.PendingClaims)
+                                    {
+                                        <tr>
+                                            <td style="font-size:12px;">@claim.RaisedOn.ToString("dd MMM yyyy")</td>
+                                            <td>
+                                                <strong style="display:block;font-size:13px;">@claim.StudentFullName</strong>
+                                                <span style="font-size:11px;color:#9ca3af;">@claim.StudentRegistrationNumber</span>
+                                            </td>
+                                            <td>
+                                                <strong style="display:block;font-size:13px;">@claim.CourseCode</strong>
+                                                <span style="font-size:11px;color:#9ca3af;">@claim.CourseTitle</span>
+                                            </td>
+                                            <td style="font-size:12px;">@claim.AssessmentLabel</td>
+                                            <td style="font-size:12px;max-width:200px;color:#374151;">@claim.Reason</td>
+                                            <td><span class="badge-status badge-pending"><i class="bi bi-clock-history"></i> Pending</span></td>
+                                            <td>
+                                                <button type="button" class="btn-dash-primary btn-dash-sm"
+                                                        onclick="openResponseModal(@claim.Id, '@claim.StudentFullName.Replace("'", "\\'")', '@claim.CourseCode', '@claim.AssessmentLabel')">
+                                                    <i class="bi bi-reply-fill"></i> Respond
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
                     </div>
-
                 </div>
-            </div>
+
+            </div><!-- /#lecturerContent -->
 
         </div>
-        <!-- /dash-content -->
-
     </div>
-    <!-- /dash-main -->
-
 </div>
-<!-- /dash-shell -->
+
+<div id="sessionModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:3000;align-items:center;justify-content:center;">
+    <div style="background:white;border-radius:14px;padding:28px;width:100%;max-width:500px;margin:20px;box-shadow:0 20px 50px rgba(0,0,0,.2);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+            <h5 style="margin:0;font-size:16px;color:#0D1E47;font-weight:700;">
+                <i class="bi bi-upload" style="color:#1C3B83;margin-right:8px;"></i> Submit Session Report
+            </h5>
+            <button type="button" onclick="closeSessionModal()" style="background:none;border:none;font-size:18px;color:#9ca3af;cursor:pointer;"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <form method="post" asp-page-handler="SubmitSessionReport">
+            @Html.AntiForgeryToken()
+            <div style="margin-bottom:14px;">
+                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">Course <span style="color:#dc2626;">*</span></label>
+                <select name="courseId" style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;outline:none;">
+                    @foreach (var c in Model.Courses) { <option value="@c.Id">@c.Code &ndash; @c.Title</option> }
+                </select>
+            </div>
+            <div style="margin-bottom:14px;">
+                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">Topic Covered <span style="color:#dc2626;">*</span></label>
+                <input type="text" name="topicCovered" required style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;outline:none;" placeholder="e.g. UML Diagrams &amp; Use Cases" />
+            </div>
+            <div style="margin-bottom:20px;">
+                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">Duration (hours)</label>
+                <input type="number" name="durationHours" value="2" min="1" max="8" step="0.5" style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;outline:none;" />
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button type="button" onclick="closeSessionModal()" class="btn-dash-outline">Cancel</button>
+                <button type="submit" class="btn-dash-primary"><i class="bi bi-send-fill"></i> Submit for CP Sign-Off</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="marksModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:3000;align-items:center;justify-content:center;">
+    <div style="background:white;border-radius:14px;padding:28px;width:100%;max-width:520px;margin:20px;box-shadow:0 20px 50px rgba(0,0,0,0.2);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <h5 style="margin:0;font-size:16px;color:#0D1E47;font-weight:700;">
+                <i class="bi bi-pencil-square" style="color:#1C3B83;margin-right:8px;"></i> Post Student Mark
+            </h5>
+            <button type="button" onclick="closeMarksModal()" style="background:none;border:none;font-size:18px;color:#9ca3af;cursor:pointer;line-height:1;"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <form method="post" asp-page-handler="SaveMark">
+            @Html.AntiForgeryToken()
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+                <div>
+                    <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">Course</label>
+                    <select name="courseId" style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;outline:none;">
+                        @foreach (var c in Model.Courses) { <option value="@c.Id">@c.Code &ndash; @c.Title</option> }
+                    </select>
+                </div>
+                <div>
+                    <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">Assessment Type</label>
+                    <select name="assessmentType" style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;outline:none;">
+                        <option value="CAT1">CAT 1</option>
+                        <option value="CAT2">CAT 2</option>
+                        <option value="Assignment1">Assignment 1</option>
+                        <option value="Assignment2">Assignment 2</option>
+                        <option value="FinalExam">Final Exam</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+                <div>
+                    <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">Student Reg. No.</label>
+                    <input type="text" name="studentRegNo" required style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;outline:none;" placeholder="UNILAK/2024/001" />
+                </div>
+                <div>
+                    <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">Max Marks</label>
+                    <input type="number" name="maxScore" value="30" style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;outline:none;" />
+                </div>
+            </div>
+            <div style="margin-bottom:14px;">
+                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">Score Obtained <span style="color:#dc2626;">*</span></label>
+                <input type="number" name="score" step="0.5" required style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;outline:none;" placeholder="e.g. 24" />
+            </div>
+            <div style="margin-bottom:20px;">
+                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">Remarks (optional)</label>
+                <textarea name="remarks" rows="2" style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;outline:none;resize:vertical;" placeholder="e.g. Good performance on section B..."></textarea>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;justify-content:space-between;">
+                <label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;">
+                    <input type="checkbox" name="publishNow" value="true" checked /> Publish immediately to student
+                </label>
+                <div style="display:flex;gap:10px;">
+                    <button type="button" onclick="closeMarksModal()" class="btn-dash-outline">Cancel</button>
+                    <button type="submit" class="btn-dash-primary"><i class="bi bi-send-fill"></i> Save &amp; Post</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="responseModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:3000;align-items:center;justify-content:center;">
+    <div style="background:white;border-radius:14px;padding:28px;width:100%;max-width:480px;margin:20px;box-shadow:0 20px 50px rgba(0,0,0,0.2);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <h5 style="margin:0;font-size:16px;color:#0D1E47;font-weight:700;">
+                <i class="bi bi-reply-fill" style="color:#1C3B83;margin-right:8px;"></i> Respond to Claim
+            </h5>
+            <button type="button" onclick="closeResponseModal()" style="background:none;border:none;font-size:18px;color:#9ca3af;cursor:pointer;line-height:1;"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div id="response-info" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:#374151;"></div>
+        <form method="post" asp-page-handler="RespondClaim">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="claimId" id="respondClaimId" />
+            <div style="margin-bottom:14px;">
+                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">Your Decision</label>
+                <select name="decision" style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;outline:none;">
+                    <option value="upheld">Claim Upheld &mdash; I will correct the mark</option>
+                    <option value="rejected">Claim Rejected &mdash; Mark stands as posted</option>
+                    <option value="partial">Partial Correction &mdash; Mark partially updated</option>
+                </select>
+            </div>
+            <div style="margin-bottom:14px;">
+                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">New Score (if correcting)</label>
+                <input type="number" name="correctedScore" step="0.5" style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;outline:none;" placeholder="Leave blank if mark is unchanged" />
+            </div>
+            <div style="margin-bottom:20px;">
+                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">Explanation to Student <span style="color:#dc2626;">*</span></label>
+                <textarea name="explanation" rows="4" required style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;outline:none;resize:vertical;" placeholder="Explain your decision clearly to the student..."></textarea>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button type="button" onclick="closeResponseModal()" class="btn-dash-outline">Cancel</button>
+                <button type="submit" class="btn-dash-primary"><i class="bi bi-send-fill"></i> Send Response</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    /* ── Marks Modal ── */
-    function openMarksModal() {
-        document.getElementById('marksModal').style.display = 'flex';
-    }
-    function closeMarksModal() {
-        document.getElementById('marksModal').style.display = 'none';
+    function revealAndScroll(sectionId) {
+        var c = document.getElementById('lecturerContent');
+        if (c) c.style.display = 'block';
+        setTimeout(function() {
+            var el = document.getElementById(sectionId);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
     }
 
-    /* ── Response Modal ── */
+    function openSessionModal()  { document.getElementById('sessionModal').style.display  = 'flex'; }
+    function closeSessionModal() { document.getElementById('sessionModal').style.display  = 'none'; }
+    function openMarksModal()    { document.getElementById('marksModal').style.display    = 'flex'; }
+    function closeMarksModal()   { document.getElementById('marksModal').style.display    = 'none'; }
+
     function openResponseModal(claimId, student, course, assessment) {
         document.getElementById('respondClaimId').value = claimId;
         document.getElementById('response-info').innerHTML =
             '<strong>Student:</strong> ' + student +
-            ' &nbsp;·&nbsp; <strong>Course:</strong> ' + course +
-            ' &nbsp;·&nbsp; <strong>Assessment:</strong> ' + assessment;
+            ' &nbsp;&middot;&nbsp; <strong>Course:</strong> ' + course +
+            ' &nbsp;&middot;&nbsp; <strong>Assessment:</strong> ' + assessment;
         document.getElementById('responseModal').style.display = 'flex';
     }
-    function closeResponseModal() {
-        document.getElementById('responseModal').style.display = 'none';
-    }
+    function closeResponseModal() { document.getElementById('responseModal').style.display = 'none'; }
 
-    /* ── Submit Session Modal ── */
-    function openSubmitSessionModal() {
-        document.getElementById('sessionModal').style.display = 'flex';
-    }
-    function closeSessionModal() {
-        document.getElementById('sessionModal').style.display = 'none';
-    }
-
-    /* ── Close on backdrop ── */
-    ['marksModal','responseModal','sessionModal'].forEach(function(id) {
+    ['sessionModal','marksModal','responseModal'].forEach(function(id) {
         var el = document.getElementById(id);
         if (el) el.addEventListener('click', function(e) { if (e.target === el) el.style.display = 'none'; });
     });
 </script>
 </body>
 </html>
-
