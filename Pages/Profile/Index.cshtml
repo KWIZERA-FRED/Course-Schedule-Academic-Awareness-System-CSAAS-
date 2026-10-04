@@ -1,0 +1,307 @@
+@page
+@model CourseScheduleSystem.Web.Pages.Profile.IndexModel
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = null;
+    var roleLabel = Model.CurrentUser.Role switch {
+        CourseScheduleSystem.Web.Models.UserRole.ClassRepresentative => "Class Representative",
+        CourseScheduleSystem.Web.Models.UserRole.Lecturer            => "Lecturer",
+        CourseScheduleSystem.Web.Models.UserRole.HOD                 => "Head of Department",
+        CourseScheduleSystem.Web.Models.UserRole.Dean                => "Dean",
+        CourseScheduleSystem.Web.Models.UserRole.DirectorOfQuality   => "Director of Quality",
+        _                                                            => "Student"
+    };
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Profile | CSAS</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/dashboard.css" />
+</head>
+<body>
+<div class="dash-shell">
+
+    <aside class="dash-sidebar">
+        <a href="/" class="dash-sidebar-brand">
+            <div class="dash-sidebar-brand-icon" style="background:transparent;box-shadow:none;padding:2px;">
+                <img src="/images/logo.jpeg" alt="UNILAK" style="width:34px;height:34px;border-radius:50%;object-fit:cover;" />
+            </div>
+            <div class="dash-sidebar-brand-text">
+                <strong>CSAS</strong>
+                <span>@roleLabel</span>
+            </div>
+        </a>
+
+        <div class="dash-sidebar-section">Navigation</div>
+        <nav class="dash-sidebar-nav">
+            <a href="@Model.DashboardUrl" class="dash-nav-link">
+                <i class="bi bi-arrow-left-circle-fill"></i> Back to Dashboard
+            </a>
+            <a href="/Profile" class="dash-nav-link active">
+                <i class="bi bi-person-fill"></i> My Profile
+            </a>
+            <a href="/Logout" class="dash-nav-link">
+                <i class="bi bi-box-arrow-left"></i> Logout
+            </a>
+        </nav>
+
+        <div class="dash-sidebar-footer">
+            <div class="dash-sidebar-user">
+                <div class="dash-user-avatar">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <div class="dash-user-info">
+                    <strong>@Model.CurrentUser.FullName</strong>
+                    <span>@roleLabel</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="dash-main">
+        <div class="dash-topbar">
+            <div class="dash-topbar-title">
+                <h1>My Profile</h1>
+                <p>View and update your account information</p>
+            </div>
+            <div class="dash-topbar-actions">
+                <a href="@Model.DashboardUrl" class="btn-dash-outline btn-dash-sm">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="dash-content">
+
+            @if (TempData["StatusMessage"] != null)
+            {
+                var t = TempData["StatusType"]?.ToString() ?? "info";
+                var ac = t == "success" ? "dash-alert-success" : t == "warning" ? "dash-alert-warning" : "dash-alert-info";
+                var ic = t == "success" ? "bi-check-circle-fill" : "bi-exclamation-triangle-fill";
+                <div class="dash-alert @ac"><i class="bi @ic"></i><div>@TempData["StatusMessage"]</div></div>
+            }
+
+            <div style="display:grid;grid-template-columns:300px 1fr;gap:24px;align-items:start;">
+
+                <div class="dash-card" style="text-align:center;padding:32px 20px;">
+                    <div style="width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#0D1E47,#1C3B83);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 4px 20px rgba(28,59,131,0.3);">
+                        <i class="bi bi-person-fill" style="font-size:38px;color:white;"></i>
+                    </div>
+                    <h3 style="font-size:18px;font-weight:800;color:#0D1E47;margin:0 0 4px;">@Model.CurrentUser.FullName</h3>
+                    <p style="font-size:12px;color:#6b7280;margin:0 0 8px;">@Model.CurrentUser.Email</p>
+                    <span style="display:inline-block;background:#eff6ff;color:#1C3B83;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:20px;">
+                        @roleLabel
+                    </span>
+
+                    <div style="text-align:left;font-size:13px;color:#374151;border-top:1px solid #f1f5f9;padding-top:18px;">
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+                            <i class="bi bi-building" style="color:#1C3B83;width:16px;"></i>
+                            <span>@(string.IsNullOrEmpty(Model.CurrentUser.Department) ? "—" : Model.CurrentUser.Department)</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+                            <i class="bi bi-person-badge" style="color:#1C3B83;width:16px;"></i>
+                            <span>@Model.CurrentUser.Identifier</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+                            <i class="bi bi-telephone" style="color:#1C3B83;width:16px;"></i>
+                            <span>@(string.IsNullOrEmpty(Model.CurrentUser.PhoneNumber) ? "Not set" : Model.CurrentUser.PhoneNumber)</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <i class="bi bi-calendar3" style="color:#1C3B83;width:16px;"></i>
+                            <span>Joined @Model.CurrentUser.CreatedOn.ToString("MMM yyyy")</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:18px;padding-top:14px;border-top:1px solid #f1f5f9;">
+                        <span class="badge-status @(Model.CurrentUser.IsActive ? "badge-verified" : "badge-inactive")" style="font-size:11px;">
+                            <i class="bi bi-@(Model.CurrentUser.IsActive ? "check-circle-fill" : "x-circle-fill")"></i>
+                            @(Model.CurrentUser.IsActive ? "Account Active" : "Inactive")
+                        </span>
+                    </div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:20px;">
+
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <div>
+                                <h5><i class="bi bi-person-lines-fill" style="color:#1C3B83;margin-right:8px;"></i>Personal Information</h5>
+                                <p>Update your name, email address and phone number</p>
+                            </div>
+                        </div>
+                        <div class="dash-card-body">
+                            <form method="post" asp-page-handler="SaveProfile">
+                                @Html.AntiForgeryToken()
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                                    <div>
+                                        <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">
+                                            First Name <span style="color:#dc2626;">*</span>
+                                        </label>
+                                        <input type="text" name="FirstName" value="@Model.FirstName" required
+                                               style="width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;outline:none;"
+                                               placeholder="e.g. Jane" />
+                                    </div>
+                                    <div>
+                                        <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">
+                                            Last Name <span style="color:#dc2626;">*</span>
+                                        </label>
+                                        <input type="text" name="LastName" value="@Model.LastName" required
+                                               style="width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;outline:none;"
+                                               placeholder="e.g. Uwase" />
+                                    </div>
+                                </div>
+                                <div style="margin-bottom:16px;">
+                                    <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">
+                                        Email Address <span style="color:#dc2626;">*</span>
+                                    </label>
+                                    <input type="email" name="Email" value="@Model.Email" required
+                                           style="width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;outline:none;"
+                                           placeholder="e.g. jane.uwase@unilak.ac.rw" />
+                                </div>
+                                <div style="margin-bottom:20px;">
+                                    <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">
+                                        Phone Number
+                                    </label>
+                                    <input type="tel" name="PhoneNumber" value="@Model.PhoneNumber"
+                                           style="width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;outline:none;"
+                                           placeholder="e.g. +250 788 123 456" />
+                                </div>
+                                <div style="display:flex;justify-content:flex-end;">
+                                    <button type="submit" class="btn-dash-primary">
+                                        <i class="bi bi-save-fill"></i> Save Changes
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <div>
+                                <h5><i class="bi bi-shield-lock-fill" style="color:#1C3B83;margin-right:8px;"></i>Change Password</h5>
+                                <p>Set a new password for your account</p>
+                            </div>
+                        </div>
+                        <div class="dash-card-body">
+                            <form method="post" asp-page-handler="ChangePassword" id="pwForm">
+                                @Html.AntiForgeryToken()
+                                <div style="margin-bottom:16px;">
+                                    <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">
+                                        New Password <span style="color:#dc2626;">*</span>
+                                    </label>
+                                    <div style="position:relative;">
+                                        <input type="password" name="NewPassword" id="newPw" required minlength="6"
+                                               style="width:100%;padding:10px 44px 10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;outline:none;"
+                                               placeholder="Minimum 6 characters" />
+                                        <button type="button" onclick="togglePw('newPw','eyeNew')"
+                                                style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9ca3af;">
+                                            <i class="bi bi-eye-fill" id="eyeNew"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div style="margin-bottom:20px;">
+                                    <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">
+                                        Confirm New Password <span style="color:#dc2626;">*</span>
+                                    </label>
+                                    <div style="position:relative;">
+                                        <input type="password" name="ConfirmPassword" id="confirmPw" required minlength="6"
+                                               style="width:100%;padding:10px 44px 10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;outline:none;"
+                                               placeholder="Repeat new password" />
+                                        <button type="button" onclick="togglePw('confirmPw','eyeConfirm')"
+                                                style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9ca3af;">
+                                            <i class="bi bi-eye-fill" id="eyeConfirm"></i>
+                                        </button>
+                                    </div>
+                                    <div id="pwMatch" style="font-size:11px;margin-top:5px;"></div>
+                                </div>
+                                <div style="display:flex;justify-content:flex-end;">
+                                    <button type="submit" class="btn-dash-primary" style="background:#0D1E47;">
+                                        <i class="bi bi-shield-check"></i> Change Password
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <div>
+                                <h5><i class="bi bi-info-circle-fill" style="color:#1C3B83;margin-right:8px;"></i>Account Details</h5>
+                                <p>Read-only account information managed by the system</p>
+                            </div>
+                        </div>
+                        <div class="dash-card-body">
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                                <div>
+                                    <label style="display:block;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Role</label>
+                                    <div style="padding:10px 12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#374151;">@roleLabel</div>
+                                </div>
+                                <div>
+                                    <label style="display:block;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">ID / Reg. No.</label>
+                                    <div style="padding:10px 12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#374151;">@Model.CurrentUser.Identifier</div>
+                                </div>
+                                <div>
+                                    <label style="display:block;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Department</label>
+                                    <div style="padding:10px 12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#374151;">@(string.IsNullOrEmpty(Model.CurrentUser.Department) ? "—" : Model.CurrentUser.Department)</div>
+                                </div>
+                                <div>
+                                    <label style="display:block;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Account Created</label>
+                                    <div style="padding:10px 12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#374151;">@Model.CurrentUser.CreatedOn.ToString("dd MMM yyyy")</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function togglePw(inputId, iconId) {
+        var inp  = document.getElementById(inputId);
+        var icon = document.getElementById(iconId);
+        if (inp.type === 'password') {
+            inp.type  = 'text';
+            icon.className = 'bi bi-eye-slash-fill';
+        } else {
+            inp.type  = 'password';
+            icon.className = 'bi bi-eye-fill';
+        }
+    }
+
+    var newPw     = document.getElementById('newPw');
+    var confirmPw = document.getElementById('confirmPw');
+    var matchEl   = document.getElementById('pwMatch');
+
+    function checkMatch() {
+        if (!confirmPw.value) { matchEl.textContent = ''; return; }
+        if (newPw.value === confirmPw.value) {
+            matchEl.textContent = '✓ Passwords match';
+            matchEl.style.color = '#059669';
+        } else {
+            matchEl.textContent = '✗ Passwords do not match';
+            matchEl.style.color = '#dc2626';
+        }
+    }
+    newPw.addEventListener('input', checkMatch);
+    confirmPw.addEventListener('input', checkMatch);
+
+    document.getElementById('pwForm').addEventListener('submit', function(e) {
+        if (newPw.value !== confirmPw.value) {
+            e.preventDefault();
+            matchEl.textContent = '✗ Passwords do not match — please fix before submitting';
+            matchEl.style.color = '#dc2626';
+        }
+    });
+</script>
+</body>
+</html>

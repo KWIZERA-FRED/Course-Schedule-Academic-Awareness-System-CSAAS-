@@ -1,0 +1,281 @@
+@page
+@model CourseScheduleSystem.Web.Pages.Student.ScheduleModel
+@{
+    ViewData["Title"] = "My Schedule";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Schedule | CSAS</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/dashboard.css" />
+</head>
+<body>
+<div class="dash-shell">
+
+    
+    <aside class="dash-sidebar">
+        <a href="/" class="dash-sidebar-brand">
+            <div class="dash-sidebar-brand-icon" style="background:transparent;box-shadow:none;padding:2px;">
+                <img src="/images/logo.jpeg" alt="UNILAK" style="width:34px;height:34px;border-radius:50%;object-fit:cover;" />
+            </div>
+            <div class="dash-sidebar-brand-text">
+                <strong>CSAS</strong>
+                <span>Student Portal</span>
+            </div>
+        </a>
+
+        <div class="dash-sidebar-section">Main Menu</div>
+        <nav class="dash-sidebar-nav">
+            <a href="/" class="dash-nav-link"><i class="bi bi-house-fill"></i> Home</a>
+            <a href="/Student/Dashboard" class="dash-nav-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="/Student/Schedule" class="dash-nav-link active"><i class="bi bi-calendar3-week"></i> My Schedule</a>
+            <a href="/Student/Groups" class="dash-nav-link"><i class="bi bi-whatsapp"></i> Class Groups</a>
+            <a href="/Student/Notifications" class="dash-nav-link"><i class="bi bi-bell"></i> Notifications</a>
+        </nav>
+
+                    <a href="https://umurongosmart.com/" target="_blank" class="dash-nav-link"
+               title="UmurongoSmart Support"
+               style="border-top:1px solid rgba(255,255,255,0.07);margin-top:4px;padding-top:12px;">
+                <i class="bi bi-headset"></i> UmurongoSmart Support
+            </a><div class="dash-sidebar-section">Account</div>
+        <nav class="dash-sidebar-nav">
+            <a href="/Profile" class="dash-nav-link"><i class="bi bi-person"></i> My Profile</a>
+            <a href="/Logout" class="dash-nav-link"><i class="bi bi-box-arrow-left"></i> Logout</a>
+        </nav>
+
+        <div class="dash-sidebar-footer">
+            <div class="dash-sidebar-user">
+                <div class="dash-user-avatar"><i class="bi bi-person-fill"></i></div>
+                <div class="dash-user-info">
+                    <strong>@Model.CurrentUser.FullName</strong>
+                    <span>Student</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    
+    <div class="dash-main">
+        <div class="dash-topbar">
+            <div class="dash-topbar-title">
+                <h1>My Schedule</h1>
+                <p>Weekly timetable and verified session history</p>
+            </div>
+            <div class="dash-topbar-actions">
+                <a href="/Student/Notifications" class="dash-icon-btn" title="Notifications">
+                    <i class="bi bi-bell"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="dash-content">
+
+            
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <div>
+                        <h5>Weekly Class Timetable</h5>
+                        <p>All enrolled courses for Semester @(Model.Courses.FirstOrDefault()?.Semester ?? 1), @(Model.Courses.FirstOrDefault()?.Year ?? DateTime.Now.Year)</p>
+                    </div>
+                    <button class="btn-dash-outline btn-dash-sm" onclick="window.print()">
+                        <i class="bi bi-printer"></i> Print
+                    </button>
+                </div>
+                <div class="dash-card-body" style="padding:0;">
+                    <table class="dash-table">
+                        <thead>
+                            <tr>
+                                <th>Day / Time</th>
+                                <th>Course Code</th>
+                                <th>Course Name</th>
+                                <th>Lecturer</th>
+                                <th>Venue</th>
+                                <th>Hours</th>
+                                <th>Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Courses.Any())
+                            {
+                                <tr><td colspan="7" style="text-align:center;padding:24px;color:#9ca3af;">No courses found.</td></tr>
+                            }
+                            @foreach (var c in Model.Courses.OrderBy(x => x.ScheduleTime))
+                            {
+                                var pct = c.ScheduledHours > 0
+                                    ? (int)Math.Round((double)c.DeliveredHours / c.ScheduledHours * 100)
+                                    : 0;
+                                var barColor = pct >= 80 ? "#059669" : pct >= 60 ? "#d97706" : "#dc2626";
+                                <tr>
+                                    <td>
+                                        <strong style="display:block;font-size:13px;">
+                                            @(c.ScheduleTime.Split(' ').FirstOrDefault())
+                                        </strong>
+                                        <span style="font-size:11px;color:#9ca3af;">
+                                            @(string.Join(" ", c.ScheduleTime.Split(' ').Skip(1)))
+                                        </span>
+                                    </td>
+                                    <td><strong style="font-size:13px;">@c.Code</strong></td>
+                                    <td>@c.Title</td>
+                                    <td style="font-size:12px;">@c.Lecturer</td>
+                                    <td style="font-size:12px;">@c.Venue</td>
+                                    <td style="font-size:12px;">@c.DeliveredHours / @c.ScheduledHours</td>
+                                    <td style="min-width:100px;">
+                                        <div style="display:flex;align-items:center;gap:6px;">
+                                            <div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
+                                                <div style="width:@pct%;height:100%;background:@barColor;border-radius:5px;"></div>
+                                            </div>
+                                            <span style="font-size:10px;font-weight:700;color:@barColor;">@pct%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <div>
+                        <h5>Verified Session History</h5>
+                        <p>Sessions that have been approved by the HOD or Dean</p>
+                    </div>
+                    <span class="badge-status badge-verified">
+                        <i class="bi bi-patch-check-fill"></i> @Model.Sessions.Count verified
+                    </span>
+                </div>
+                <div class="dash-card-body" style="padding:0;">
+                    @if (!Model.Sessions.Any())
+                    {
+                        <div class="dash-empty">
+                            <i class="bi bi-calendar-x"></i>
+                            <p>No verified sessions yet this semester.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <table class="dash-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Course</th>
+                                    <th>Lecturer</th>
+                                    <th>Topic Covered</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var s in Model.Sessions)
+                                {
+                                    var statusClass = s.Status == SessionReportStatus.DeanApproved
+                                        ? "badge-approved" : "badge-verified";
+                                    var statusLabel = s.Status == SessionReportStatus.DeanApproved
+                                        ? "Dean Approved" : "HOD Approved";
+                                    <tr>
+                                        <td style="font-size:12px;">@s.SessionDate.ToString("ddd dd MMM yyyy")</td>
+                                        <td>
+                                            <strong style="display:block;font-size:13px;">@s.CourseCode</strong>
+                                            <span style="font-size:11px;color:#9ca3af;">@s.CourseTitle</span>
+                                        </td>
+                                        <td style="font-size:12px;">@s.LecturerName</td>
+                                        <td style="font-size:12px;">@(string.IsNullOrEmpty(s.TopicCovered) ? "—" : s.TopicCovered)</td>
+                                        <td style="font-size:12px;">@s.DurationHours hrs</td>
+                                        <td><span class="badge-status @statusClass"><i class="bi bi-patch-check-fill"></i> @statusLabel</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <div>
+                        <h5>All Available Courses</h5>
+                        <p>Every course currently offered — @Model.AllCourses.Count courses across all departments</p>
+                    </div>
+                    <input type="text" id="courseSearch"
+                           placeholder="Search by code, title or lecturer..."
+                           oninput="filterTable(this.value)"
+                           style="padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;
+                                  font-size:13px;outline:none;width:260px;" />
+                </div>
+                <div class="dash-card-body" style="padding:0;">
+                    <table class="dash-table" id="allCoursesTable">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Course Name</th>
+                                <th>Lecturer</th>
+                                <th>Schedule</th>
+                                <th>Venue</th>
+                                <th>Dept</th>
+                                <th>Enrolled?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var enrolledCodes = Model.Courses.Select(c => c.Code).ToHashSet();
+                            }
+                            @foreach (var c in Model.AllCourses.OrderBy(x => x.Department).ThenBy(x => x.Code))
+                            {
+                                var isEnrolled = enrolledCodes.Contains(c.Code);
+                                <tr data-search="@c.Code.ToLower() @c.Title.ToLower() @c.Lecturer.ToLower()">
+                                    <td>
+                                        <strong style="font-size:13px;color:#1C3B83;">@c.Code</strong>
+                                    </td>
+                                    <td>
+                                        <strong style="font-size:13px;">@c.Title</strong>
+                                        <div style="font-size:10px;color:#9ca3af;">Year @c.Year · Sem @c.Semester</div>
+                                    </td>
+                                    <td style="font-size:12px;">@c.Lecturer</td>
+                                    <td style="font-size:12px;">@c.ScheduleTime</td>
+                                    <td style="font-size:12px;">@c.Venue</td>
+                                    <td>
+                                        <span style="font-size:10px;background:#eff6ff;color:#1C3B83;
+                                                     padding:2px 8px;border-radius:10px;font-weight:600;">
+                                            @(c.Department.Length > 15 ? c.Department.Substring(0,15) + "…" : c.Department)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (isEnrolled)
+                                        {
+                                            <span class="badge-status badge-verified">
+                                                <i class="bi bi-check-circle-fill"></i> Enrolled
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge-status badge-inactive">Not Enrolled</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function filterTable(q) {
+        var rows = document.querySelectorAll('#allCoursesTable tbody tr');
+        var term = q.toLowerCase().trim();
+        rows.forEach(function(row) {
+            row.style.display = !term || row.dataset.search.includes(term) ? '' : 'none';
+        });
+    }
+</script>
+</body>
+</html>

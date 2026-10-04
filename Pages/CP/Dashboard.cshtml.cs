@@ -9,34 +9,22 @@ namespace CourseScheduleSystem.Web.Pages.CP
     [Authorize(Roles = "ClassRepresentative")]
     public class DashboardModel : PageModel
     {
-        // ── Data exposed to the view ───────────────────────────
 
         public User                CurrentUser      { get; private set; } = default!;
         public List<Course>        Courses          { get; private set; } = new();
         public List<SessionReport> SessionReports   { get; private set; } = new();
         public List<SessionReport> PendingSignOffs  { get; private set; } = new();
 
-        // ── Summary stats ──────────────────────────────────────
-
         public int TotalSignedOff    { get; private set; }
         public int ActiveGroupCount  { get; private set; }
         public int OpenGroupCount    { get; private set; }
         public int ClosedGroupCount  { get; private set; }
-
-        // ── Feedback messages ──────────────────────────────────
+        public List<User> AllCPs     { get; private set; } = new();
 
         [TempData] public string? StatusMessage { get; set; }
         [TempData] public string? StatusType    { get; set; }
 
-        // ══════════════════════════════════════════════════════
-        //  GET
-        // ══════════════════════════════════════════════════════
-
         public void OnGet() => LoadData();
-
-        // ══════════════════════════════════════════════════════
-        //  POST — Sign off a session report
-        // ══════════════════════════════════════════════════════
 
         public IActionResult OnPostSignOff(int reportId, string notes)
         {
@@ -67,10 +55,6 @@ namespace CourseScheduleSystem.Web.Pages.CP
             return RedirectToPage();
         }
 
-        // ══════════════════════════════════════════════════════
-        //  POST — Reject a session report
-        // ══════════════════════════════════════════════════════
-
         public IActionResult OnPostRejectSession(int reportId, string reason)
         {
             var report = SessionReportData.Reports.FirstOrDefault(r => r.Id == reportId);
@@ -91,10 +75,6 @@ namespace CourseScheduleSystem.Web.Pages.CP
             StatusType    = "danger";
             return RedirectToPage();
         }
-
-        // ══════════════════════════════════════════════════════
-        //  POST — Create WhatsApp group link for a course
-        // ══════════════════════════════════════════════════════
 
         public IActionResult OnPostCreateGroup(int courseId, string groupUrl, int deadlineDays)
         {
@@ -122,19 +102,10 @@ namespace CourseScheduleSystem.Web.Pages.CP
             return RedirectToPage();
         }
 
-        // ══════════════════════════════════════════════════════
-        //  POST — Update (edit) existing WhatsApp group link
-        // ══════════════════════════════════════════════════════
-
         public IActionResult OnPostUpdateGroup(int courseId, string groupUrl, int deadlineDays)
         {
-            // Same logic — just replaces existing link
             return OnPostCreateGroup(courseId, groupUrl, deadlineDays);
         }
-
-        // ══════════════════════════════════════════════════════
-        //  POST — Close WhatsApp group (clear the link)
-        // ══════════════════════════════════════════════════════
 
         public IActionResult OnPostCloseGroup(int courseId)
         {
@@ -154,10 +125,6 @@ namespace CourseScheduleSystem.Web.Pages.CP
             return RedirectToPage();
         }
 
-        // ══════════════════════════════════════════════════════
-        //  Private helpers
-        // ══════════════════════════════════════════════════════
-
         private void LoadData()
         {
             var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? string.Empty;
@@ -176,6 +143,12 @@ namespace CourseScheduleSystem.Web.Pages.CP
             ActiveGroupCount = Courses.Count(c => !string.IsNullOrEmpty(c.WhatsappGroupUrl));
             OpenGroupCount   = Courses.Count(c => !string.IsNullOrEmpty(c.WhatsappGroupUrl) && c.JoinDeadline >= DateTime.Now);
             ClosedGroupCount = Courses.Count(c => !string.IsNullOrEmpty(c.WhatsappGroupUrl) && c.JoinDeadline < DateTime.Now);
+
+            AllCPs = UserData.Users
+                .Where(u => u.Role == UserRole.ClassRepresentative &&
+                            u.Department == CurrentUser.Department)
+                .OrderBy(u => u.Identifier)
+                .ToList();
         }
     }
 }

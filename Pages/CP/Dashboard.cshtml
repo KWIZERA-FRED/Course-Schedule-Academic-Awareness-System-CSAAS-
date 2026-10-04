@@ -165,6 +165,10 @@
                onclick="revealAndScroll('section-activity')">
                 <i class="bi bi-megaphone"></i> Recent Activity
             </a>
+            <a href="#section-cps" class="dash-nav-link"
+               onclick="revealAndScroll('section-cps')">
+                <i class="bi bi-people-fill"></i> All CPs in CS
+            </a>
             <a href="/CP/Chat" class="dash-nav-link">
                 <i class="bi bi-bell"></i> Notifications
             </a>
@@ -178,7 +182,7 @@
         <div class="dash-sidebar-section">Account</div>
 
         <nav class="dash-sidebar-nav">
-            <a href="/CP/Dashboard" class="dash-nav-link">
+            <a href="/Profile" class="dash-nav-link">
                 <i class="bi bi-person"></i> My Profile
             </a>
             <a href="/Logout" class="dash-nav-link">
@@ -293,6 +297,11 @@
                                 onclick="revealAndScroll('section-activity')">
                             <i class="bi bi-clock-history"></i>
                             Recent Activity
+                        </button>
+                        <button type="button" class="cp-quick-btn cp-quick-btn-outline"
+                                onclick="revealAndScroll('section-cps')">
+                            <i class="bi bi-people-fill"></i>
+                            All CPs in CS
                         </button>
                     </div>
                 </div>
@@ -583,6 +592,72 @@
                                 </div>
                             }
                         </div>
+                    </div>
+                </div>
+
+                <div class="dash-card" id="section-cps">
+                    <div class="dash-card-header">
+                        <div>
+                            <h5><i class="bi bi-people-fill" style="color:#1C3B83;margin-right:8px;"></i>All Class Representatives &mdash; CS &amp; IT</h5>
+                            <p>@Model.AllCPs.Count CP@(Model.AllCPs.Count != 1 ? "s" : "") registered in the Computer Science &amp; IT department at UNILAK</p>
+                        </div>
+                        <span class="badge-status badge-verified" style="font-size:11px;">
+                            <i class="bi bi-check-circle-fill"></i> @Model.AllCPs.Count registered
+                        </span>
+                    </div>
+                    <div class="dash-card-body" style="padding:0;">
+                        @if (!Model.AllCPs.Any())
+                        {
+                            <div class="dash-empty">
+                                <i class="bi bi-people"></i>
+                                <p>No other CPs found in this department.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <table class="dash-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Reg. No.</th>
+                                        <th>Email</th>
+                                        <th>Department</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var cp in Model.AllCPs)
+                                    {
+                                        var isMe = cp.Id == Model.CurrentUser.Id;
+                                        <tr style="@(isMe ? "background:#f0f6ff;" : "")">
+                                            <td>
+                                                <div style="display:flex;align-items:center;gap:10px;">
+                                                    <div style="width:34px;height:34px;border-radius:50%;background:@(isMe ? "linear-gradient(135deg,#0D1E47,#1C3B83)" : "#f1f5f9");display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                                        <i class="bi bi-person-badge-fill" style="font-size:14px;color:@(isMe ? "white" : "#6b7280");"></i>
+                                                    </div>
+                                                    <div>
+                                                        <strong style="display:block;font-size:13px;color:#0D1E47;">@cp.FullName</strong>
+                                                        @if (isMe)
+                                                        {
+                                                            <span style="font-size:10px;background:#1C3B83;color:white;padding:1px 7px;border-radius:10px;font-weight:700;">You</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td style="font-size:12px;color:#6b7280;">@cp.Identifier</td>
+                                            <td style="font-size:12px;color:#6b7280;">@cp.Email</td>
+                                            <td style="font-size:12px;">@cp.Department</td>
+                                            <td>
+                                                <span class="badge-status @(cp.IsActive ? "badge-verified" : "badge-inactive")">
+                                                    <i class="bi bi-@(cp.IsActive ? "check-circle-fill" : "x-circle-fill")"></i>
+                                                    @(cp.IsActive ? "Active" : "Inactive")
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
                     </div>
                 </div>
 

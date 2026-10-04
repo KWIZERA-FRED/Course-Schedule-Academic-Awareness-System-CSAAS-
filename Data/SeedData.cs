@@ -2,17 +2,6 @@ using CourseScheduleSystem.Web.Models;
 
 namespace CourseScheduleSystem.Web.Data;
 
-// =============================================================
-//  CSAS — STATIC IN-MEMORY SEED DATA
-//  All domain seed data lives here except Courses (CourseData.cs)
-//  Models live in: Models/
-// =============================================================
-
-
-// ─────────────────────────────────────────────────────────────
-//  STUDENTS
-// ─────────────────────────────────────────────────────────────
-
 public static class StudentData
 {
     public static List<Student> Students { get; } = new()
@@ -110,29 +99,10 @@ public static class StudentData
     };
 }
 
-
-// ─────────────────────────────────────────────────────────────
-//  USERS  (one per role for demo / login purposes)
-//
-//  Demo passwords (plain-text for dev — swap for bcrypt in prod):
-//  ┌─────────────────────────────────┬──────────────────────┬──────────────┐
-//  │ Role                            │ Login Identifier     │ Password     │
-//  ├─────────────────────────────────┼──────────────────────┼──────────────┤
-//  │ Student                         │ UNILAK/2024/001      │ student123   │
-//  │ Class Representative            │ UNILAK/2024/002      │ classrep123  │
-//  │ Lecturer                        │ STAFF/001            │ lecturer123  │
-//  │ Head of Department              │ STAFF/010            │ hod123       │
-//  │ Dean                            │ STAFF/020            │ dean123      │
-//  │ Director of Quality             │ STAFF/030            │ quality123   │
-//  └─────────────────────────────────┴──────────────────────┴──────────────┘
-//  You can also use the email address instead of the identifier.
-// ─────────────────────────────────────────────────────────────
-
 public static class UserData
 {
     public static List<User> Users { get; } = new()
     {
-        // Student
         new User
         {
             Id           = 1,
@@ -146,8 +116,6 @@ public static class UserData
             IsActive     = true,
             CreatedOn    = new DateTime(2024, 9, 1)
         },
-
-        // Class Representative
         new User
         {
             Id           = 2,
@@ -161,8 +129,6 @@ public static class UserData
             IsActive     = true,
             CreatedOn    = new DateTime(2024, 9, 1)
         },
-
-        // Lecturer
         new User
         {
             Id           = 3,
@@ -176,8 +142,6 @@ public static class UserData
             IsActive     = true,
             CreatedOn    = new DateTime(2022, 1, 15)
         },
-
-        // Head of Department
         new User
         {
             Id           = 4,
@@ -191,8 +155,6 @@ public static class UserData
             IsActive     = true,
             CreatedOn    = new DateTime(2020, 3, 1)
         },
-
-        // Dean
         new User
         {
             Id           = 5,
@@ -206,8 +168,6 @@ public static class UserData
             IsActive     = true,
             CreatedOn    = new DateTime(2019, 6, 1)
         },
-
-        // Director of Quality
         new User
         {
             Id           = 6,
@@ -220,20 +180,79 @@ public static class UserData
             Department   = "Academic Quality Directorate",
             IsActive     = true,
             CreatedOn    = new DateTime(2018, 8, 1)
+        },
+        new User
+        {
+            Id           = 7,
+            FirstName    = "Sophie",
+            LastName     = "Uwimana",
+            Email        = "s.uwimana@unilak.ac.rw",
+            Identifier   = "UNILAK/2023/011",
+            PasswordHash = "classrep123",
+            Role         = UserRole.ClassRepresentative,
+            Department   = "Computer Science & IT",
+            IsActive     = true,
+            CreatedOn    = new DateTime(2023, 9, 1)
+        },
+        new User
+        {
+            Id           = 8,
+            FirstName    = "David",
+            LastName     = "Nkurunziza",
+            Email        = "d.nkurunziza@unilak.ac.rw",
+            Identifier   = "UNILAK/2023/025",
+            PasswordHash = "classrep123",
+            Role         = UserRole.ClassRepresentative,
+            Department   = "Computer Science & IT",
+            IsActive     = true,
+            CreatedOn    = new DateTime(2023, 9, 1)
+        },
+        new User
+        {
+            Id           = 9,
+            FirstName    = "Claudine",
+            LastName     = "Mukamana",
+            Email        = "c.mukamana@unilak.ac.rw",
+            Identifier   = "UNILAK/2022/008",
+            PasswordHash = "classrep123",
+            Role         = UserRole.ClassRepresentative,
+            Department   = "Computer Science & IT",
+            IsActive     = true,
+            CreatedOn    = new DateTime(2022, 9, 1)
+        },
+        new User
+        {
+            Id           = 10,
+            FirstName    = "Pascal",
+            LastName     = "Bizimana",
+            Email        = "p.bizimana@unilak.ac.rw",
+            Identifier   = "UNILAK/2022/034",
+            PasswordHash = "classrep123",
+            Role         = UserRole.ClassRepresentative,
+            Department   = "Computer Science & IT",
+            IsActive     = true,
+            CreatedOn    = new DateTime(2022, 9, 1)
+        },
+        new User
+        {
+            Id           = 11,
+            FirstName    = "Ange",
+            LastName     = "Uwera",
+            Email        = "a.uwera@unilak.ac.rw",
+            Identifier   = "UNILAK/2025/003",
+            PasswordHash = "classrep123",
+            Role         = UserRole.ClassRepresentative,
+            Department   = "Computer Science & IT",
+            IsActive     = true,
+            CreatedOn    = new DateTime(2025, 9, 1)
         }
     };
 }
-
-
-// ─────────────────────────────────────────────────────────────
-//  MARKS
-// ─────────────────────────────────────────────────────────────
 
 public static class MarkData
 {
     public static List<Mark> Marks { get; } = new()
     {
-        // ── CSE301 – Software Engineering ──────────────────
 
         new Mark
         {
@@ -305,8 +324,6 @@ public static class MarkData
             CreatedOn                  = new DateTime(2026, 9, 20)
         },
 
-        // ── CSE305 – Database Systems ──────────────────────
-
         new Mark
         {
             Id                         = 5,
@@ -324,8 +341,6 @@ public static class MarkData
             CreatedOn                  = new DateTime(2026, 9, 22),
             PublishedOn                = new DateTime(2026, 9, 23)
         },
-
-        // ── CSE402 – Software Architecture ────────────────
 
         new Mark
         {
@@ -364,11 +379,6 @@ public static class MarkData
     };
 }
 
-
-// ─────────────────────────────────────────────────────────────
-//  CLAIMS
-// ─────────────────────────────────────────────────────────────
-
 public static class ClaimData
 {
     public static List<Claim> Claims { get; } = new()
@@ -391,11 +401,6 @@ public static class ClaimData
         }
     };
 }
-
-
-// ─────────────────────────────────────────────────────────────
-//  SESSION REPORTS
-// ─────────────────────────────────────────────────────────────
 
 public static class SessionReportData
 {
@@ -529,18 +534,10 @@ public static class SessionReportData
     };
 }
 
-
-// ─────────────────────────────────────────────────────────────
-//  ROOMS
-//  All physical venues on campus.
-//  BookedSlots: key = schedule time string, value = course code.
-// ─────────────────────────────────────────────────────────────
-
 public static class RoomData
 {
     public static List<Room> Rooms { get; } = new()
     {
-        // ── Block A ──────────────────────────────────────────
 
         new Room
         {
@@ -593,8 +590,6 @@ public static class RoomData
             Notes       = "Air conditioning under repair."
         },
 
-        // ── Block B ──────────────────────────────────────────
-
         new Room
         {
             Id          = 5,
@@ -643,8 +638,6 @@ public static class RoomData
             Notes       = "30 PCs — networking lab."
         },
 
-        // ── Block C ──────────────────────────────────────────
-
         new Room
         {
             Id          = 9,
@@ -682,8 +675,6 @@ public static class RoomData
             Notes       = "Large auditorium — for seminars and exams."
         },
 
-        // ── Block D ──────────────────────────────────────────
-
         new Room
         {
             Id          = 12,
@@ -720,12 +711,137 @@ public static class RoomData
     };
 }
 
-
-// ─────────────────────────────────────────────────────────────
-//  ESCALATIONS (Quality Director → Dean)
-// ─────────────────────────────────────────────────────────────
-
 public static class EscalationData
 {
     public static List<EscalationRecord> Escalations { get; } = new();
+}
+
+public static class NotificationData
+{
+    public static List<Notification> Notifications { get; } = new()
+    {
+        new Notification
+        {
+            Id        = 1,
+            UserEmail = "jane.uwase@unilak.ac.rw",
+            Type      = NotificationType.MarkPosted,
+            Title     = "Mark Published",
+            Message   = "Your CAT 1 mark for CSE301 – Software Engineering has been published by Dr. J. Mugisha.",
+            CreatedAt = DateTime.Now.AddHours(-2),
+            IsRead    = false,
+            Link      = "#section-marks"
+        },
+        new Notification
+        {
+            Id        = 2,
+            UserEmail = "jane.uwase@unilak.ac.rw",
+            Type      = NotificationType.Deadline,
+            Title     = "WhatsApp Group Deadline",
+            Message   = "The joining deadline for CSE305 – Database Systems group is in 3 days. Join before it closes.",
+            CreatedAt = DateTime.Now.AddHours(-5),
+            IsRead    = false,
+            Link      = "/Student/Groups"
+        },
+        new Notification
+        {
+            Id        = 3,
+            UserEmail = "jane.uwase@unilak.ac.rw",
+            Type      = NotificationType.Warning,
+            Title     = "WhatsApp Group Closed",
+            Message   = "The joining deadline for CSE310 – HCI group has passed. Contact your Class Representative.",
+            CreatedAt = DateTime.Now.AddDays(-1),
+            IsRead    = true,
+            Link      = "/Student/Groups"
+        },
+        new Notification
+        {
+            Id        = 4,
+            UserEmail = "jane.uwase@unilak.ac.rw",
+            Type      = NotificationType.ClaimUpdate,
+            Title     = "Claim Under Review",
+            Message   = "Your mark claim for CSE305 CAT 1 has been received and is under review by Mrs. A. Byukusenge.",
+            CreatedAt = DateTime.Now.AddDays(-2),
+            IsRead    = true,
+            Link      = "#section-claims"
+        },
+        new Notification
+        {
+            Id        = 5,
+            UserEmail = "jane.uwase@unilak.ac.rw",
+            Type      = NotificationType.SessionUpdate,
+            Title     = "Session Verified",
+            Message   = "CSE301 – Software Engineering session on Mon 29 Sep has been fully verified by the Dean.",
+            CreatedAt = DateTime.Now.AddDays(-3),
+            IsRead    = true,
+            Link      = "/Student/Schedule"
+        }
+    };
+}
+
+
+public static class UmurongoIssueData
+{
+    public static List<UmurongoIssue> Issues { get; } = new()
+    {
+        new UmurongoIssue
+        {
+            Id          = 1,
+            Title       = "Student cannot access their timetable",
+            Description = "Multiple students in Year 3 CS reported that after login their timetable page returns a 404 error.",
+            ReportedBy  = "Eric Nshimiye (CP - Year 3 CS)",
+            Category    = "Timetable",
+            Priority    = IssuePriority.High,
+            Status      = IssueStatus.Open,
+            ReportedOn  = DateTime.Now.AddHours(-4)
+        },
+        new UmurongoIssue
+        {
+            Id          = 2,
+            Title       = "WhatsApp group link not visible on student dashboard",
+            Description = "CSE305 group link was set by the CP but students cannot see the Join button on their dashboard.",
+            ReportedBy  = "Jane Uwase (Student - UNILAK/2024/001)",
+            Category    = "WhatsApp Groups",
+            Priority    = IssuePriority.Medium,
+            Status      = IssueStatus.InProgress,
+            ReportedOn  = DateTime.Now.AddHours(-10),
+            HODNotes    = "Investigating — likely a deadline configuration issue."
+        },
+        new UmurongoIssue
+        {
+            Id          = 3,
+            Title       = "Mark posted but student sees wrong score",
+            Description = "Student UNILAK/2024/003 sees 17 for CSE301 CAT 1 but claims the original script shows 22.",
+            ReportedBy  = "Alice Mutesi (Student - UNILAK/2024/003)",
+            Category    = "Marks",
+            Priority    = IssuePriority.High,
+            Status      = IssueStatus.Escalated,
+            ReportedOn  = DateTime.Now.AddDays(-1),
+            HODNotes    = "Could not verify on our end — escalated to Dean.",
+            EscalatedToDean = true
+        },
+        new UmurongoIssue
+        {
+            Id          = 4,
+            Title       = "Session report submission button not working",
+            Description = "Dr. J. Mugisha reports the Submit Session Report button does nothing when clicked on Firefox.",
+            ReportedBy  = "Dr. J. Mugisha (Lecturer - STAFF/001)",
+            Category    = "Session Reports",
+            Priority    = IssuePriority.Medium,
+            Status      = IssueStatus.Resolved,
+            ReportedOn  = DateTime.Now.AddDays(-2),
+            ResolvedOn  = DateTime.Now.AddDays(-1),
+            HODNotes    = "Fixed — browser compatibility issue resolved in latest update."
+        },
+        new UmurongoIssue
+        {
+            Id          = 5,
+            Title       = "Login page not loading on mobile",
+            Description = "Several students report the login page fails to load on Android Chrome. Desktop works fine.",
+            ReportedBy  = "Multiple students",
+            Category    = "Authentication",
+            Priority    = IssuePriority.Critical,
+            Status      = IssueStatus.Open,
+            ReportedOn  = DateTime.Now.AddMinutes(-30)
+        }
+    };
 }
