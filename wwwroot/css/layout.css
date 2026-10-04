@@ -1,0 +1,239 @@
+/* =========================================================
+   CSAAS — SHARED LAYOUT NAVIGATION BAR
+   Used by: Pages/Shared/_Layout.cshtml
+========================================================= */
+
+
+/* ─── Navbar Shell ────────────────────────────────────── */
+
+.layout-navbar {
+    height: 62px;
+    background: #0f1a3a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+
+/* ─── Brand ───────────────────────────────────────────── */
+
+.layout-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: white;
+}
+
+.layout-brand-icon {
+    width: 36px;
+    height: 36px;
+    background: #1e3a8a;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.layout-brand-text strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    line-height: 1.1;
+}
+
+.layout-brand-text span {
+    font-size: 10px;
+    color: #64748b;
+}
+
+
+/* ─── Nav Links ───────────────────────────────────────── */
+
+.layout-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.layout-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 13px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.15s ease, color 0.15s ease;
+    white-space: nowrap;
+}
+
+.layout-nav-link:hover {
+    background: rgba(255, 255, 255, 0.07);
+    color: white;
+}
+
+.layout-nav-link i {
+    font-size: 14px;
+}
+
+
+/* ─── Dropdown ────────────────────────────────────────── */
+
+.layout-dropdown {
+    position: relative;
+}
+
+.layout-dropdown-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 13px;
+    border-radius: 8px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.layout-dropdown-toggle:hover,
+.layout-dropdown-toggle.open {
+    background: rgba(255, 255, 255, 0.07);
+    color: white;
+}
+
+.layout-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 230px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+    padding: 8px;
+    z-index: 2000;
+}
+
+.layout-dropdown-menu.show {
+    display: block;
+}
+
+.layout-dropdown-label {
+    padding: 6px 10px 4px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #9ca3af;
+}
+
+.layout-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.12s ease, color 0.12s ease;
+}
+
+.layout-dropdown-item:hover {
+    background: #f3f4f6;
+    color: #0f1a3a;
+}
+
+.layout-dropdown-item i {
+    width: 18px;
+    text-align: center;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+.layout-dropdown-divider {
+    height: 1px;
+    background: #f1f5f9;
+    margin: 6px 0;
+}
+
+
+/* ─── Role Colour Dots ────────────────────────────────── */
+
+.role-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.dot-student  { background: #1e3a8a; }
+.dot-cp       { background: #0d9488; }
+.dot-lecturer { background: #7c3aed; }
+.dot-hod      { background: #d97706; }
+.dot-dean     { background: #059669; }
+.dot-quality  { background: #dc2626; }
+
+
+/* ─── Right Actions ───────────────────────────────────── */
+
+.layout-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.layout-login-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    background: #1e3a8a;
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.15s ease;
+}
+
+.layout-login-btn:hover {
+    background: #1a56db;
+    color: white;
+}
+
+
+/* ─── Responsive ──────────────────────────────────────── */
+
+@media (max-width: 768px) {
+    .layout-navbar {
+        padding: 0 16px;
+    }
+
+    .layout-nav-link span,
+    .layout-nav-link:not(.keep-mobile) {
+        display: none;
+    }
+
+    .layout-dropdown-toggle span {
+        display: none;
+    }
+}

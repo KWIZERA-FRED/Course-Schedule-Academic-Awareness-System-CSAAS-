@@ -1,11 +1,9 @@
 @page
-@using Course_Schedule_Academic_Awareness_System_CSAAS.Pages
-@model LoginModel
+@model CourseScheduleSystem.Web.Pages.LoginModel
 @{
-    ViewData["Title"] = "Login | CSAAS";
+    ViewData["Title"] = "Login | CSAS – UNILAK";
     Layout = null;
 }
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,161 +11,572 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <style>
-        .auth-page {
+        /* ── Reset ────────────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+            height: 100%;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+
+        /* ── Photo slideshow ─────────────────────────────────── */
+        .bg-wrap {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+        .bg-slide {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            background-color: #1e1b4b;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+        .bg-slide.active { opacity: 1; }
+
+        /* Soft blur + dark tint so card pops */
+        .bg-tint {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            background: rgba(15, 12, 50, 0.60);
+            backdrop-filter: blur(3px);
+        }
+
+        /* ── Center shell ────────────────────────────────────── */
+        .shell {
+            position: relative;
+            z-index: 2;
             min-height: 100vh;
             display: flex;
-            background: linear-gradient(135deg, rgba(15, 32, 67, 0.88), rgba(27, 85, 155, 0.82)),
-                        url('https://site.unilak.ac.rw/wp-content/uploads/2024/02/WhatsApp-Image-2024-02-20-at-9.39.54-PM-1024x818.jpeg') no-repeat center center fixed;
-            background-size: cover;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
         }
 
-        .auth-panel-brand {
-            flex: 1;
+        /* ── Card ────────────────────────────────────────────── */
+        /*  Matches reference: ~860px wide, auto height, rounded  */
+        .card-wrap {
+            display: flex;
+            width: 100%;
+            max-width: 820px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55),
+                        0 0 0 1px rgba(255,255,255,0.08);
+        }
+
+        /* ── LEFT — purple panel ─────────────────────────────── */
+        .panel-left {
+            flex: 1.05;
+            background: linear-gradient(155deg, #3730a3 0%, #4c3fa0 50%, #2e2a80 100%);
+            padding: 36px 30px 30px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pl-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 26px;
+        }
+
+        .pl-logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.2);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 3rem;
-            color: #ffffff;
+            font-size: 16px;
         }
 
-        .auth-brand-content {
-            max-width: 520px;
+        .pl-logo-text strong {
+            display: block;
+            font-size: 13px;
+            font-weight: 800;
         }
 
-        .auth-brand-badge {
-            display: inline-block;
-            background-color: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(5px);
-            padding: 0.4rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .pl-logo-text span {
+            font-size: 10px;
+            color: rgba(255,255,255,0.5);
         }
 
-        .auth-panel-form {
-            flex: 1;
+        .panel-left h2 {
+            font-size: 19px;
+            font-weight: 800;
+            line-height: 1.25;
+            margin-bottom: 5px;
+        }
+
+        .panel-left .tagline {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 22px;
+        }
+
+        /* Info box — matches the dark boxes in reference */
+        .pl-box {
+            background: rgba(255,255,255,0.10);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+        }
+
+        .pl-box-head {
             display: flex;
             align-items: center;
-            justify-content: center;
-            padding: 2rem;
+            gap: 8px;
+            margin-bottom: 5px;
         }
 
-        .auth-form-card {
-            background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(10px);
-            padding: 2.5rem;
-            border-radius: 12px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
-            width: 100%;
-            max-width: 450px;
+        .pl-box-head i { font-size: 14px; color: #fbbf24; }
+        .pl-box-head strong { font-size: 13px; font-weight: 700; }
+
+        .pl-box p {
+            font-size: 11.5px;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.55;
+            margin: 0;
         }
 
-        .btn-auth-submit {
-            background-color: #0f2043;
-            color: #ffffff;
-            width: 100%;
-            padding: 0.75rem;
+        /* Roles list */
+        .pl-roles {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .pl-roles li {
+            font-size: 11.5px;
+            color: rgba(255,255,255,0.75);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .pl-roles li i { color: #34d399; font-size: 12px; flex-shrink: 0; }
+
+        /* Slide dots pushed to bottom */
+        .pl-dots {
+            margin-top: auto;
+            padding-top: 20px;
+            display: flex;
+            gap: 6px;
+        }
+
+        .pl-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
             border: none;
-            border-radius: 6px;
+            cursor: pointer;
+            padding: 0;
+            transition: .3s ease;
+        }
+
+        .pl-dot.active {
+            background: white;
+            width: 18px;
+            border-radius: 3px;
+        }
+
+        /* ── RIGHT — white form panel ────────────────────────── */
+        .panel-right {
+            width: 350px;
+            flex-shrink: 0;
+            background: #ffffff;
+            padding: 36px 30px 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* UNILAK logo circle — matches reference exactly */
+        .pr-logo {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4338ca, #7c3aed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 14px rgba(67,56,202,0.35);
+        }
+
+        .panel-right h1 {
+            font-size: 18px;
+            font-weight: 800;
+            color: #1e1b4b;
+            margin-bottom: 22px;
+            text-align: center;
+        }
+
+        /* Form elements */
+        .pr-form { width: 100%; }
+
+        .pr-field { margin-bottom: 14px; }
+
+        .pr-field label {
+            display: block;
+            font-size: 12px;
             font-weight: 600;
-            margin-top: 1rem;
-            transition: background-color 0.2s ease;
+            color: #374151;
+            margin-bottom: 5px;
         }
 
-        .btn-auth-submit:hover {
-            background-color: #1b559b;
-            color: #ffffff;
+        .pr-input-wrap { position: relative; }
+
+        .pr-input-wrap .fi {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 13px;
+            color: #9ca3af;
+            pointer-events: none;
         }
 
-        @media (max-width: 991px) {
-            .auth-page {
-                flex-direction: column;
-            }
-            .auth-panel-brand {
-                padding: 2rem 1.5rem 1rem;
-            }
+        .pr-input-wrap input,
+        .pr-input-wrap select {
+            width: 100%;
+            padding: 10px 12px 10px 34px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #111827;
+            outline: none;
+            transition: border .15s ease, box-shadow .15s ease;
+            background: white;
+        }
+
+        .pr-input-wrap input:focus,
+        .pr-input-wrap select:focus {
+            border-color: #4338ca;
+            box-shadow: 0 0 0 3px rgba(67,56,202,0.10);
+        }
+
+        .pr-input-wrap input::placeholder { color: #bbb; font-size: 12px; }
+
+        .pr-eye {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #9ca3af;
+            font-size: 14px;
+            padding: 0;
+        }
+
+        .pr-eye:hover { color: #4338ca; }
+
+        /* Options row */
+        .pr-opts {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .pr-remember {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #6b7280;
+            cursor: pointer;
+        }
+
+        .pr-remember input { accent-color: #4338ca; width: 13px; height: 13px; }
+
+        .pr-forgot {
+            font-size: 12px;
+            color: #4338ca;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .pr-forgot:hover { text-decoration: underline; }
+
+        /* LOGIN button — purple gradient exact match to reference */
+        .btn-login {
+            width: 100%;
+            padding: 11px;
+            background: linear-gradient(90deg, #4338ca 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            transition: .2s ease;
+            box-shadow: 0 4px 14px rgba(67,56,202,0.4);
+            margin-bottom: 14px;
+        }
+
+        .btn-login:hover {
+            background: linear-gradient(90deg, #3730a3 0%, #6d28d9 100%);
+            transform: translateY(-1px);
+        }
+
+        /* Error */
+        .pr-error {
+            width: 100%;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            border-radius: 7px;
+            padding: 9px 12px;
+            font-size: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        /* Register */
+        .pr-register {
+            font-size: 11.5px;
+            color: #6b7280;
+            text-align: center;
+        }
+
+        .pr-register a {
+            color: #4338ca;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .pr-register a:hover { text-decoration: underline; }
+
+        /* ── Responsive ──────────────────────────────────────── */
+        @@media (max-width: 780px) {
+            .panel-left { display: none; }
+            .panel-right { width: 100%; max-width: 400px; }
+            body { overflow: auto; }
+            .shell { min-height: 100vh; }
         }
     </style>
 </head>
 <body>
 
-<div class="auth-page">
-    <div class="auth-panel-brand">
-        <div class="auth-brand-content">
-            <span class="auth-brand-badge">UNILAK Academic Portal</span>
-            <h2>Welcome back to the Course Schedule &amp; Academic Awareness System</h2>
-            <p class="mt-3">
-                Sign in to access your timetable, verified WhatsApp groups, and academic
-                communications tailored to your role.
-            </p>
-            <ul class="auth-feature-list list-unstyled mt-4">
-                <li class="mb-2"><i class="bi bi-check-circle-fill text-warning me-2"></i> Real-time timetable synchronization</li>
-                <li class="mb-2"><i class="bi bi-check-circle-fill text-warning me-2"></i> Role-based dashboard access</li>
-                <li class="mb-2"><i class="bi bi-check-circle-fill text-warning me-2"></i> Verified official communication channels</li>
-            </ul>
-        </div>
+    <!-- Photo slideshow -->
+    <div class="bg-wrap">
+        <div class="bg-slide active"
+             style="background-image:url('/images/dean1.jpeg');"></div>
+        <div class="bg-slide"
+             style="background-image:url('/images/zpc1.jpeg');"></div>
+        <div class="bg-slide"
+             style="background-image:url('/images/Rulinda1.jpeg');"></div>
     </div>
+    <div class="bg-tint"></div>
 
-    <div class="auth-panel-form">
-        <div class="auth-form-card">
-            <h1 class="h3 mb-2">Sign In</h1>
-            <p class="auth-subtitle text-muted mb-3">Enter your credentials to access your account</p>
+    <!-- Centered card -->
+    <div class="shell">
+        <div class="card-wrap">
 
-            <div class="auth-demo-note alert alert-info py-2 px-3 mb-3 fs-7">
-                <i class="bi bi-info-circle-fill me-1"></i>
-                <span>UI preview only — this form is not yet connected to a backend.</span>
+            <!-- ═══════════════════════════
+                 LEFT PANEL
+            ══════════════════════════════ -->
+            <div class="panel-left">
+
+                <div class="pl-logo">
+                    <div class="pl-logo-icon" style="background:none;padding:0;"><img src="/images/logo.jpeg" alt="UNILAK" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" /></div>
+                    <div class="pl-logo-text">
+                        <strong>CSAS</strong>
+                        <span>CSAS Portal</span>
+                    </div>
+                </div>
+
+                <h2>Welcome to UNILAK</h2>
+                <p class="tagline">Your gateway to quality education and academic excellence.</p>
+
+                <!-- Box 1 — System info -->
+                <div class="pl-box">
+                    <div class="pl-box-head">
+                        <i class="bi bi-calendar3-week"></i>
+                        <strong>Course Schedule &amp; Awareness</strong>
+                    </div>
+                    <p>
+                        Timetables, session verification, marks and verified
+                        class communication — all in one secure platform.
+                    </p>
+                </div>
+
+                <!-- Box 2 — Roles -->
+                <div class="pl-box">
+                    <div class="pl-box-head">
+                        <i class="bi bi-people-fill"></i>
+                        <strong>Access Levels</strong>
+                    </div>
+                    <ul class="pl-roles">
+                        <li><i class="bi bi-check-circle-fill"></i>Students</li>
+                        <li><i class="bi bi-check-circle-fill"></i>Class Representatives</li>
+                        <li><i class="bi bi-check-circle-fill"></i>Lecturers</li>
+                        <li><i class="bi bi-check-circle-fill"></i>Head of Department</li>
+                        <li><i class="bi bi-check-circle-fill"></i>Dean</li>
+                        <li><i class="bi bi-check-circle-fill"></i>Director of Quality</li>
+                    </ul>
+                </div>
+
+                <!-- Slide dots -->
+                <div class="pl-dots" id="dots">
+                    <button class="pl-dot active" onclick="goTo(0)"></button>
+                    <button class="pl-dot" onclick="goTo(1)"></button>
+                    <button class="pl-dot" onclick="goTo(2)"></button>
+                </div>
+
             </div>
 
-            <form method="post">
-                <div class="auth-form-group mb-3">
-                    <label for="email" class="form-label">Email or Registration Number</label>
-                    <input type="text" id="email" asp-for="Email" class="form-control" placeholder="e.g. jane.doe@unilak.ac.rw" required />
-                </div>
 
-                <div class="auth-form-group mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" id="password" asp-for="Password" class="form-control" placeholder="Enter your password" required />
-                </div>
+            <!-- ═══════════════════════════
+                 RIGHT PANEL
+            ══════════════════════════════ -->
+            <div class="panel-right">
 
-                <div class="auth-form-group mb-3">
-                    <label for="role" class="form-label">Login As</label>
-                    <select id="role" asp-for="Role" class="form-select">
-                        <option value="student">Student</option>
-                        <option value="cp">Class Representative</option>
-                        <option value="hod">HOD / Lecturer</option>
-                        <option value="dean">Dean</option>
-                        <option value="quality">Quality Director</option>
-                    </select>
-                </div>
+                <div class="pr-logo" style="background:none;box-shadow:none;width:72px;height:72px;"><img src="/images/logo.jpeg" alt="UNILAK" style="width:72px;height:72px;border-radius:50%;object-fit:cover;box-shadow:0 4px 14px rgba(0,0,0,0.2);" /></div>
 
-                <div class="auth-options-row d-flex justify-content-between align-items-center mb-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="remember" />
-                        <label class="form-check-label" for="remember">Remember me</label>
+                <h1>Login to Account</h1>
+
+                <!-- Error -->
+                @if (Model.ErrorMessage != null)
+                {
+                    <div class="pr-error">
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                        @Model.ErrorMessage
                     </div>
-                    <a href="#" class="text-decoration-none">Forgot password?</a>
-                </div>
+                }
 
-                <button type="submit" class="btn-auth-submit">Sign In</button>
-            </form>
+                <form method="post" class="pr-form">
+                    @Html.AntiForgeryToken()
 
-            <div class="auth-divider text-center my-3 text-muted">OR</div>
+                    <!-- Username -->
+                    <div class="pr-field">
+                        <label>Username</label>
+                        <div class="pr-input-wrap">
+                            <i class="bi bi-person-fill fi"></i>
+                            <input type="text"
+                                   asp-for="Identifier"
+                                   placeholder="Enter your username"
+                                   required />
+                        </div>
+                    </div>
 
-            <p class="auth-switch-text text-center mb-0">
-                New to CSAAS? <a href="/Register" class="text-decoration-none fw-bold">Create an account</a>
-            </p>
+                    <!-- Password -->
+                    <div class="pr-field">
+                        <label>Password</label>
+                        <div class="pr-input-wrap">
+                            <i class="bi bi-lock-fill fi"></i>
+                            <input type="password"
+                                   asp-for="Password"
+                                   id="pwdField"
+                                   placeholder="Enter your password"
+                                   required />
+                            <button type="button" class="pr-eye" onclick="togglePwd()">
+                                <i class="bi bi-eye-fill" id="pwdIco"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Role -->
+                    <div class="pr-field">
+                        <label>Login As</label>
+                        <div class="pr-input-wrap">
+                            <i class="bi bi-person-badge-fill fi"></i>
+                            <select asp-for="Role">
+                                <option value="student">Student</option>
+                                <option value="cp">Class Representative</option>
+                                <option value="lecturer">Lecturer</option>
+                                <option value="hod">Head of Department</option>
+                                <option value="dean">Dean</option>
+                                <option value="quality">Director of Quality</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Options -->
+                    <div class="pr-opts">
+                        <label class="pr-remember">
+                            <input type="checkbox" /> Remember me
+                        </label>
+                        <a href="#" class="pr-forgot">Forgot Password?</a>
+                    </div>
+
+                    <button type="submit" class="btn-login">Login</button>
+
+                </form>
+
+                <p class="pr-register">
+                    New to CSAS? <a href="/Register">Create an account</a>
+                </p>
+
+            </div>
+
         </div>
     </div>
-</div>
 
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        /* Slideshow */
+        var slides = document.querySelectorAll('.bg-slide');
+        var dots   = document.querySelectorAll('.pl-dot');
+        var cur    = 0, t = null;
+
+        function goTo(i) {
+            slides[cur].classList.remove('active');
+            dots[cur].classList.remove('active');
+            cur = i;
+            slides[cur].classList.add('active');
+            dots[cur].classList.add('active');
+        }
+
+        function tick() { goTo((cur + 1) % slides.length); }
+        function start() { t = setInterval(tick, 5000); }
+
+        dots.forEach(function(d, i) {
+            d.addEventListener('click', function() {
+                clearInterval(t);
+                goTo(i);
+                setTimeout(start, 8000);
+            });
+        });
+
+        start();
+
+        /* Password toggle */
+        function togglePwd() {
+            var f = document.getElementById('pwdField');
+            var i = document.getElementById('pwdIco');
+            if (f.type === 'password') {
+                f.type = 'text';
+                i.className = 'bi bi-eye-slash-fill';
+            } else {
+                f.type = 'password';
+                i.className = 'bi bi-eye-fill';
+            }
+        }
+    </script>
+
 </body>
 </html>

@@ -1,44 +1,162 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - CSAAS</title>
+    <title>@ViewData["Title"] - CSAS</title>
+
+    <!-- Bootstrap -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="~/css/index.css" />
-    <link rel="stylesheet" href="~/css/auth.css" />
-    <link rel="stylesheet" href="~/css/dashboard.css" />
-    <link rel="stylesheet" href="~/css/index.css" />
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <!-- CSAS Styles (load order matters) -->
+    <link rel="stylesheet" href="~/css/site.css"      asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/index.css"     asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/auth.css"      asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/layout.css"    asp-append-version="true" />
 </head>
+
 <body>
-    <header>
-        <nav class="cs-navbar">
-            <a class="cs-navbar-brand" href="/">
-                <span class="logo-circle"><i class="bi bi-calendar3-week"></i></span>
-                <span class="brand-text">CSAAS <span>Portal</span></span>
+
+    <!-- =============================================
+         TOP NAVIGATION BAR
+    ============================================== -->
+    <nav class="layout-navbar">
+
+        <!-- Brand -->
+        <a href="/" class="layout-brand">
+            <div class="layout-brand-icon" style="background:none;box-shadow:none;padding:0;"><img src="/images/logo.jpeg" alt="UNILAK" style="width:40px;height:40px;border-radius:50%;object-fit:cover;" /></div>
+            <div class="layout-brand-text">
+                <strong>CSAS</strong>
+                <span>UNILAK Academic Portal</span>
+            </div>
+        </a>
+
+
+        <!-- Navigation Links -->
+        <div class="layout-nav">
+
+            <!-- Home -->
+            <a href="/" class="layout-nav-link">
+                <i class="bi bi-house-fill"></i> Home
             </a>
 
-            <div class="cs-navbar-links">
-                <a class="cs-nav-link active" href="/"><i class="bi bi-house-fill"></i> Home</a>
-                <a class="cs-nav-link" href="/#features"><i class="bi bi-grid-fill"></i> Features</a>
-                <a class="cs-nav-link" href="/Dashboard?role=student"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <!-- Features -->
+            <a href="/#features" class="layout-nav-link">
+                <i class="bi bi-grid-fill"></i> Features
+            </a>
+
+            <!-- Dashboards Dropdown -->
+            <div class="layout-dropdown">
+
+                <button class="layout-dropdown-toggle" id="dashDropdownBtn">
+                    <i class="bi bi-speedometer2"></i>
+                    Dashboards
+                    <i class="bi bi-chevron-down" style="font-size:10px;"></i>
+                </button>
+
+                <div class="layout-dropdown-menu" id="dashDropdownMenu">
+
+                    <div class="layout-dropdown-label">Student &amp; Class</div>
+
+                    <a href="/Student/Dashboard" class="layout-dropdown-item">
+                        <i class="bi bi-mortarboard-fill" style="color:#1e3a8a;"></i>
+                        Student Dashboard
+                        <span class="role-dot dot-student"></span>
+                    </a>
+
+                    <a href="/CP/Dashboard" class="layout-dropdown-item">
+                        <i class="bi bi-person-badge-fill" style="color:#0d9488;"></i>
+                        Class Representative
+                        <span class="role-dot dot-cp"></span>
+                    </a>
+
+                    <div class="layout-dropdown-divider"></div>
+                    <div class="layout-dropdown-label">Academic Staff</div>
+
+                    <a href="/Lecturer/Dashboard" class="layout-dropdown-item">
+                        <i class="bi bi-person-workspace" style="color:#7c3aed;"></i>
+                        Lecturer Dashboard
+                        <span class="role-dot dot-lecturer"></span>
+                    </a>
+
+                    <a href="/HOD/Dashboard" class="layout-dropdown-item">
+                        <i class="bi bi-building" style="color:#d97706;"></i>
+                        Head of Department
+                        <span class="role-dot dot-hod"></span>
+                    </a>
+
+                    <div class="layout-dropdown-divider"></div>
+                    <div class="layout-dropdown-label">Management</div>
+
+                    <a href="/Dean/Dashboard" class="layout-dropdown-item">
+                        <i class="bi bi-briefcase-fill" style="color:#059669;"></i>
+                        Dean Dashboard
+                        <span class="role-dot dot-dean"></span>
+                    </a>
+
+                    <a href="/Quality/Dashboard" class="layout-dropdown-item">
+                        <i class="bi bi-graph-up-arrow" style="color:#dc2626;"></i>
+                        Director of Quality
+                        <span class="role-dot dot-quality"></span>
+                    </a>
+
+                </div>
+
             </div>
 
-            <div class="cs-navbar-actions">
-                <a href="/Login" class="btn-cs-login"><i class="bi bi-box-arrow-in-right"></i> Login</a>
-            </div>
-        </nav>
-    </header>
+        </div>
 
+
+        <!-- Right Actions -->
+        <div class="layout-actions">
+            <a href="/Login" class="layout-login-btn">
+                <i class="bi bi-box-arrow-in-right"></i> Login
+            </a>
+        </div>
+
+    </nav>
+
+
+    <!-- =============================================
+         PAGE BODY
+    ============================================== -->
     <main role="main" class="@(ViewData["FullWidth"] as string == "true" ? "" : "container-fluid px-4 py-4")">
         @RenderBody()
     </main>
 
+
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Dropdown toggle script -->
+    <script>
+        (function () {
+            var btn  = document.getElementById('dashDropdownBtn');
+            var menu = document.getElementById('dashDropdownMenu');
+
+            if (!btn || !menu) return;
+
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var isOpen = menu.classList.contains('show');
+                menu.classList.toggle('show', !isOpen);
+                btn.classList.toggle('open', !isOpen);
+            });
+
+            document.addEventListener('click', function () {
+                menu.classList.remove('show');
+                btn.classList.remove('open');
+            });
+        })();
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

@@ -1,0 +1,194 @@
+/* =========================================================
+   CSAAS — AUTH / LOGIN PAGE STYLES
+   Used by: Pages/Login.cshtml
+========================================================= */
+
+
+/* ─── Full-Page Layout ────────────────────────────────── */
+
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    background:
+        linear-gradient(
+            135deg,
+            rgba(15, 32, 67, 0.88),
+            rgba(27, 85, 155, 0.82)
+        ),
+        url('https://site.unilak.ac.rw/wp-content/uploads/2024/02/WhatsApp-Image-2024-02-20-at-9.39.54-PM-1024x818.jpeg')
+        no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+/* ─── Left Branding Panel ─────────────────────────────── */
+
+.auth-panel-brand {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    color: #ffffff;
+}
+
+.auth-brand-content {
+    max-width: 520px;
+}
+
+.auth-brand-badge {
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.auth-brand-content h2 {
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.auth-brand-content p {
+    line-height: 1.7;
+    font-size: 1rem;
+}
+
+.auth-feature-list {
+    font-size: 0.95rem;
+}
+
+
+/* ─── Right Form Panel ────────────────────────────────── */
+
+.auth-panel-form {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.auth-form-card {
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(10px);
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
+    width: 100%;
+    max-width: 450px;
+}
+
+.auth-form-card h1 {
+    color: #0f2043;
+    font-weight: 700;
+}
+
+.auth-subtitle {
+    font-size: 0.95rem;
+}
+
+
+/* ─── Form Controls ───────────────────────────────────── */
+
+.auth-form-group label {
+    font-weight: 600;
+    color: #333;
+}
+
+.auth-form-group .form-control,
+.auth-form-group .form-select {
+    min-height: 45px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+}
+
+.auth-form-group .form-control:focus,
+.auth-form-group .form-select:focus {
+    border-color: #1b559b;
+    box-shadow: 0 0 0 0.2rem rgba(27, 85, 155, 0.15);
+}
+
+
+/* ─── Submit Button ───────────────────────────────────── */
+
+.btn-auth-submit {
+    background-color: #0f2043;
+    color: #ffffff;
+    width: 100%;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    margin-top: 1rem;
+    transition: background-color 0.2s ease;
+}
+
+.btn-auth-submit:hover {
+    background-color: #1b559b;
+    color: #ffffff;
+}
+
+
+/* ─── Misc ────────────────────────────────────────────── */
+
+.auth-demo-note {
+    font-size: 0.85rem;
+}
+
+.auth-switch-text {
+    font-size: 0.9rem;
+}
+
+.auth-switch-text a {
+    color: #0f2043;
+}
+
+.auth-switch-text a:hover {
+    color: #1b559b;
+}
+
+
+/* ─── Responsive ──────────────────────────────────────── */
+
+@media (max-width: 991px) {
+    .auth-page {
+        flex-direction: column;
+    }
+
+    .auth-panel-brand {
+        padding: 2rem 1.5rem 1rem;
+    }
+
+    .auth-brand-content {
+        max-width: 700px;
+    }
+
+    .auth-panel-form {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .auth-panel-brand {
+        padding: 1.5rem 1rem 0.5rem;
+    }
+
+    .auth-brand-content h2 {
+        font-size: 1.5rem;
+    }
+
+    .auth-brand-content p {
+        font-size: 0.9rem;
+    }
+
+    .auth-form-card {
+        padding: 1.5rem;
+    }
+}

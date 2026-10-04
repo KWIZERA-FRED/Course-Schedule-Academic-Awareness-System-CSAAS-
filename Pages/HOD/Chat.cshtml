@@ -1,0 +1,555 @@
+@page
+@model CourseScheduleSystem.Web.Pages.HOD.ChatModel
+@{
+    ViewData["Title"] = "HOD Chat";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HOD Chat | CSAS</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/dashboard.css" />
+    <style>
+        /* ── Chat layout ──────────────────────────────────── */
+        .chat-shell {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background: #f4f6fb;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        /* ── Left: app sidebar ──────────────────────────── */
+        .app-sidebar {
+            width: 220px;
+            min-height: 100vh;
+            background: #0f1a3a;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .app-sidebar-brand {
+            padding: 18px 16px;
+            border-bottom: 1px solid rgba(255,255,255,.07);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: white;
+        }
+
+        .app-brand-icon {
+            width: 34px; height: 34px; border-radius: 9px;
+            background: #1e3a8a;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; color: white; flex-shrink: 0;
+        }
+
+        .app-brand-text strong { display: block; font-size: 13px; font-weight: 700; color: white; }
+        .app-brand-text span   { font-size: 10px; color: #64748b; }
+
+        .app-nav { padding: 12px 10px; flex: 1; }
+
+        .app-nav-link {
+            display: flex; align-items: center; gap: 9px;
+            padding: 9px 11px; border-radius: 8px;
+            text-decoration: none; color: #94a3b8;
+            font-size: 12px; font-weight: 500; margin-bottom: 2px;
+            transition: .15s ease;
+        }
+
+        .app-nav-link:hover { background: rgba(255,255,255,.06); color: white; }
+        .app-nav-link.active { background: #1e3a8a; color: white; }
+        .app-nav-link i { font-size: 14px; width: 16px; text-align: center; }
+
+        .app-sidebar-footer {
+            padding: 14px 10px;
+            border-top: 1px solid rgba(255,255,255,.07);
+        }
+
+        .app-user {
+            display: flex; align-items: center; gap: 9px;
+            padding: 9px 11px; border-radius: 8px;
+            background: rgba(255,255,255,.05);
+        }
+
+        .app-avatar {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: #1e3a8a; color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; flex-shrink: 0;
+        }
+
+        .app-user strong { display: block; font-size: 11px; color: white; font-weight: 600; }
+        .app-user span   { font-size: 9px; color: #64748b; }
+
+        /* ── Middle: CP list panel ──────────────────────── */
+        .cp-list-panel {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .cp-panel-header {
+            padding: 18px 16px 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .cp-panel-header h2 {
+            font-size: 15px; font-weight: 700; color: #0f1a3a; margin-bottom: 4px;
+        }
+
+        .cp-panel-header p { font-size: 11px; color: #9ca3af; }
+
+        /* Search */
+        .cp-search-wrap {
+            padding: 10px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            position: relative;
+        }
+
+        .cp-search-wrap i {
+            position: absolute; left: 24px; top: 50%; transform: translateY(-50%);
+            font-size: 13px; color: #9ca3af; pointer-events: none;
+        }
+
+        .cp-search-wrap input {
+            width: 100%; padding: 8px 10px 8px 32px;
+            border: 1px solid #e5e7eb; border-radius: 8px;
+            font-size: 12px; outline: none; background: #f8fafc;
+        }
+
+        .cp-search-wrap input:focus { border-color: #1e3a8a; }
+
+        /* Department label */
+        .dept-label {
+            padding: 8px 16px 4px;
+            font-size: 9px; font-weight: 700; color: #9ca3af;
+            text-transform: uppercase; letter-spacing: .08em;
+        }
+
+        /* CP item */
+        .cp-item {
+            display: flex; align-items: center; gap: 11px;
+            padding: 10px 14px; cursor: pointer;
+            text-decoration: none; color: inherit;
+            transition: .12s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .cp-item:hover { background: #f8fafc; }
+
+        .cp-item.active {
+            background: #eff6ff;
+            border-left-color: #1e3a8a;
+        }
+
+        .cp-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: #1e3a8a; color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; flex-shrink: 0;
+        }
+
+        .cp-item-body { flex: 1; min-width: 0; }
+        .cp-item-body strong { display: block; font-size: 12px; font-weight: 700; color: #0f1a3a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cp-item-body span   { font-size: 10px; color: #9ca3af; }
+
+        .cp-unread {
+            background: #dc2626; color: white;
+            font-size: 9px; font-weight: 700;
+            width: 17px; height: 17px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .cp-list-scroll { flex: 1; overflow-y: auto; }
+
+        /* ── Right: conversation panel ──────────────────── */
+        .conv-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Conversation top bar */
+        .conv-topbar {
+            height: 58px; padding: 0 20px;
+            background: white; border-bottom: 1px solid #e5e7eb;
+            display: flex; align-items: center; gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .conv-topbar-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: #0d9488; color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700; flex-shrink: 0;
+        }
+
+        .conv-topbar-info strong { font-size: 14px; font-weight: 700; color: #0f1a3a; display: block; }
+        .conv-topbar-info span   { font-size: 11px; color: #9ca3af; }
+
+        /* Messages area */
+        .conv-messages {
+            flex: 1; overflow-y: auto;
+            padding: 20px 24px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+
+        .msg-bubble {
+            max-width: 65%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .msg-bubble.me {
+            background: #1e3a8a; color: white;
+            border-bottom-right-radius: 3px;
+            align-self: flex-end;
+        }
+
+        .msg-bubble.them {
+            background: white; color: #0f1a3a;
+            border: 1px solid #e5e7eb;
+            border-bottom-left-radius: 3px;
+            align-self: flex-start;
+        }
+
+        .msg-time {
+            font-size: 10px;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .msg-bubble.me   .msg-time { color: rgba(255,255,255,.55); text-align: right; }
+        .msg-bubble.them .msg-time { color: #9ca3af; }
+
+        /* Date separator */
+        .date-sep {
+            text-align: center; font-size: 11px; color: #9ca3af;
+            display: flex; align-items: center; gap: 10px; margin: 6px 0;
+        }
+
+        .date-sep::before, .date-sep::after {
+            content: ''; flex: 1; height: 1px; background: #e5e7eb;
+        }
+
+        /* Empty state */
+        .conv-empty {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            color: #9ca3af; text-align: center; padding: 40px;
+        }
+
+        .conv-empty i { font-size: 48px; margin-bottom: 14px; color: #d1d5db; }
+        .conv-empty p { font-size: 13px; }
+
+        /* No CP selected */
+        .no-cp-selected {
+            flex: 1; display: flex; align-items: center;
+            justify-content: center; flex-direction: column;
+            color: #9ca3af; text-align: center; padding: 40px;
+            background: #f8fafc;
+        }
+
+        .no-cp-selected i { font-size: 56px; color: #d1d5db; margin-bottom: 16px; }
+        .no-cp-selected h3 { font-size: 16px; color: #374151; margin-bottom: 8px; }
+        .no-cp-selected p  { font-size: 13px; }
+
+        /* Compose bar */
+        .conv-compose {
+            padding: 14px 20px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            flex-shrink: 0;
+        }
+
+        .compose-form {
+            display: flex; gap: 10px; align-items: flex-end;
+        }
+
+        .compose-input {
+            flex: 1; padding: 10px 14px;
+            border: 1px solid #d1d5db; border-radius: 10px;
+            font-size: 13px; outline: none; resize: none;
+            max-height: 120px; line-height: 1.4;
+            transition: border .15s ease;
+        }
+
+        .compose-input:focus { border-color: #1e3a8a; }
+
+        .compose-send {
+            width: 40px; height: 40px; border-radius: 10px;
+            background: #1e3a8a; color: white; border: none;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; cursor: pointer; flex-shrink: 0;
+            transition: .15s ease;
+        }
+
+        .compose-send:hover { background: #1a56db; }
+    </style>
+</head>
+<body>
+
+<div class="chat-shell">
+
+    <!-- ═══════════════════════════════════════
+         APP SIDEBAR
+    ════════════════════════════════════════ -->
+    <aside class="app-sidebar">
+
+        <a href="/" class="app-sidebar-brand">
+            <div class="app-brand-icon" style="background:transparent;box-shadow:none;padding:2px;"><img src="/images/logo.jpeg" alt="UNILAK" style="width:34px;height:34px;border-radius:50%;object-fit:cover;" /></div>
+            <div class="app-brand-text">
+                <strong>CSAS</strong>
+                <span>HOD Portal</span>
+            </div>
+        </a>
+
+        <nav class="app-nav">
+            <a href="/HOD/Dashboard" class="app-nav-link">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a href="/HOD/Chat" class="app-nav-link active">
+                <i class="bi bi-chat-dots-fill"></i> Messages
+                @if (Model.TotalUnread > 0)
+                {
+                    <span style="margin-left:auto;background:#dc2626;color:white;
+                                 font-size:9px;font-weight:700;padding:1px 6px;
+                                 border-radius:20px;">@Model.TotalUnread</span>
+                }
+            </a>
+            <a href="#" class="app-nav-link">
+                <i class="bi bi-person"></i> Profile
+            </a>
+            <a href="/Logout" class="app-nav-link">
+                <i class="bi bi-box-arrow-left"></i> Logout
+            </a>
+        </nav>
+
+        <div class="app-sidebar-footer">
+            <div class="app-user">
+                <div class="app-avatar"><i class="bi bi-building"></i></div>
+                <div>
+                    <strong>@Model.CurrentUser.FullName</strong>
+                    <span>Head of Department</span>
+                </div>
+            </div>
+        </div>
+
+    </aside>
+
+
+    <!-- ═══════════════════════════════════════
+         CP LIST PANEL
+    ════════════════════════════════════════ -->
+    <div class="cp-list-panel">
+
+        <div class="cp-panel-header">
+            <h2><i class="bi bi-chat-dots-fill" style="color:#1e3a8a;margin-right:7px;"></i>Messages</h2>
+            <p>Select a Class Representative to chat with</p>
+        </div>
+
+        <!-- Search -->
+        <div class="cp-search-wrap">
+            <i class="bi bi-search"></i>
+            <input type="text" id="cpSearch"
+                   placeholder="Search CP name or department..."
+                   oninput="filterCPs(this.value)" />
+        </div>
+
+        <div class="cp-list-scroll" id="cpListScroll">
+            @{
+                var grouped = Model.AllCPs.GroupBy(cp => cp.Department).OrderBy(g => g.Key);
+            }
+            @foreach (var group in grouped)
+            {
+                <div class="dept-label cp-dept-group" data-dept="@group.Key.ToLower()">
+                    @group.Key
+                </div>
+                @foreach (var cp in group)
+                {
+                    var isActive  = Model.ActiveCP?.Email == cp.Email;
+                    var unreadCnt = ChatData.Messages.Count(m =>
+                        m.HODEmail == Model.CurrentUser.Email &&
+                        m.CPEmail  == cp.Email &&
+                        !m.IsRead  &&
+                        m.SenderRole == "CP");
+
+                    <a href="/HOD/Chat?cpEmail=@Uri.EscapeDataString(cp.Email)"
+                       class="cp-item @(isActive ? "active" : "") cp-list-item"
+                       data-name="@cp.FullName.ToLower()"
+                       data-dept="@cp.Department.ToLower()">
+                        <div class="cp-avatar">@cp.Initials</div>
+                        <div class="cp-item-body">
+                            <strong>@cp.FullName</strong>
+                            <span>@cp.Department · Year @cp.Year</span>
+                        </div>
+                        @if (unreadCnt > 0)
+                        {
+                            <div class="cp-unread">@unreadCnt</div>
+                        }
+                    </a>
+                }
+            }
+        </div>
+
+    </div>
+
+
+    <!-- ═══════════════════════════════════════
+         CONVERSATION PANEL
+    ════════════════════════════════════════ -->
+    <div class="conv-panel">
+
+        @if (Model.ActiveCP == null)
+        {
+            <!-- Nothing selected -->
+            <div class="no-cp-selected">
+                <i class="bi bi-chat-square-dots"></i>
+                <h3>Select a Class Representative</h3>
+                <p>Choose a CP from the list on the left to start or continue a private conversation.</p>
+            </div>
+        }
+        else
+        {
+            <!-- Topbar -->
+            <div class="conv-topbar">
+                <div class="conv-topbar-avatar">@Model.ActiveCP.Initials</div>
+                <div class="conv-topbar-info">
+                    <strong>@Model.ActiveCP.FullName</strong>
+                    <span>@Model.ActiveCP.Department · Year @Model.ActiveCP.Year · @Model.ActiveCP.RegNumber</span>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="conv-messages" id="msgArea">
+
+                @if (!Model.Conversation.Any())
+                {
+                    <div class="conv-empty">
+                        <i class="bi bi-chat-right-text"></i>
+                        <p>No messages yet. Send the first message to @Model.ActiveCP.FullName.</p>
+                    </div>
+                }
+                else
+                {
+                    DateTime? lastDate = null;
+                    @foreach (var msg in Model.Conversation)
+                    {
+                        var isMe   = msg.SenderRole == "HOD";
+                        var msgDate = msg.SentAt.Date;
+
+                        if (lastDate == null || lastDate != msgDate)
+                        {
+                            <div class="date-sep">
+                                @(msgDate == DateTime.Today ? "Today"
+                                : msgDate == DateTime.Today.AddDays(-1) ? "Yesterday"
+                                : msgDate.ToString("dd MMM yyyy"))
+                            </div>
+                            lastDate = msgDate;
+                        }
+
+                        <div class="msg-bubble @(isMe ? "me" : "them")">
+                            @msg.Text
+                            <span class="msg-time">
+                                @msg.SentAt.ToString("HH:mm")
+                                @if (isMe)
+                                {
+                                    if (msg.IsRead)
+                                    {
+                                        <i class="bi bi-check2-all" style="margin-left:3px;"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-check2" style="margin-left:3px;"></i>
+                                    }
+                                }
+                            </span>
+                        </div>
+                    }
+                }
+
+            </div>
+
+            <!-- Compose -->
+            <div class="conv-compose">
+                <form method="post" asp-page-handler="Send" class="compose-form">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="cpEmail" value="@Model.ActiveCP.Email" />
+                    <textarea name="text"
+                              id="composeBox"
+                              class="compose-input"
+                              rows="1"
+                              placeholder="Type a message to @Model.ActiveCP.FullName..."
+                              required
+                              onkeydown="handleEnter(event)"></textarea>
+                    <button type="submit" class="compose-send" title="Send">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </form>
+            </div>
+        }
+
+    </div>
+    <!-- /conv-panel -->
+
+</div>
+<!-- /chat-shell -->
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    /* Auto-scroll to bottom of messages */
+    var msgArea = document.getElementById('msgArea');
+    if (msgArea) msgArea.scrollTop = msgArea.scrollHeight;
+
+    /* Send on Enter (Shift+Enter = newline) */
+    function handleEnter(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            e.target.closest('form').submit();
+        }
+    }
+
+    /* Auto-grow textarea */
+    var box = document.getElementById('composeBox');
+    if (box) {
+        box.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+    }
+
+    /* Filter CP list by search */
+    function filterCPs(query) {
+        var q = query.toLowerCase().trim();
+        document.querySelectorAll('.cp-list-item').forEach(function(item) {
+            var match = !q ||
+                item.dataset.name.includes(q) ||
+                item.dataset.dept.includes(q);
+            item.style.display = match ? '' : 'none';
+        });
+        document.querySelectorAll('.cp-dept-group').forEach(function(label) {
+            var dept  = label.dataset.dept;
+            var items = document.querySelectorAll('.cp-list-item[data-dept="' + dept + '"]');
+            var anyVis = Array.from(items).some(function(i) { return i.style.display !== 'none'; });
+            label.style.display = anyVis ? '' : 'none';
+        });
+    }
+</script>
+</body>
+</html>

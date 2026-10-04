@@ -1,0 +1,525 @@
+@page
+@model CourseScheduleSystem.Web.Pages.Quality.DashboardModel
+@{
+    ViewData["Title"] = "Director of Quality Dashboard";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Director of Quality Dashboard | CSAS</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/dashboard.css" />
+</head>
+<body>
+
+<div class="dash-shell">
+
+    <!-- =============================================
+         SIDEBAR
+    ============================================== -->
+    <aside class="dash-sidebar">
+
+        <a href="/" class="dash-sidebar-brand">
+            <div class="dash-sidebar-brand-icon" style="background:transparent;box-shadow:none;padding:2px;"><img src="/images/logo.jpeg" alt="UNILAK" style="width:34px;height:34px;border-radius:50%;object-fit:cover;" /></div>
+            <div class="dash-sidebar-brand-text">
+                <strong>CSAS</strong>
+                <span>Quality Directorate</span>
+            </div>
+        </a>
+
+        <div class="dash-sidebar-section">Main Menu</div>
+
+        <nav class="dash-sidebar-nav">
+            <a href="/" class="dash-nav-link">
+                <i class="bi bi-house-fill"></i> Home
+            </a>
+            <a href="/Quality/Dashboard" class="dash-nav-link active">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a href="#" class="dash-nav-link">
+                <i class="bi bi-bar-chart-fill"></i> Academic Reports
+            </a>
+            <a href="#" class="dash-nav-link">
+                <i class="bi bi-clipboard2-data-fill"></i> Delivery Audits
+            </a>
+            <a href="#" class="dash-nav-link">
+                <i class="bi bi-diagram-3-fill"></i> All Faculties
+            </a>
+            <a href="#" class="dash-nav-link">
+                <i class="bi bi-exclamation-triangle-fill"></i> Flagged Courses
+            </a>
+            <a href="#" class="dash-nav-link">
+                <i class="bi bi-file-earmark-text-fill"></i> Generate Report
+            </a>
+            <a href="#" class="dash-nav-link">
+                <i class="bi bi-bell"></i> Notifications
+            </a>
+        </nav>
+
+        <div class="dash-sidebar-section">Account</div>
+
+        <nav class="dash-sidebar-nav">
+            <a href="#" class="dash-nav-link">
+                <i class="bi bi-person"></i> My Profile
+            </a>
+            <a href="/Logout" class="dash-nav-link"><i class="bi bi-box-arrow-left"></i> Logout
+            </a>
+        </nav>
+
+        <div class="dash-sidebar-footer">
+            <div class="dash-sidebar-user">
+                <div class="dash-user-avatar">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <div class="dash-user-info">
+                    <strong>Dr. M. Ingabire</strong>
+                    <span>Director · Academic Quality</span>
+                </div>
+            </div>
+        </div>
+
+    </aside>
+
+
+    <!-- =============================================
+         MAIN CONTENT
+    ============================================== -->
+    <div class="dash-main">
+
+        <!-- TOP BAR -->
+        <div class="dash-topbar">
+            <div class="dash-topbar-title">
+                <h1>Director of Quality Dashboard</h1>
+                <p>University-wide academic delivery monitoring &amp; quality assurance</p>
+            </div>
+            <div class="dash-topbar-actions">
+                <a href="#" class="btn-dash-outline btn-dash-sm">
+                    <i class="bi bi-file-earmark-arrow-down"></i> Full Report
+                </a>
+                <a href="#" class="dash-icon-btn" title="Notifications">
+                    <i class="bi bi-bell"></i>
+                </a>
+                <div class="dash-topbar-avatar">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="dash-content">
+
+            <!-- STATUS MESSAGE -->
+            @if (TempData["StatusMessage"] != null)
+            {
+                var type = TempData["StatusType"]?.ToString() ?? "info";
+                var alertClass = type == "success" ? "dash-alert-success"
+                               : type == "danger"  ? "dash-alert-danger"
+                               : type == "warning" ? "dash-alert-warning"
+                               : "dash-alert-info";
+                var icon = type == "success" ? "bi-check-circle-fill" : "bi-exclamation-triangle-fill";
+                <div class="dash-alert @alertClass">
+                    <i class="bi @icon"></i>
+                    <div>@TempData["StatusMessage"]</div>
+                </div>
+            }
+
+            <!-- ALERTS -->
+            <div class="dash-alert dash-alert-danger">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <div>
+                    <strong>Critical:</strong>
+                    <strong>2 courses</strong> have fallen below the 70% delivery threshold and
+                    require immediate intervention by the respective Deans.
+                </div>
+            </div>
+
+            <div class="dash-alert dash-alert-success">
+                <i class="bi bi-patch-check-fill"></i>
+                <div>
+                    <strong>Good standing:</strong>
+                    <strong>3 out of 4 faculties</strong> are meeting or exceeding the minimum
+                    80% delivery rate for this semester.
+                </div>
+            </div>
+
+            <!-- STAT CARDS -->
+            <div class="dash-stats dash-stats-4">
+
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon icon-blue">
+                        <i class="bi bi-diagram-3-fill"></i>
+                    </div>
+                    <div class="dash-stat-body">
+                        <strong>3</strong>
+                        <span>Faculties Monitored</span>
+                    </div>
+                </div>
+
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon icon-teal">
+                        <i class="bi bi-journal-bookmark-fill"></i>
+                    </div>
+                    <div class="dash-stat-body">
+                        <strong>64</strong>
+                        <span>Total Courses University</span>
+                    </div>
+                </div>
+
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon icon-red">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <div class="dash-stat-body">
+                        <strong>2</strong>
+                        <span>Below Threshold Courses</span>
+                    </div>
+                </div>
+
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon icon-green">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <div class="dash-stat-body">
+                        <strong>86%</strong>
+                        <span>University Delivery Rate</span>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- UNIVERSITY-WIDE DELIVERY + FLAGGED COURSES -->
+            <div class="dash-grid-2">
+
+                <!-- FACULTY DELIVERY TABLE -->
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <div>
+                            <h5>Faculty Delivery Summary</h5>
+                            <p>University-wide academic delivery this semester</p>
+                        </div>
+                        <a href="#" class="btn-dash-outline btn-dash-sm">
+                            <i class="bi bi-download"></i> Export
+                        </a>
+                    </div>
+                    <div class="dash-card-body" style="padding:0;">
+                        <table class="dash-table">
+                            <thead>
+                                <tr>
+                                    <th>Faculty</th>
+                                    <th>Dean</th>
+                                    <th>Depts</th>
+                                    <th>Courses</th>
+                                    <th>Delivery</th>
+                                    <th>Rating</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <strong style="display:block;font-size:13px;">Engineering &amp; Technology</strong>
+                                    </td>
+                                    <td style="font-size:12px;">Prof. C. Ndayisaba</td>
+                                    <td>4</td>
+                                    <td>28</td>
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:8px;">
+                                            <div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
+                                                <div style="width:88%;height:100%;background:#1e3a8a;border-radius:5px;"></div>
+                                            </div>
+                                            <span style="font-size:11px;font-weight:700;">88%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge-status badge-verified"><i class="bi bi-check-circle-fill"></i> Good</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong style="display:block;font-size:13px;">Business &amp; Management</strong>
+                                    </td>
+                                    <td style="font-size:12px;">Dr. P. Rutaganda</td>
+                                    <td>3</td>
+                                    <td>20</td>
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:8px;">
+                                            <div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
+                                                <div style="width:92%;height:100%;background:#059669;border-radius:5px;"></div>
+                                            </div>
+                                            <span style="font-size:11px;font-weight:700;">92%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge-status badge-approved"><i class="bi bi-patch-check-fill"></i> Excellent</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong style="display:block;font-size:13px;">Social Sciences</strong>
+                                    </td>
+                                    <td style="font-size:12px;">Dr. A. Mukamurenzi</td>
+                                    <td>3</td>
+                                    <td>16</td>
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:8px;">
+                                            <div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
+                                                <div style="width:74%;height:100%;background:#d97706;border-radius:5px;"></div>
+                                            </div>
+                                            <span style="font-size:11px;font-weight:700;">74%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge-status badge-pending"><i class="bi bi-clock-history"></i> Monitor</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- FLAGGED COURSES -->
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <div>
+                            <h5>Flagged Courses</h5>
+                            <p>Below 70% delivery threshold — action required</p>
+                        </div>
+                        <span class="badge-status badge-missed">
+                            <i class="bi bi-exclamation-triangle-fill"></i> 2 Critical
+                        </span>
+                    </div>
+                    <div class="dash-card-body" style="padding:0;">
+                        <table class="dash-table">
+                            <thead>
+                                <tr>
+                                    <th>Course</th>
+                                    <th>Faculty</th>
+                                    <th>Lecturer</th>
+                                    <th>Delivery</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <strong style="display:block;font-size:13px;">CSE310</strong>
+                                        <span style="font-size:11px;color:#9ca3af;">Human-Computer Interaction</span>
+                                    </td>
+                                    <td style="font-size:12px;">Engineering</td>
+                                    <td style="font-size:12px;">Mr. E. Niyonsenga</td>
+                                    <td>
+                                        <span style="font-size:13px;font-weight:700;color:#dc2626;">61%</span>
+                                    </td>
+                                    <td>
+                                        <form method="post" asp-page-handler="Escalate" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="courseId" value="3" />
+                                            <input type="hidden" name="notes" value="" />
+                                            <button type="submit" class="btn-dash-primary btn-dash-sm">
+                                                <i class="bi bi-flag-fill"></i> Escalate
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong style="display:block;font-size:13px;">SS201</strong>
+                                        <span style="font-size:11px;color:#9ca3af;">Sociology Foundations</span>
+                                    </td>
+                                    <td style="font-size:12px;">Social Sciences</td>
+                                    <td style="font-size:12px;">Mr. T. Habimana</td>
+                                    <td>
+                                        <span style="font-size:13px;font-weight:700;color:#dc2626;">58%</span>
+                                    </td>
+                                    <td>
+                                        <form method="post" asp-page-handler="Escalate" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="courseId" value="0" />
+                                            <input type="hidden" name="notes" value="" />
+                                            <button type="submit" class="btn-dash-primary btn-dash-sm">
+                                                <i class="bi bi-flag-fill"></i> Escalate
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- DEPARTMENT-LEVEL DELIVERY BREAKDOWN -->
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <div>
+                        <h5>Department-Level Delivery Breakdown</h5>
+                        <p>Delivery rate per department across all faculties</p>
+                    </div>
+                </div>
+                <div class="dash-card-body">
+
+                    <div style="margin-bottom:18px;">
+                        <span style="font-size:11px;font-weight:700;color:#1e3a8a;text-transform:uppercase;
+                                     letter-spacing:0.06em;">Faculty of Engineering &amp; Technology</span>
+                    </div>
+
+                    <div class="dash-progress-row">
+                        <span class="dash-progress-label">Computer Science &amp; IT</span>
+                        <div class="dash-progress-bar-wrap">
+                            <div class="dash-progress-bar-fill" style="width:91%;"></div>
+                        </div>
+                        <span class="dash-progress-pct">91%</span>
+                    </div>
+
+                    <div class="dash-progress-row">
+                        <span class="dash-progress-label">Civil Engineering</span>
+                        <div class="dash-progress-bar-wrap">
+                            <div class="dash-progress-bar-fill" style="width:85%;"></div>
+                        </div>
+                        <span class="dash-progress-pct">85%</span>
+                    </div>
+
+                    <div class="dash-progress-row">
+                        <span class="dash-progress-label">Electrical Engineering</span>
+                        <div class="dash-progress-bar-wrap">
+                            <div class="dash-progress-bar-fill" style="width:79%;background:#d97706;"></div>
+                        </div>
+                        <span class="dash-progress-pct">79%</span>
+                    </div>
+
+                    <div class="dash-progress-row">
+                        <span class="dash-progress-label">Mechanical Engineering</span>
+                        <div class="dash-progress-bar-wrap">
+                            <div class="dash-progress-bar-fill" style="width:96%;background:#059669;"></div>
+                        </div>
+                        <span class="dash-progress-pct">96%</span>
+                    </div>
+
+                    <div style="margin:18px 0 12px;">
+                        <span style="font-size:11px;font-weight:700;color:#1e3a8a;text-transform:uppercase;
+                                     letter-spacing:0.06em;">Faculty of Business &amp; Management</span>
+                    </div>
+
+                    <div class="dash-progress-row">
+                        <span class="dash-progress-label">Accounting &amp; Finance</span>
+                        <div class="dash-progress-bar-wrap">
+                            <div class="dash-progress-bar-fill" style="width:94%;background:#059669;"></div>
+                        </div>
+                        <span class="dash-progress-pct">94%</span>
+                    </div>
+
+                    <div class="dash-progress-row">
+                        <span class="dash-progress-label">Business Administration</span>
+                        <div class="dash-progress-bar-wrap">
+                            <div class="dash-progress-bar-fill" style="width:90%;"></div>
+                        </div>
+                        <span class="dash-progress-pct">90%</span>
+                    </div>
+
+                    <div style="margin:18px 0 12px;">
+                        <span style="font-size:11px;font-weight:700;color:#1e3a8a;text-transform:uppercase;
+                                     letter-spacing:0.06em;">Faculty of Social Sciences</span>
+                    </div>
+
+                    <div class="dash-progress-row">
+                        <span class="dash-progress-label">Sociology</span>
+                        <div class="dash-progress-bar-wrap">
+                            <div class="dash-progress-bar-fill" style="width:63%;background:#dc2626;"></div>
+                        </div>
+                        <span class="dash-progress-pct">63%</span>
+                    </div>
+
+                    <div class="dash-progress-row">
+                        <span class="dash-progress-label">Political Science</span>
+                        <div class="dash-progress-bar-wrap">
+                            <div class="dash-progress-bar-fill" style="width:82%;"></div>
+                        </div>
+                        <span class="dash-progress-pct">82%</span>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- AUDIT LOG / RECENT QUALITY ACTIONS -->
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <div>
+                        <h5>Audit Log</h5>
+                        <p>Recent quality monitoring actions and system events</p>
+                    </div>
+                    <a href="#" class="btn-dash-outline btn-dash-sm">
+                        <i class="bi bi-file-earmark-text"></i> Full Audit Log
+                    </a>
+                </div>
+                <div class="dash-card-body">
+                    <div class="dash-timeline">
+
+                        <div class="dash-timeline-item">
+                            <div class="dash-timeline-dot icon-red">
+                                <i class="bi bi-flag-fill" style="color:#dc2626;font-size:13px;"></i>
+                            </div>
+                            <div class="dash-timeline-body">
+                                <strong>CSE310 flagged — delivery at 61% (below 70% threshold)</strong>
+                                <span>Today, 07:00 AM · Auto-flagged by system</span>
+                            </div>
+                        </div>
+
+                        <div class="dash-timeline-item">
+                            <div class="dash-timeline-dot icon-red">
+                                <i class="bi bi-flag-fill" style="color:#dc2626;font-size:13px;"></i>
+                            </div>
+                            <div class="dash-timeline-body">
+                                <strong>SS201 flagged — delivery at 58% (below 70% threshold)</strong>
+                                <span>Today, 07:00 AM · Auto-flagged by system</span>
+                            </div>
+                        </div>
+
+                        <div class="dash-timeline-item">
+                            <div class="dash-timeline-dot icon-blue">
+                                <i class="bi bi-file-earmark-arrow-down-fill" style="color:#1e3a8a;font-size:13px;"></i>
+                            </div>
+                            <div class="dash-timeline-body">
+                                <strong>Faculty report received from Dean — Engineering &amp; Technology</strong>
+                                <span>Yesterday, 04:00 PM</span>
+                            </div>
+                        </div>
+
+                        <div class="dash-timeline-item">
+                            <div class="dash-timeline-dot icon-green">
+                                <i class="bi bi-patch-check-fill" style="color:#059669;font-size:13px;"></i>
+                            </div>
+                            <div class="dash-timeline-body">
+                                <strong>Business &amp; Management Faculty cleared — 92% delivery</strong>
+                                <span>28 Sep, 10:30 AM</span>
+                            </div>
+                        </div>
+
+                        <div class="dash-timeline-item">
+                            <div class="dash-timeline-dot icon-purple">
+                                <i class="bi bi-file-earmark-text-fill" style="color:#7c3aed;font-size:13px;"></i>
+                            </div>
+                            <div class="dash-timeline-body">
+                                <strong>Semester Q3 2026 quality report generated and archived</strong>
+                                <span>26 Sep, 02:00 PM</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- /dash-content -->
+
+    </div>
+    <!-- /dash-main -->
+
+</div>
+<!-- /dash-shell -->
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

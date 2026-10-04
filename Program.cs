@@ -1,15 +1,28 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ── Services ──────────────────────────────────────────────────
+
 builder.Services.AddRazorPages();
+
+// Cookie-based authentication (ready for wiring up login logic)
+builder.Services.AddAuthentication("CSASAuth")
+    .AddCookie("CSASAuth", options =>
+    {
+        options.LoginPath        = "/Login";
+        options.AccessDeniedPath = "/Login";
+        options.ExpireTimeSpan   = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
+    });
+
+builder.Services.AddAuthorization();
+
+// ── Pipeline ──────────────────────────────────────────────────
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -18,6 +31,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Authentication must come before Authorization
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();

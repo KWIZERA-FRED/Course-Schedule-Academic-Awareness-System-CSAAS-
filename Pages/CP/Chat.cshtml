@@ -1,0 +1,474 @@
+@page
+@model CourseScheduleSystem.Web.Pages.CP.ChatModel
+@{
+    ViewData["Title"] = "CP Chat";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CP Chat | CSAS</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/dashboard.css" />
+    <style>
+        /* ── Chat layout ──────────────────────────────────── */
+        .chat-shell {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background: #f4f6fb;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        /* ── App sidebar ────────────────────────────────── */
+        .app-sidebar {
+            width: 220px;
+            min-height: 100vh;
+            background: #0f1a3a;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .app-sidebar-brand {
+            padding: 18px 16px;
+            border-bottom: 1px solid rgba(255,255,255,.07);
+            display: flex; align-items: center; gap: 10px;
+            text-decoration: none; color: white;
+        }
+
+        .app-brand-icon {
+            width: 34px; height: 34px; border-radius: 9px;
+            background: #0d9488;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; color: white; flex-shrink: 0;
+        }
+
+        .app-brand-text strong { display: block; font-size: 13px; font-weight: 700; color: white; }
+        .app-brand-text span   { font-size: 10px; color: #64748b; }
+
+        .app-nav { padding: 12px 10px; flex: 1; }
+
+        .app-nav-link {
+            display: flex; align-items: center; gap: 9px;
+            padding: 9px 11px; border-radius: 8px;
+            text-decoration: none; color: #94a3b8;
+            font-size: 12px; font-weight: 500; margin-bottom: 2px;
+            transition: .15s ease;
+        }
+
+        .app-nav-link:hover  { background: rgba(255,255,255,.06); color: white; }
+        .app-nav-link.active { background: #0d9488; color: white; }
+        .app-nav-link i      { font-size: 14px; width: 16px; text-align: center; }
+
+        .app-sidebar-footer {
+            padding: 14px 10px;
+            border-top: 1px solid rgba(255,255,255,.07);
+        }
+
+        .app-user {
+            display: flex; align-items: center; gap: 9px;
+            padding: 9px 11px; border-radius: 8px;
+            background: rgba(255,255,255,.05);
+        }
+
+        .app-avatar {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: #0d9488; color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; flex-shrink: 0;
+        }
+
+        .app-user strong { display: block; font-size: 11px; color: white; font-weight: 600; }
+        .app-user span   { font-size: 9px; color: #64748b; }
+
+        /* ── HOD list panel ─────────────────────────────── */
+        .hod-list-panel {
+            width: 260px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .hod-panel-header {
+            padding: 18px 16px 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .hod-panel-header h2 {
+            font-size: 15px; font-weight: 700; color: #0f1a3a; margin-bottom: 4px;
+        }
+
+        .hod-panel-header p { font-size: 11px; color: #9ca3af; }
+
+        .hod-list-scroll { flex: 1; overflow-y: auto; padding: 8px 0; }
+
+        .hod-item {
+            display: flex; align-items: center; gap: 11px;
+            padding: 12px 16px; cursor: pointer;
+            text-decoration: none; color: inherit;
+            transition: .12s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .hod-item:hover  { background: #f8fafc; }
+        .hod-item.active { background: #f0fdf9; border-left-color: #0d9488; }
+
+        .hod-avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, #1e3a8a, #0d9488);
+            color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 700; flex-shrink: 0;
+        }
+
+        .hod-item-body           { flex: 1; min-width: 0; }
+        .hod-item-body strong    { display: block; font-size: 13px; font-weight: 700; color: #0f1a3a; }
+        .hod-item-body span      { font-size: 11px; color: #9ca3af; }
+        .hod-item-body .dept-tag {
+            display: inline-block; margin-top: 3px;
+            background: #eff6ff; color: #1e3a8a;
+            font-size: 9px; font-weight: 700;
+            padding: 2px 7px; border-radius: 10px;
+        }
+
+        .hod-unread {
+            background: #dc2626; color: white;
+            font-size: 9px; font-weight: 700;
+            width: 17px; height: 17px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* ── Conversation panel ─────────────────────────── */
+        .conv-panel {
+            flex: 1; display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        .conv-topbar {
+            height: 58px; padding: 0 20px;
+            background: white; border-bottom: 1px solid #e5e7eb;
+            display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+        }
+
+        .conv-topbar-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: linear-gradient(135deg, #1e3a8a, #0d9488);
+            color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700; flex-shrink: 0;
+        }
+
+        .conv-topbar-info strong { font-size: 14px; font-weight: 700; color: #0f1a3a; display: block; }
+        .conv-topbar-info span   { font-size: 11px; color: #9ca3af; }
+
+        .conv-messages {
+            flex: 1; overflow-y: auto;
+            padding: 20px 24px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+
+        .msg-bubble {
+            max-width: 65%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 13px; line-height: 1.5;
+        }
+
+        /* CP's own messages — teal */
+        .msg-bubble.me {
+            background: #0d9488; color: white;
+            border-bottom-right-radius: 3px;
+            align-self: flex-end;
+        }
+
+        /* HOD messages — white card */
+        .msg-bubble.them {
+            background: white; color: #0f1a3a;
+            border: 1px solid #e5e7eb;
+            border-bottom-left-radius: 3px;
+            align-self: flex-start;
+        }
+
+        .msg-time {
+            font-size: 10px; margin-top: 4px; display: block;
+        }
+
+        .msg-bubble.me   .msg-time { color: rgba(255,255,255,.55); text-align: right; }
+        .msg-bubble.them .msg-time { color: #9ca3af; }
+
+        .date-sep {
+            text-align: center; font-size: 11px; color: #9ca3af;
+            display: flex; align-items: center; gap: 10px; margin: 6px 0;
+        }
+
+        .date-sep::before, .date-sep::after {
+            content: ''; flex: 1; height: 1px; background: #e5e7eb;
+        }
+
+        .conv-empty {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            color: #9ca3af; text-align: center; padding: 40px;
+        }
+
+        .conv-empty i { font-size: 48px; margin-bottom: 14px; color: #d1d5db; }
+        .conv-empty p { font-size: 13px; }
+
+        .conv-compose {
+            padding: 14px 20px;
+            background: white; border-top: 1px solid #e5e7eb; flex-shrink: 0;
+        }
+
+        .compose-form { display: flex; gap: 10px; align-items: flex-end; }
+
+        .compose-input {
+            flex: 1; padding: 10px 14px;
+            border: 1px solid #d1d5db; border-radius: 10px;
+            font-size: 13px; outline: none; resize: none;
+            max-height: 120px; line-height: 1.4;
+            transition: border .15s ease;
+        }
+
+        .compose-input:focus { border-color: #0d9488; }
+
+        .compose-send {
+            width: 40px; height: 40px; border-radius: 10px;
+            background: #0d9488; color: white; border: none;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; cursor: pointer; flex-shrink: 0;
+            transition: .15s ease;
+        }
+
+        .compose-send:hover { background: #0f766e; }
+    </style>
+</head>
+<body>
+
+<div class="chat-shell">
+
+    <!-- ═══════════════════════════════════════
+         APP SIDEBAR
+    ════════════════════════════════════════ -->
+    <aside class="app-sidebar">
+
+        <a href="/" class="app-sidebar-brand">
+            <div class="app-brand-icon" style="background:transparent;box-shadow:none;padding:2px;"><img src="/images/logo.jpeg" alt="UNILAK" style="width:34px;height:34px;border-radius:50%;object-fit:cover;" /></div>
+            <div class="app-brand-text">
+                <strong>CSAS</strong>
+                <span>Class Rep Portal</span>
+            </div>
+        </a>
+
+        <nav class="app-nav">
+            <a href="/CP/Dashboard" class="app-nav-link">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a href="/CP/Chat" class="app-nav-link active">
+                <i class="bi bi-chat-dots-fill"></i> Messages
+                @if (Model.TotalUnread > 0)
+                {
+                    <span style="margin-left:auto;background:#dc2626;color:white;
+                                 font-size:9px;font-weight:700;padding:1px 6px;
+                                 border-radius:20px;">@Model.TotalUnread</span>
+                }
+            </a>
+            <a href="#" class="app-nav-link">
+                <i class="bi bi-person"></i> Profile
+            </a>
+            <a href="/Logout" class="app-nav-link">
+                <i class="bi bi-box-arrow-left"></i> Logout
+            </a>
+        </nav>
+
+        <div class="app-sidebar-footer">
+            <div class="app-user">
+                <div class="app-avatar"><i class="bi bi-person-badge-fill"></i></div>
+                <div>
+                    <strong>@Model.CurrentUser.FullName</strong>
+                    <span>Class Representative</span>
+                </div>
+            </div>
+        </div>
+
+    </aside>
+
+
+    <!-- ═══════════════════════════════════════
+         HOD LIST PANEL
+    ════════════════════════════════════════ -->
+    <div class="hod-list-panel">
+
+        <div class="hod-panel-header">
+            <h2><i class="bi bi-chat-dots-fill" style="color:#0d9488;margin-right:7px;"></i>Messages</h2>
+            <p>Your department's Head of Department</p>
+        </div>
+
+        <div class="hod-list-scroll">
+            @foreach (var hod in Model.AllHODs)
+            {
+                var isActive  = Model.ActiveHOD?.Email == hod.Email;
+                var unreadCnt = ChatData.Messages.Count(m =>
+                    m.HODEmail == hod.Email &&
+                    m.CPEmail  == Model.CurrentUser.Email &&
+                    !m.IsRead  &&
+                    m.SenderRole == "HOD");
+
+                var initials = hod.FirstName.Length > 0 && hod.LastName.Length > 0
+                    ? $"{hod.FirstName[0]}{hod.LastName[0]}"
+                    : "H";
+
+                <a href="/CP/Chat?hodEmail=@Uri.EscapeDataString(hod.Email)"
+                   class="hod-item @(isActive ? "active" : "")">
+                    <div class="hod-avatar">@initials</div>
+                    <div class="hod-item-body">
+                        <strong>@hod.FullName</strong>
+                        <span>Head of Department</span>
+                        <div class="dept-tag">@hod.Department</div>
+                    </div>
+                    @if (unreadCnt > 0)
+                    {
+                        <div class="hod-unread">@unreadCnt</div>
+                    }
+                </a>
+            }
+        </div>
+
+    </div>
+
+
+    <!-- ═══════════════════════════════════════
+         CONVERSATION PANEL
+    ════════════════════════════════════════ -->
+    <div class="conv-panel">
+
+        @if (Model.ActiveHOD == null)
+        {
+            <div style="flex:1;display:flex;align-items:center;justify-content:center;
+                        flex-direction:column;color:#9ca3af;text-align:center;
+                        padding:40px;background:#f8fafc;">
+                <i class="bi bi-chat-square-dots" style="font-size:56px;color:#d1d5db;margin-bottom:16px;"></i>
+                <h3 style="font-size:16px;color:#374151;margin-bottom:8px;">No HOD available</h3>
+                <p style="font-size:13px;">No Head of Department is registered in the system yet.</p>
+            </div>
+        }
+        else
+        {
+            var hodInitials = Model.ActiveHOD.FirstName.Length > 0 && Model.ActiveHOD.LastName.Length > 0
+                ? $"{Model.ActiveHOD.FirstName[0]}{Model.ActiveHOD.LastName[0]}"
+                : "H";
+
+            <!-- Topbar -->
+            <div class="conv-topbar">
+                <div class="conv-topbar-avatar">@hodInitials</div>
+                <div class="conv-topbar-info">
+                    <strong>@Model.ActiveHOD.FullName</strong>
+                    <span>Head of Department · @Model.ActiveHOD.Department</span>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="conv-messages" id="msgArea">
+
+                @if (!Model.Conversation.Any())
+                {
+                    <div class="conv-empty">
+                        <i class="bi bi-chat-right-text"></i>
+                        <p>No messages yet. You can send the first message to your HOD.</p>
+                    </div>
+                }
+                else
+                {
+                    DateTime? lastDate = null;
+                    @foreach (var msg in Model.Conversation)
+                    {
+                        var isMe    = msg.SenderRole == "CP";
+                        var msgDate = msg.SentAt.Date;
+
+                        if (lastDate == null || lastDate != msgDate)
+                        {
+                            <div class="date-sep">
+                                @(msgDate == DateTime.Today ? "Today"
+                                : msgDate == DateTime.Today.AddDays(-1) ? "Yesterday"
+                                : msgDate.ToString("dd MMM yyyy"))
+                            </div>
+                            lastDate = msgDate;
+                        }
+
+                        <div class="msg-bubble @(isMe ? "me" : "them")">
+                            @msg.Text
+                            <span class="msg-time">
+                                @msg.SentAt.ToString("HH:mm")
+                                @if (isMe)
+                                {
+                                    if (msg.IsRead)
+                                    {
+                                        <i class="bi bi-check2-all" style="margin-left:3px;"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-check2" style="margin-left:3px;"></i>
+                                    }
+                                }
+                            </span>
+                        </div>
+                    }
+                }
+
+            </div>
+
+            <!-- Compose -->
+            <div class="conv-compose">
+                <form method="post" asp-page-handler="Send" class="compose-form">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="hodEmail" value="@Model.ActiveHOD.Email" />
+                    <textarea name="text"
+                              id="composeBox"
+                              class="compose-input"
+                              rows="1"
+                              placeholder="Type a message to @Model.ActiveHOD.FullName..."
+                              required
+                              onkeydown="handleEnter(event)"></textarea>
+                    <button type="submit" class="compose-send" title="Send">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </form>
+            </div>
+        }
+
+    </div>
+    <!-- /conv-panel -->
+
+</div>
+<!-- /chat-shell -->
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    /* Auto-scroll to bottom */
+    var msgArea = document.getElementById('msgArea');
+    if (msgArea) msgArea.scrollTop = msgArea.scrollHeight;
+
+    /* Send on Enter (Shift+Enter = newline) */
+    function handleEnter(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            e.target.closest('form').submit();
+        }
+    }
+
+    /* Auto-grow textarea */
+    var box = document.getElementById('composeBox');
+    if (box) {
+        box.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+    }
+</script>
+</body>
+</html>

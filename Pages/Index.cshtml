@@ -1,934 +1,863 @@
-﻿@page
+@page
+@model CourseScheduleSystem.Web.Pages.IndexModel
 @{
-    ViewData["Title"] = "Course Schedule & Academic Awareness System | UNILAK";
+    ViewData["Title"] = "CSAS | UNILAK Academic Portal";
     ViewData["FullWidth"] = "true";
+    Layout = null;
 }
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CSAS | UNILAK Academic Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+        /* -- Reset -- */
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
+        body { font-family:'Inter',sans-serif; background:#ffffff; color:#0f1a3a; overflow-x:hidden; }
+        a { text-decoration:none; }
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0" />
+        /* -- Tokens -- */
+        :root {
+            --navy:   #0f1a3a;
+            --blue:   #1e3a8a;
+            --mid:    #1a56db;
+            --green:  #10b981;
+            --light:  #f8faff;
+            --border: #e5e7eb;
+            --muted:  #6b7280;
+        }
 
-    <title>CSAAS | UNILAK</title>
+        /* ------------------------------------------
+           NAVBAR
+        ------------------------------------------ */
+        .lp-nav {
+            position:sticky; top:0; z-index:1000;
+            height:68px; padding:0 6%;
+            display:flex; align-items:center; justify-content:space-between;
+            background:rgba(255,255,255,0.97);
+            border-bottom:1px solid var(--border);
+            backdrop-filter:blur(10px);
+        }
+        .lp-brand { display:flex; align-items:center; gap:12px; color:var(--navy); }
+        .lp-brand-icon {
+            width:40px; height:40px; border-radius:10px;
+            background:var(--blue); color:white;
+            display:flex; align-items:center; justify-content:center; font-size:18px;
+            box-shadow:0 4px 12px rgba(30,58,138,.25);
+        }
+        .lp-brand strong { font-size:16px; font-weight:800; display:block; line-height:1.1; }
+        .lp-brand span   { font-size:10px; color:#9ca3af; font-weight:500; }
+        .lp-links { display:flex; align-items:center; gap:6px; }
+        .lp-link {
+            padding:8px 14px; border-radius:8px; font-size:13px;
+            font-weight:500; color:var(--muted); transition:.15s ease;
+        }
+        .lp-link:hover { color:var(--navy); background:#f3f4f6; }
+        .lp-cta {
+            padding:10px 22px; border-radius:9px; font-size:13px;
+            font-weight:700; background:var(--blue); color:white;
+            box-shadow:0 4px 14px rgba(30,58,138,.25); transition:.2s ease;
+            display:inline-flex; align-items:center; gap:8px;
+        }
+        .lp-cta:hover { background:var(--mid); color:white; transform:translateY(-1px); }
 
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        /* ------------------------------------------
+           HERO
+        ------------------------------------------ */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
 
-    <!-- Google Font -->
-    <link rel="preconnect"
-          href="https://fonts.googleapis.com">
+        /* Video background */
+        .hero-video-wrap {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+        .hero-video-wrap video {
+            width: 100%; height: 100%;
+            object-fit: cover; object-position: center;
+            /* Slightly brighten the video so it looks vivid */
+            filter: brightness(1.08) saturate(1.1);
+        }
+        /* Light overlay — just enough to keep text readable, not enough to hide the video */
+        .hero-video-wrap::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                160deg,
+                rgba(8, 15, 40, 0.48) 0%,
+                rgba(10, 25, 65, 0.30) 45%,
+                rgba(8, 15, 40, 0.52) 100%
+            );
+        }
 
-    <link rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossorigin>
+        /* Mute button */
+        .hero-mute-btn {
+            position: absolute; bottom: 28px; right: 28px; z-index: 10;
+            width: 44px; height: 44px; border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white; font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: .2s ease;
+            backdrop-filter: blur(6px);
+        }
+        .hero-mute-btn:hover { background: rgba(255,255,255,0.25); }
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-          rel="stylesheet">
+        /* Container sits above video */
+        .hero-container {
+            position: relative; z-index: 1;
+            max-width: 1200px; margin: auto;
+            width: 100%;
+            display: grid; grid-template-columns: 1.1fr 0.9fr;
+            gap: 60px; align-items: center;
+            padding: 90px 6%;
+        }
 
-    <!-- CSAAS CSS -->
-    <link rel="stylesheet"
-          href="~/css/csaas.css" />
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(0,0,0,0.35);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.4);
+            padding: 8px 15px; border-radius: 30px;
+            font-size: 12px; font-weight: 700; margin-bottom: 24px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        }
+        .hero-badge i { color: #34d399; }
 
+        .hero h1 {
+            font-size: clamp(2.7rem,5vw,4.4rem);
+            line-height: 1.05; letter-spacing: -2px;
+            font-weight: 900; color: white; margin-bottom: 24px;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.6), 0 1px 4px rgba(0,0,0,0.5);
+        }
+        .hero h1 .hl { display: block; color: #93c5fd; text-shadow: 0 2px 20px rgba(0,0,0,0.5); }
+
+        .hero-desc {
+            max-width: 560px; font-size: 17px; line-height: 1.75;
+            color: rgba(255,255,255,0.90); margin-bottom: 34px;
+            text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+        }
+
+        .hero-btns { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 9px;
+            padding: 14px 24px; border-radius: 10px;
+            background: #1e3a8a; color: white;
+            font-size: 14px; font-weight: 700;
+            box-shadow: 0 6px 20px rgba(30,58,138,.4);
+            text-decoration: none; transition: .2s ease;
+        }
+        .btn-primary:hover { background: #1a56db; color: white; transform: translateY(-2px); }
+
+        .btn-ghost {
+            display: inline-flex; align-items: center; gap: 9px;
+            padding: 13px 22px; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.35);
+            background: rgba(255,255,255,0.1);
+            color: white; font-size: 14px; font-weight: 700;
+            text-decoration: none; transition: .2s ease;
+            backdrop-filter: blur(4px);
+        }
+        .btn-ghost:hover { background: rgba(255,255,255,0.2); color: white; transform: translateY(-2px); }
+        /* Hero visual */
+        .hero-visual { position:relative; }
+        .hero-card {
+            background:white; border:1px solid var(--border);
+            border-radius:20px; overflow:hidden;
+            box-shadow:0 30px 70px rgba(15,26,58,.12);
+            transform:perspective(1100px) rotateY(-4deg) rotateX(2deg);
+        }
+        .hc-head {
+            height:50px; padding:0 18px;
+            background:#f8fafc; border-bottom:1px solid #edf0f4;
+            display:flex; align-items:center; justify-content:space-between;
+        }
+        .hc-dots { display:flex; gap:5px; }
+        .hc-dots span {
+            width:10px; height:10px; border-radius:50%;
+        }
+        .hc-dots span:nth-child(1){ background:#fc5c65; }
+        .hc-dots span:nth-child(2){ background:#fed330; }
+        .hc-dots span:nth-child(3){ background:#26de81; }
+        .hc-title { font-size:11px; color:#9ca3af; font-weight:600; }
+        .hc-body { padding:22px; }
+        .hc-welcome {
+            display:flex; justify-content:space-between;
+            align-items:center; margin-bottom:18px;
+        }
+        .hc-welcome h4 { font-size:15px; font-weight:700; margin-bottom:3px; }
+        .hc-welcome p  { font-size:10px; color:#9ca3af; }
+        .hc-avatar {
+            width:36px; height:36px; border-radius:50%;
+            background:#eff6ff; color:var(--blue);
+            display:flex; align-items:center; justify-content:center;
+            font-size:15px;
+        }
+        .hc-stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+        .hc-stat {
+            padding:13px; border:1px solid #edf0f4;
+            border-radius:10px; background:#fbfcfe;
+        }
+        .hc-stat-icon {
+            width:28px; height:28px; border-radius:7px;
+            background:#eff6ff; color:var(--blue);
+            display:flex; align-items:center; justify-content:center;
+            font-size:12px; margin-bottom:8px;
+        }
+        .hc-stat strong { display:block; font-size:20px; color:var(--navy); font-weight:800; }
+        .hc-stat span   { font-size:9px; color:#9ca3af; }
+        .hc-schedule { border:1px solid #edf0f4; border-radius:10px; overflow:hidden; }
+        .hc-sch-head { padding:10px 14px; background:#f8fafc; font-size:10px; font-weight:700; }
+        .hc-row {
+            display:grid; grid-template-columns:50px 1fr 65px;
+            padding:10px 14px; border-top:1px solid #f1f5f9;
+            font-size:9px; align-items:center;
+        }
+        .hc-time { color:var(--blue); font-weight:700; }
+        .hc-room { text-align:right; color:#9ca3af; }
+
+        /* Floating badges on hero */
+        .hero-badge-float {
+            position:absolute; background:white;
+            border:1px solid var(--border); border-radius:12px;
+            padding:10px 14px; display:flex; align-items:center; gap:10px;
+            box-shadow:0 8px 24px rgba(0,0,0,.09); font-size:12px;
+        }
+        .hbf-icon {
+            width:32px; height:32px; border-radius:8px;
+            display:flex; align-items:center; justify-content:center;
+            font-size:14px; flex-shrink:0;
+        }
+        .hbf-label { font-size:10px; color:#9ca3af; }
+        .hbf-val   { font-size:13px; font-weight:700; color:var(--navy); }
+        .float-tl { top:-18px; left:-20px; }
+        .float-br { bottom:-16px; right:-16px; }
+
+        /* ------------------------------------------
+           STATS STRIP
+        ------------------------------------------ */
+        .stats-strip {
+            background:var(--navy);
+            padding:42px 6%;
+            display:grid; grid-template-columns:repeat(4,1fr);
+            gap:10px;
+        }
+        .stat-item { text-align:center; padding:16px; }
+        .stat-item strong { display:block; font-size:2.4rem; font-weight:900; color:white; line-height:1; margin-bottom:6px; }
+        .stat-item span   { font-size:12px; color:rgba(255,255,255,.55); font-weight:500; }
+        .stat-item .accent { color:var(--green); }
+
+        /* ------------------------------------------
+           SECTION COMMON
+        ------------------------------------------ */
+        .section { max-width:1200px; margin:auto; padding:90px 6%; }
+        .section-label {
+            display:inline-block; background:#ecfdf5; color:var(--green);
+            padding:5px 12px; border-radius:20px; font-size:10px;
+            font-weight:800; text-transform:uppercase; letter-spacing:.08em;
+            margin-bottom:14px;
+        }
+        .section-heading { max-width:640px; margin-bottom:52px; }
+        .section-heading h2 { font-size:2.1rem; font-weight:800; line-height:1.2; margin-bottom:13px; }
+        .section-heading p  { font-size:15px; line-height:1.75; color:var(--muted); }
+
+        /* ------------------------------------------
+           FEATURES
+        ------------------------------------------ */
+        .features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+        .feature-card {
+            padding:28px; border:1px solid var(--border); border-radius:16px;
+            background:white; transition:.25s ease;
+        }
+        .feature-card:hover {
+            transform:translateY(-5px);
+            border-color:#bfdbfe;
+            box-shadow:0 16px 40px rgba(30,58,138,.08);
+        }
+        .feat-icon {
+            width:48px; height:48px; border-radius:12px;
+            background:#eff6ff; color:var(--blue);
+            display:flex; align-items:center; justify-content:center;
+            font-size:20px; margin-bottom:18px;
+        }
+        .feature-card h3 { font-size:15px; font-weight:700; margin-bottom:8px; }
+        .feature-card p  { font-size:13px; color:var(--muted); line-height:1.7; }
+
+        /* ------------------------------------------
+           HOW IT WORKS
+        ------------------------------------------ */
+        .how-bg { background:#f8faff; }
+        .steps  { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+        .step   { text-align:center; position:relative; }
+        .step-num {
+            width:52px; height:52px; margin:0 auto 18px;
+            border-radius:50%; background:var(--blue); color:white;
+            display:flex; align-items:center; justify-content:center;
+            font-weight:800; font-size:16px;
+            box-shadow:0 6px 16px rgba(30,58,138,.3);
+        }
+        .step:not(:last-child)::after {
+            content:''; position:absolute;
+            top:26px; left:calc(50% + 32px); right:calc(-50% + 32px);
+            height:2px; background:linear-gradient(90deg,var(--blue),#bfdbfe);
+        }
+        .step h3 { font-size:14px; font-weight:700; margin-bottom:7px; }
+        .step p  { font-size:12px; color:var(--muted); line-height:1.6; }
+
+        /* ------------------------------------------
+           ROLES
+        ------------------------------------------ */
+        .roles-grid {
+            display:grid; grid-template-columns:repeat(3,1fr); gap:16px;
+        }
+        .role-card {
+            padding:28px 22px; border:1px solid var(--border);
+            border-radius:16px; background:white;
+            text-align:center; transition:.2s ease; cursor:default;
+        }
+        .role-card:hover {
+            border-color:var(--blue); transform:translateY(-3px);
+            box-shadow:0 10px 28px rgba(30,58,138,.08);
+        }
+        .role-icon {
+            width:56px; height:56px; border-radius:14px;
+            margin:0 auto 14px;
+            display:flex; align-items:center; justify-content:center;
+            font-size:22px;
+        }
+        .role-card h3  { font-size:14px; font-weight:700; margin-bottom:6px; }
+        .role-card p   { font-size:12px; color:var(--muted); line-height:1.6; margin-bottom:14px; }
+        .role-pill {
+            display:inline-block; padding:4px 12px; border-radius:20px;
+            font-size:10px; font-weight:700;
+        }
+        .role-login {
+            display:inline-flex; align-items:center; gap:7px;
+            margin-top:10px; padding:9px 18px; border-radius:8px;
+            font-size:12px; font-weight:700; background:#eff6ff;
+            color:var(--blue); transition:.15s ease;
+        }
+        .role-login:hover { background:var(--blue); color:white; }
+
+        /* ------------------------------------------
+           CTA
+        ------------------------------------------ */
+        .cta-section {
+            margin:0 6% 80px; border-radius:24px;
+            background:radial-gradient(circle at 15% 20%, rgba(52,211,153,.12), transparent 25%),
+                        radial-gradient(circle at 90% 80%, rgba(59,130,246,.15), transparent 30%),
+                        var(--navy);
+            padding:80px 40px; text-align:center; color:white;
+        }
+        .cta-icon {
+            width:60px; height:60px; margin:0 auto 20px;
+            border-radius:16px; background:rgba(255,255,255,.1);
+            display:flex; align-items:center; justify-content:center;
+            font-size:26px; color:var(--green);
+        }
+        .cta-section h2 { font-size:2rem; font-weight:800; margin-bottom:14px; }
+        .cta-section p  {
+            max-width:560px; margin:0 auto 32px;
+            color:rgba(255,255,255,.6); font-size:15px; line-height:1.75;
+        }
+        .btn-cta {
+            display:inline-flex; align-items:center; gap:9px;
+            padding:15px 30px; border-radius:10px;
+            background:var(--green); color:white;
+            font-size:15px; font-weight:700;
+            box-shadow:0 6px 20px rgba(16,185,129,.3);
+            transition:.2s ease;
+        }
+        .btn-cta:hover { background:#34d399; color:white; transform:translateY(-2px); }
+
+        /* ------------------------------------------
+           FOOTER
+        ------------------------------------------ */
+        footer {
+            background:#080f20; color:white;
+            padding:60px 6% 28px;
+        }
+        .footer-grid {
+            max-width:1200px; margin:auto;
+            display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr;
+            gap:60px; padding-bottom:44px;
+        }
+        .footer-brand h3 { font-size:16px; font-weight:800; margin-bottom:12px; }
+        .footer-brand p  { color:#64748b; font-size:12px; line-height:1.75; max-width:280px; }
+        .footer-col h4   { font-size:11px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:16px; color:#94a3b8; }
+        .footer-col a    { display:block; color:#64748b; font-size:12px; margin-bottom:10px; transition:.15s ease; }
+        .footer-col a:hover { color:white; }
+        .footer-bottom {
+            max-width:1200px; margin:auto;
+            padding-top:22px; border-top:1px solid rgba(255,255,255,.06);
+            display:flex; justify-content:space-between;
+            color:#475569; font-size:11px;
+        }
+
+        /* ------------------------------------------
+           RESPONSIVE
+        ------------------------------------------ */
+        @@media (max-width: 1024px) {
+            .hero { grid-template-columns:1fr; min-height:auto; gap:50px; }
+            .hero-visual { max-width:600px; margin:auto; }
+            .features-grid { grid-template-columns:repeat(2,1fr); }
+            .stats-strip    { grid-template-columns:repeat(2,1fr); }
+            .steps          { grid-template-columns:repeat(2,1fr); gap:40px; }
+            .step::after    { display:none; }
+            .footer-grid    { grid-template-columns:1fr 1fr; gap:40px; }
+        }
+        @@media (max-width: 768px) {
+            .lp-links       { display:none; }
+            .hero h1        { font-size:2.4rem; }
+            .features-grid  { grid-template-columns:1fr; }
+            .roles-grid     { grid-template-columns:1fr 1fr; }
+            .stats-strip    { grid-template-columns:1fr 1fr; }
+            .footer-grid    { grid-template-columns:1fr; gap:30px; }
+            .footer-brand   { grid-column:unset; }
+            .cta-section    { margin:0 16px 60px; padding:56px 20px; }
+        }
+        @@media (max-width: 520px) {
+            .hero-btns      { flex-direction:column; }
+            .btn-primary,
+            .btn-ghost      { justify-content:center; }
+            .roles-grid     { grid-template-columns:1fr; }
+            .steps          { grid-template-columns:1fr; }
+            .hero-card      { transform:none; }
+        }
+    </style>
 </head>
-
 <body>
 
-    <!-- =====================================================
-         NAVIGATION
-    ====================================================== -->
-
-    <nav class="cs-navbar">
-
-        <a href="/" class="cs-brand">
-
-            <div class="cs-brand-icon">
-                <i class="bi bi-mortarboard-fill"></i>
-            </div>
-
-            <div class="cs-brand-text">
-
-                <span class="cs-brand-title">
-                    CSAAS
-                </span>
-
-                <span class="cs-brand-subtitle">
-                    UNILAK Academic Portal
-                </span>
-
-            </div>
-
-        </a>
-
-
-        <div class="cs-nav">
-
-            <a href="#features">
-                Features
-            </a>
-
-            <a href="#roles">
-                Roles
-            </a>
-
-            <a href="#workflow">
-                How It Works
-            </a>
-
-            <a href="/Login" class="cs-nav-login">
-
-                <i class="bi bi-box-arrow-in-right"></i>
-
-                Login
-
-            </a>
-
+<!-- -----------------------------------------------
+     NAVBAR
+------------------------------------------------ -->
+<nav class="lp-nav">
+    <a href="/" class="lp-brand">
+        <div class="lp-brand-icon" style="background:none;padding:0;box-shadow:none;"><img src="/images/logo.jpeg" alt="UNILAK" style="width:40px;height:40px;border-radius:50%;object-fit:cover;" /></div>
+        <div>
+            <strong>CSAS</strong>
+            <span>UNILAK Academic Portal</span>
         </div>
-
-    </nav>
-
-
-    <!-- =====================================================
-         HERO SECTION
-    ====================================================== -->
-
-    <section class="cs-hero">
-
-        <div class="cs-hero-container">
-
-            <!-- HERO CONTENT -->
-
-            <div class="cs-hero-content">
-
-                <div class="cs-badge">
-
-                    <i class="bi bi-patch-check-fill"></i>
-
-                    Official UNILAK Academic Platform
-
-                </div>
-
-
-                <h1>
-
-                    Smarter
-
-                    <span>
-                        Academic Scheduling
-                    </span>
-
-                    for Everyone.
-
-                </h1>
-
-
-                <p class="cs-hero-description">
-
-                    The Course Schedule & Academic Awareness System
-                    brings timetables, academic communication, verified
-                    class groups, and academic monitoring together in
-                    one secure platform.
-
-                </p>
-
-
-                <div class="cs-hero-actions">
-
-                    <a href="/Login"
-                       class="cs-btn-primary">
-
-                        Access Your Dashboard
-
-                        <i class="bi bi-arrow-right"></i>
-
-                    </a>
-
-
-                    <a href="#features"
-                       class="cs-btn-secondary">
-
-                        Explore Platform
-
-                        <i class="bi bi-chevron-down"></i>
-
-                    </a>
-
-                </div>
-
-            </div>
-
-
-            <!-- =================================================
-                 DASHBOARD PREVIEW
-            ================================================== -->
-
-            <div class="cs-dashboard">
-
-                <div class="cs-dashboard-window">
-
-                    <!-- Window Header -->
-
-                    <div class="cs-window-header">
-
-                        <div class="cs-window-dots">
-
-                            <span></span>
-                            <span></span>
-                            <span></span>
-
-                        </div>
-
-                        <span class="cs-window-title">
-                            Academic Dashboard
-                        </span>
-
-                    </div>
-
-
-                    <!-- Dashboard Body -->
-
-                    <div class="cs-dashboard-body">
-
-
-                        <div class="cs-dashboard-welcome">
-
-                            <div>
-
-                                <h4>
-                                    Academic Overview
-                                </h4>
-
-                                <p>
-                                    Monday, August 24, 2026
-                                </p>
-
-                            </div>
-
-
-                            <div class="cs-profile">
-
-                                <i class="bi bi-person-fill"></i>
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- Dashboard Statistics -->
-
-                        <div class="cs-dashboard-cards">
-
-
-                            <div class="cs-mini-card">
-
-                                <div class="cs-mini-card-icon">
-
-                                    <i class="bi bi-calendar3"></i>
-
-                                </div>
-
-                                <strong>
-                                    06
-                                </strong>
-
-                                <span>
-                                    Classes Today
-                                </span>
-
-                            </div>
-
-
-                            <div class="cs-mini-card">
-
-                                <div class="cs-mini-card-icon">
-
-                                    <i class="bi bi-people-fill"></i>
-
-                                </div>
-
-                                <strong>
-                                    04
-                                </strong>
-
-                                <span>
-                                    Active Groups
-                                </span>
-
-                            </div>
-
-
-                        </div>
-
-
-                        <!-- Schedule -->
-
-                        <div class="cs-schedule">
-
-                            <div class="cs-schedule-header">
-
-                                Today's Schedule
-
-                            </div>
-
-
-                            <div class="cs-schedule-row">
-
-                                <span class="cs-time">
-                                    08:00
-                                </span>
-
-                                <span class="cs-class">
-                                    Software Engineering
-                                </span>
-
-                                <span class="cs-room">
-                                    Room 204
-                                </span>
-
-                            </div>
-
-
-                            <div class="cs-schedule-row">
-
-                                <span class="cs-time">
-                                    10:00
-                                </span>
-
-                                <span class="cs-class">
-                                    Database Administration
-                                </span>
-
-                                <span class="cs-room">
-                                    Lab 02
-                                </span>
-
-                            </div>
-
-
-                            <div class="cs-schedule-row">
-
-                                <span class="cs-time">
-                                    14:00
-                                </span>
-
-                                <span class="cs-class">
-                                    Software Testing
-                                </span>
-
-                                <span class="cs-room">
-                                    Room 301
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =====================================================
-         TRUST / QUICK INFORMATION
-    ====================================================== -->
-
-    <section class="cs-trust">
-
-        <div class="cs-trust-inner">
-
-
-            <div class="cs-trust-item">
-
-                <div class="cs-trust-icon">
-
-                    <i class="bi bi-shield-lock-fill"></i>
-
-                </div>
-
-                <div>
-
-                    <strong>
-                        Secure Access
-                    </strong>
-
-                    <span>
-                        Role-based permissions
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <div class="cs-trust-item">
-
-                <div class="cs-trust-icon">
-
-                    <i class="bi bi-calendar-check-fill"></i>
-
-                </div>
-
-                <div>
-
-                    <strong>
-                        Centralized Scheduling
-                    </strong>
-
-                    <span>
-                        One academic timetable
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <div class="cs-trust-item">
-
-                <div class="cs-trust-icon">
-
-                    <i class="bi bi-patch-check-fill"></i>
-
-                </div>
-
-                <div>
-
-                    <strong>
-                        Verified Information
-                    </strong>
-
-                    <span>
-                        Approved academic updates
-                    </span>
-
-                </div>
-
-            </div>
-
-
-        </div>
-
-    </section>
-
-
-    <!-- =====================================================
-         FEATURES
-    ====================================================== -->
-
-    <section class="cs-section"
-             id="features">
-
-        <div class="cs-section-heading">
-
-            <span class="cs-section-label">
-                Platform Features
-            </span>
-
-            <h2>
-                Everything needed for better academic coordination.
-            </h2>
-
-            <p>
-                CSAAS connects students, representatives and academic
-                management through a single source of reliable academic
-                information.
+    </a>
+
+    <div class="lp-links">
+        <a href="#features" class="lp-link">Features</a>
+        <a href="#how"      class="lp-link">How It Works</a>
+        <a href="#roles"    class="lp-link">Roles</a>
+    </div>
+
+    <a href="/Login" class="lp-cta">
+        <i class="bi bi-box-arrow-in-right"></i> Sign In
+    </a>
+</nav>
+
+
+<!-- -----------------------------------------------
+     HERO
+------------------------------------------------ -->
+<section class="hero">
+
+    <!-- -- Full-screen video background -- -->
+    <div class="hero-video-wrap">
+        <video id="heroVideo" autoplay muted loop playsinline
+               poster="/images/dean1.jpeg">
+            <source src="/images/Hero.mp4" type="video/mp4" />
+        </video>
+    </div>
+
+    <!-- -- Mute / Unmute button -- -->
+    <button class="hero-mute-btn" id="muteBtn" onclick="toggleMute()" title="Toggle sound">
+        <i class="bi bi-volume-mute-fill" id="muteIcon"></i>
+    </button>
+
+    <!-- -- Hero content -- -->
+    <div class="hero-container">
+
+        <!-- Left content -->
+        <div>
+            <h1>
+                Smarter
+                <span class="hl">Academic Scheduling</span>
+                for Everyone.
+            </h1>
+
+            <p class="hero-desc">
+                CSAS connects students, class representatives, lecturers and
+                management through one secure platform � bringing timetables,
+                verified WhatsApp groups, mark management and academic
+                monitoring together in one place.
             </p>
 
+            <div class="hero-btns">
+                <a href="/Login" class="btn-primary">
+                    Access Your Dashboard <i class="bi bi-arrow-right"></i>
+                </a>
+                <a href="#features" class="btn-ghost">
+                    Explore Platform <i class="bi bi-chevron-down"></i>
+                </a>
+            </div>
         </div>
 
+        <!-- Right visual: dashboard card -->
+        <div class="hero-visual">
 
-        <div class="cs-features-grid">
-
-
-            <!-- Feature 1 -->
-
-            <div class="cs-feature">
-
-                <div class="cs-feature-icon">
-
-                    <i class="bi bi-calendar3"></i>
-
+            
+                    <div class="hbf-val">CSE301 &middot; Software Eng.</div>
                 </div>
-
-                <h3>
-                    Timetable Synchronization
-                </h3>
-
-                <p>
-                    Keep course schedules organized and synchronized
-                    with the university's academic information systems.
-                </p>
-
             </div>
 
-
-            <!-- Feature 2 -->
-
-            <div class="cs-feature">
-
-                <div class="cs-feature-icon">
-
-                    <i class="bi bi-whatsapp"></i>
-
+            <div class="hero-card">
+                <div class="hc-head">
+                    <div class="hc-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <span class="hc-title">Academic Dashboard</span>
+                    <span style="font-size:10px;color:#9ca3af;">Semester 1 &middot; 2026</span>
                 </div>
-
-                <h3>
-                    Verified WhatsApp Groups
-                </h3>
-
-                <p>
-                    Give students access to official class communication
-                    groups while controlling verification and joining
-                    deadlines.
-                </p>
-
+                <div class="hc-body">
+                    <div class="hc-welcome">
+                        <div>
+                            <h4>Academic Overview</h4>
+                            <p>Friday, 02 October 2026</p>
+                        </div>
+                        <div class="hc-avatar"><i class="bi bi-person-fill"></i></div>
+                    </div>
+                    <div class="hc-stats">
+                        <div class="hc-stat">
+                            <div class="hc-stat-icon"><i class="bi bi-calendar3"></i></div>
+                            <strong>4</strong><span>Enrolled Courses</span>
+                        </div>
+                        <div class="hc-stat">
+                            <div class="hc-stat-icon"><i class="bi bi-bar-chart-fill"></i></div>
+                            <strong>86%</strong><span>Avg. Attendance</span>
+                        </div>
+                        <div class="hc-stat">
+                            <div class="hc-stat-icon"><i class="bi bi-whatsapp"></i></div>
+                            <strong>3</strong><span>Open Groups</span>
+                        </div>
+                        <div class="hc-stat">
+                            <div class="hc-stat-icon"><i class="bi bi-patch-check-fill"></i></div>
+                            <strong>14</strong><span>Verified Sessions</span>
+                        </div>
+                    </div>
+                    <div class="hc-schedule">
+                        <div class="hc-sch-head">Today&rsquo;s Schedule</div>
+                        <div class="hc-row">
+                            <span class="hc-time">08:00</span>
+                            <span>Software Engineering</span>
+                            <span class="hc-room">Rm 204</span>
+                        </div>
+                        <div class="hc-row">
+                            <span class="hc-time">10:00</span>
+                            <span>Database Systems</span>
+                            <span class="hc-room">Rm 101</span>
+                        </div>
+                        <div class="hc-row">
+                            <span class="hc-time">14:00</span>
+                            <span>Software Architecture</span>
+                            <span class="hc-room">Rm 302</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-
-            <!-- Feature 3 -->
-
-            <div class="cs-feature">
-
-                <div class="cs-feature-icon">
-
-                    <i class="bi bi-bar-chart-fill"></i>
-
-                </div>
-
-                <h3>
-                    Academic Monitoring
-                </h3>
-
-                <p>
-                    Enable academic leaders to monitor course progress,
-                    attendance and other important academic indicators.
-                </p>
-
-            </div>
-
-
-            <!-- Feature 4 -->
-
-            <div class="cs-feature">
-
-                <div class="cs-feature-icon">
-
-                    <i class="bi bi-person-lock"></i>
-
-                </div>
-
-                <h3>
-                    Role-Based Access
-                </h3>
-
-                <p>
-                    Each user receives access to the information and
-                    functionality appropriate to their academic role.
-                </p>
-
-            </div>
-
-
-            <!-- Feature 5 -->
-
-            <div class="cs-feature">
-
-                <div class="cs-feature-icon">
-
-                    <i class="bi bi-check-circle-fill"></i>
-
-                </div>
-
-                <h3>
-                    Verified Submissions
-                </h3>
-
-                <p>
-                    Schedule changes and important academic information
-                    can be reviewed and approved before reaching students.
-                </p>
-
-            </div>
-
-
-            <!-- Feature 6 -->
-
-            <div class="cs-feature">
-
-                <div class="cs-feature-icon">
-
+            <div class="hero-badge-float float-br">
+                <div class="hbf-icon" style="background:rgba(254,243,199,0.9);color:#d97706;">
                     <i class="bi bi-bell-fill"></i>
-
                 </div>
-
-                <h3>
-                    Academic Notifications
-                </h3>
-
-                <p>
-                    Keep students and staff informed about schedule changes,
-                    deadlines and important academic announcements.
-                </p>
-
-            </div>
-
-
-        </div>
-
-    </section>
-
-
-    <!-- =====================================================
-         ROLES
-    ====================================================== -->
-
-    <section class="cs-roles-section"
-             id="roles">
-
-        <div class="cs-section">
-
-            <div class="cs-section-heading">
-
-                <span class="cs-section-label">
-                    Built for Every Academic Role
-                </span>
-
-                <h2>
-                    One platform. Different responsibilities.
-                </h2>
-
-                <p>
-                    CSAAS provides role-specific access so every member
-                    of the academic community can focus on the information
-                    relevant to their responsibilities.
-                </p>
-
-            </div>
-
-
-            <div class="cs-roles-grid">
-
-
-                <div class="cs-role">
-
-                    <i class="bi bi-mortarboard-fill"></i>
-
-                    <strong>
-                        Students
-                    </strong>
-
-                    <span>
-                        Schedules & academic updates
-                    </span>
-
+                <div>
+                    <div class="hbf-label">Deadline in 3 days</div>
+                    <div class="hbf-val">CSE305 WhatsApp Group</div>
                 </div>
-
-
-                <div class="cs-role">
-
-                    <i class="bi bi-person-badge-fill"></i>
-
-                    <strong>
-                        Class Representatives
-                    </strong>
-
-                    <span>
-                        Class communication
-                    </span>
-
-                </div>
-
-
-                <div class="cs-role">
-
-                    <i class="bi bi-building"></i>
-
-                    <strong>
-                        HODs
-                    </strong>
-
-                    <span>
-                        Department coordination
-                    </span>
-
-                </div>
-
-
-                <div class="cs-role">
-
-                    <i class="bi bi-briefcase-fill"></i>
-
-                    <strong>
-                        Deans
-                    </strong>
-
-                    <span>
-                        Faculty oversight
-                    </span>
-
-                </div>
-
-
-                <div class="cs-role">
-
-                    <i class="bi bi-graph-up-arrow"></i>
-
-                    <strong>
-                        Quality Directors
-                    </strong>
-
-                    <span>
-                        Academic monitoring
-                    </span>
-
-                </div>
-
-
             </div>
 
         </div>
+    </div>
 
-    </section>
+</section>
 
 
-    <!-- =====================================================
-         WORKFLOW
-    ====================================================== -->
+<!-- -----------------------------------------------
+     STATS STRIP
+------------------------------------------------ -->
+<div class="stats-strip">
+    <div class="stat-item">
+        <strong><span class="accent">6</span></strong>
+        <span>Academic Roles Supported</span>
+    </div>
+    <div class="stat-item">
+        <strong>4</strong>
+        <span>Departments Monitored</span>
+    </div>
+    <div class="stat-item">
+        <strong><span class="accent">100%</span></strong>
+        <span>Approval Chain Digital</span>
+    </div>
+    <div class="stat-item">
+        <strong>Real-time</strong>
+        <span>Schedule Synchronization</span>
+    </div>
+</div>
 
-    <section class="cs-section"
-             id="workflow">
 
-        <div class="cs-section-heading">
-
-            <span class="cs-section-label">
-                Simple Workflow
-            </span>
-
-            <h2>
-                From academic information to student awareness.
-            </h2>
-
+<!-- -----------------------------------------------
+     FEATURES
+------------------------------------------------ -->
+<div id="features">
+    <div class="section">
+        <div class="section-heading">
+            <span class="section-label">Platform Features</span>
+            <h2>Everything academic coordination needs.</h2>
             <p>
-                A clear process ensures that important academic
-                information is submitted, verified and communicated
-                efficiently.
+                From timetables to mark management to quality monitoring �
+                CSAS brings it all under one verified, role-based platform.
             </p>
-
         </div>
 
+        <div class="features-grid">
 
-        <div class="cs-workflow">
+            <div class="feature-card">
+                <div class="feat-icon"><i class="bi bi-calendar3-week"></i></div>
+                <h3>Timetable Synchronization</h3>
+                <p>Course schedules organized and synchronized across all departments with real-time delivery tracking.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feat-icon"><i class="bi bi-whatsapp"></i></div>
+                <h3>Verified WhatsApp Groups</h3>
+                <p>Students access official class communication groups with controlled joining deadlines managed by Class Reps.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feat-icon"><i class="bi bi-pencil-square"></i></div>
+                <h3>Mark Management</h3>
+                <p>Lecturers post assessment results directly to students. Students can view marks and raise claims for review.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feat-icon"><i class="bi bi-diagram-3-fill"></i></div>
+                <h3>Multi-Level Approval Chain</h3>
+                <p>Session reports flow from Lecturer ? Class Rep ? HOD ? Dean, keeping every delivery verified and traceable.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feat-icon"><i class="bi bi-bar-chart-fill"></i></div>
+                <h3>Quality Monitoring</h3>
+                <p>The Director of Quality gets university-wide delivery reports with automatic flagging of below-threshold courses.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feat-icon"><i class="bi bi-person-lock"></i></div>
+                <h3>Role-Based Access</h3>
+                <p>Every role � Student, CP, Lecturer, HOD, Dean or Quality Director � gets a dashboard tailored to their responsibilities.</p>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 
-            <div class="cs-step">
+<!-- -----------------------------------------------
+     HOW IT WORKS
+------------------------------------------------ -->
+<div class="how-bg" id="how">
+    <div class="section">
+        <div class="section-heading">
+            <span class="section-label">Simple Workflow</span>
+            <h2>From session delivery to student awareness.</h2>
+            <p>A clear process ensures academic information flows correctly through every level.</p>
+        </div>
 
-                <div class="cs-step-number">
-                    01
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">01</div>
+                <h3>Lecturer Submits</h3>
+                <p>After each session, the lecturer submits a delivery report with the topic covered and venue.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">02</div>
+                <h3>CP Signs Off</h3>
+                <p>The Class Representative confirms the session happened before it moves to the HOD.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">03</div>
+                <h3>HOD &amp; Dean Approve</h3>
+                <p>The Head of Department and Dean review and give final approval to the session report.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">04</div>
+                <h3>Students Stay Informed</h3>
+                <p>Verified schedules, marks and WhatsApp groups appear live on every student's dashboard.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- -----------------------------------------------
+     ROLES
+------------------------------------------------ -->
+<div id="roles">
+    <div class="section">
+        <div class="section-heading">
+            <span class="section-label">Built for Every Academic Role</span>
+            <h2>One platform. Six roles. Zero confusion.</h2>
+            <p>Each role gets a custom dashboard with only the information and actions relevant to them.</p>
+        </div>
+
+        <div class="roles-grid">
+
+            <div class="role-card">
+                <div class="role-icon" style="background:#eff6ff;color:#1e3a8a;">
+                    <i class="bi bi-mortarboard-fill"></i>
                 </div>
-
-                <h3>
-                    Submit
-                </h3>
-
-                <p>
-                    Authorized staff submit schedules, updates or
-                    communication information.
-                </p>
-
+                <h3>Students</h3>
+                <p>View your timetable, check marks, raise claims, and join verified WhatsApp groups before the deadline.</p>
+                <span class="role-pill" style="background:#eff6ff;color:#1e3a8a;">UNILAK/2024/001 � student123</span><br/>
+                <a href="/Login" class="role-login">Sign In <i class="bi bi-arrow-right"></i></a>
             </div>
 
-
-            <div class="cs-step">
-
-                <div class="cs-step-number">
-                    02
+            <div class="role-card">
+                <div class="role-icon" style="background:#f0fdfa;color:#0d9488;">
+                    <i class="bi bi-person-badge-fill"></i>
                 </div>
-
-                <h3>
-                    Verify
-                </h3>
-
-                <p>
-                    Academic authorities review submitted information
-                    before publication.
-                </p>
-
+                <h3>Class Representatives</h3>
+                <p>Sign off sessions, manage class WhatsApp groups and post announcements to your class.</p>
+                <span class="role-pill" style="background:#f0fdfa;color:#0d9488;">UNILAK/2024/002 � classrep123</span><br/>
+                <a href="/Login" class="role-login">Sign In <i class="bi bi-arrow-right"></i></a>
             </div>
 
-
-            <div class="cs-step">
-
-                <div class="cs-step-number">
-                    03
+            <div class="role-card">
+                <div class="role-icon" style="background:#f5f3ff;color:#7c3aed;">
+                    <i class="bi bi-person-workspace"></i>
                 </div>
-
-                <h3>
-                    Publish
-                </h3>
-
-                <p>
-                    Approved academic information becomes available
-                    to the appropriate users.
-                </p>
-
+                <h3>Lecturers</h3>
+                <p>Submit session reports, post marks for students and respond to student mark claims.</p>
+                <span class="role-pill" style="background:#f5f3ff;color:#7c3aed;">STAFF/001 � lecturer123</span><br/>
+                <a href="/Login" class="role-login">Sign In <i class="bi bi-arrow-right"></i></a>
             </div>
 
-
-            <div class="cs-step">
-
-                <div class="cs-step-number">
-                    04
+            <div class="role-card">
+                <div class="role-icon" style="background:#fffbeb;color:#d97706;">
+                    <i class="bi bi-building"></i>
                 </div>
-
-                <h3>
-                    Stay Informed
-                </h3>
-
-                <p>
-                    Students and staff receive reliable academic
-                    information through their dashboards.
-                </p>
-
+                <h3>Head of Department</h3>
+                <p>Review course delivery rates, manage lecturers and approve session reports from your department.</p>
+                <span class="role-pill" style="background:#fffbeb;color:#d97706;">STAFF/010 � hod123</span><br/>
+                <a href="/Login" class="role-login">Sign In <i class="bi bi-arrow-right"></i></a>
             </div>
 
-
-        </div>
-
-    </section>
-
-
-    <!-- =====================================================
-         CTA
-    ====================================================== -->
-
-    <section class="cs-cta">
-
-        <div class="cs-cta-icon">
-
-            <i class="bi bi-mortarboard-fill"></i>
-
-        </div>
-
-
-        <h2>
-            Ready to access your academic portal?
-        </h2>
-
-
-        <p>
-            Sign in with your UNILAK credentials to view your timetable,
-            academic information, verified communication channels and
-            role-specific dashboard.
-        </p>
-
-
-        <a href="/Login"
-           class="cs-btn-primary">
-
-            Login to CSAAS
-
-            <i class="bi bi-arrow-right"></i>
-
-        </a>
-
-    </section>
-
-
-    <!-- =====================================================
-         FOOTER
-    ====================================================== -->
-
-    <footer class="cs-footer">
-
-        <div class="cs-footer-container">
-
-
-            <div class="cs-footer-brand">
-
-                <h3>
-                    Course Schedule & Academic Awareness System
-                </h3>
-
-                <p>
-                    A centralized academic coordination platform designed
-                    to improve timetable awareness, communication and
-                    academic information management at UNILAK.
-                </p>
-
+            <div class="role-card">
+                <div class="role-icon" style="background:#ecfdf5;color:#059669;">
+                    <i class="bi bi-briefcase-fill"></i>
+                </div>
+                <h3>Dean</h3>
+                <p>Oversee all departments in your faculty, give final approvals and monitor faculty-wide performance.</p>
+                <span class="role-pill" style="background:#ecfdf5;color:#059669;">STAFF/020 � dean123</span><br/>
+                <a href="/Login" class="role-login">Sign In <i class="bi bi-arrow-right"></i></a>
             </div>
 
-
-            <div class="cs-footer-column">
-
-                <h4>
-                    Platform
-                </h4>
-
-                <a href="#features">
-                    Features
-                </a>
-
-                <a href="#roles">
-                    Academic Roles
-                </a>
-
-                <a href="#workflow">
-                    How It Works
-                </a>
-
+            <div class="role-card">
+                <div class="role-icon" style="background:#fef2f2;color:#dc2626;">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <h3>Director of Quality</h3>
+                <p>Monitor university-wide academic delivery, flag under-performing courses and generate audit reports.</p>
+                <span class="role-pill" style="background:#fef2f2;color:#dc2626;">STAFF/030 � quality123</span><br/>
+                <a href="/Login" class="role-login">Sign In <i class="bi bi-arrow-right"></i></a>
             </div>
 
-
-            <div class="cs-footer-column">
-
-                <h4>
-                    Access
-                </h4>
-
-                <a href="/Login">
-                    Student Login
-                </a>
-
-                <a href="/Login">
-                    Staff Login
-                </a>
-
-                <a href="#">
-                    Academic Support
-                </a>
-
-            </div>
+        </div>
+    </div>
+</div>
 
 
+<!-- -----------------------------------------------
+     CTA
+------------------------------------------------ -->
+<div class="cta-section">
+    <div class="cta-icon"><i class="bi bi-mortarboard-fill"></i></div>
+    <h2>Ready to access your academic portal?</h2>
+    <p>
+        Sign in with your UNILAK credentials to view your timetable, marks,
+        verified communication channels and your role-specific dashboard.
+    </p>
+    <a href="/Login" class="btn-cta">
+        <i class="bi bi-box-arrow-in-right"></i>
+        Login to CSAS
+    </a>
+</div>
+
+
+<!-- -----------------------------------------------
+     FOOTER
+------------------------------------------------ -->
+<footer>
+    <div class="footer-grid">
+
+        <div class="footer-brand">
+            <h3>Course Schedule &amp; Academic Awareness System</h3>
+            <p>
+                A centralized academic coordination platform designed to improve
+                timetable awareness, mark management, communication and academic
+                quality monitoring at UNILAK.
+            </p>
         </div>
 
-
-        <div class="cs-footer-bottom">
-
-            <span>
-                © @DateTime.Now.Year UNILAK. All rights reserved.
-            </span>
-
-            <span>
-                Course Schedule & Academic Awareness System
-            </span>
-
+        <div class="footer-col">
+            <h4>Platform</h4>
+            <a href="#features">Features</a>
+            <a href="#how">How It Works</a>
+            <a href="#roles">Academic Roles</a>
         </div>
 
-    </footer>
+        <div class="footer-col">
+            <h4>Dashboards</h4>
+            <a href="/Student/Dashboard">Student</a>
+            <a href="/CP/Dashboard">Class Representative</a>
+            <a href="/Lecturer/Dashboard">Lecturer</a>
+            <a href="/HOD/Dashboard">Head of Department</a>
+        </div>
 
+        <div class="footer-col">
+            <h4>Management</h4>
+            <a href="/Dean/Dashboard">Dean</a>
+            <a href="/Quality/Dashboard">Director of Quality</a>
+            <a href="/Login">Sign In</a>
+        </div>
 
+    </div>
+
+    <div class="footer-bottom">
+        <span>&copy; @DateTime.Now.Year UNILAK. All rights reserved.</span>
+        <span>Course Schedule &amp; Academic Awareness System</span>
+    </div>
+</footer>
+
+<script>
+    /* -- Hero video mute toggle -- */
+    function toggleMute() {
+        var video = document.getElementById('heroVideo');
+        var icon  = document.getElementById('muteIcon');
+        if (!video) return;
+        video.muted = !video.muted;
+        icon.className = video.muted ? 'bi bi-volume-mute-fill' : 'bi bi-volume-up-fill';
+    }
+</script>
 </body>
-
 </html>

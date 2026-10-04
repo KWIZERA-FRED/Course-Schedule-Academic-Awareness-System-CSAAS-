@@ -1,0 +1,533 @@
+@page
+@model CourseScheduleSystem.Web.Pages.Dean.DashboardModel
+@{
+    ViewData["Title"] = "Dean Dashboard";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dean Dashboard | CSAS</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/dashboard.css" />
+</head>
+<body>
+
+<div class="dash-shell">
+
+    <!-- =============================================
+         SIDEBAR
+    ============================================== -->
+    <aside class="dash-sidebar">
+
+        <a href="/" class="dash-sidebar-brand">
+            <div class="dash-sidebar-brand-icon" style="background:transparent;box-shadow:none;padding:2px;"><img src="/images/logo.jpeg" alt="UNILAK" style="width:34px;height:34px;border-radius:50%;object-fit:cover;" /></div>
+            <div class="dash-sidebar-brand-text">
+                <strong>CSAS</strong>
+                <span>Dean Portal</span>
+            </div>
+        </a>
+
+        <div class="dash-sidebar-section">Main Menu</div>
+
+        <nav class="dash-sidebar-nav">
+            <a href="/" class="dash-nav-link">
+                <i class="bi bi-house-fill"></i> Home
+            </a>
+            <a href="/Dean/Dashboard" class="dash-nav-link active">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a href="#" class="dash-nav-link">
+                <i class="bi bi-diagram-3-fill"></i> All Departments
+            </a>
+            <a href="#" class="dash-nav-link">
+                <i class="bi bi-check2-square"></i> Final Approvals
+            </a>
+            <a href="#" class="dash-nav-link">
+                <i class="bi bi-bar-chart-fill"></i> Faculty Reports
+            </a>
+            <a href="#" class="dash-nav-link">
+                <i class="bi bi-calendar3-week"></i> Faculty Schedule
+            </a>
+            <a href="#" class="dash-nav-link">
+                <i class="bi bi-bell"></i> Notifications
+            </a>
+        </nav>
+
+        <div class="dash-sidebar-section">Account</div>
+
+        <nav class="dash-sidebar-nav">
+            <a href="#" class="dash-nav-link">
+                <i class="bi bi-person"></i> My Profile
+            </a>
+            <a href="/Logout" class="dash-nav-link"><i class="bi bi-box-arrow-left"></i> Logout
+            </a>
+        </nav>
+
+        <div class="dash-sidebar-footer">
+            <div class="dash-sidebar-user">
+                <div class="dash-user-avatar">
+                    <i class="bi bi-briefcase-fill"></i>
+                </div>
+                <div class="dash-user-info">
+                    <strong>Prof. C. Ndayisaba</strong>
+                    <span>Dean · Faculty of Engineering</span>
+                </div>
+            </div>
+        </div>
+
+    </aside>
+
+
+    <!-- =============================================
+         MAIN CONTENT
+    ============================================== -->
+    <div class="dash-main">
+
+        <!-- TOP BAR -->
+        <div class="dash-topbar">
+            <div class="dash-topbar-title">
+                <h1>Dean Dashboard</h1>
+                <p>Faculty of Engineering &amp; Technology — Academic Oversight</p>
+            </div>
+            <div class="dash-topbar-actions">
+                <a href="#" class="dash-icon-btn" title="Notifications">
+                    <i class="bi bi-bell"></i>
+                </a>
+                <div class="dash-topbar-avatar">
+                    <i class="bi bi-briefcase-fill"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="dash-content">
+
+            <!-- STATUS MESSAGE -->
+            @if (TempData["StatusMessage"] != null)
+            {
+                var type = TempData["StatusType"]?.ToString() ?? "info";
+                var alertClass = type == "success" ? "dash-alert-success"
+                               : type == "danger"  ? "dash-alert-danger"
+                               : type == "warning" ? "dash-alert-warning"
+                               : "dash-alert-info";
+                var icon = type == "success" ? "bi-check-circle-fill"
+                         : type == "danger"  ? "bi-x-circle-fill"
+                         : "bi-exclamation-triangle-fill";
+                <div class="dash-alert @alertClass">
+                    <i class="bi @icon"></i>
+                    <div>@TempData["StatusMessage"]</div>
+                </div>
+            }
+
+            <!-- ALERT -->
+            @if (Model.PendingFinalApprovals > 0)
+            {
+                <div class="dash-alert dash-alert-info">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <div>
+                        <strong>Final Approval Needed:</strong>
+                        <strong>@Model.PendingFinalApprovals session @(Model.PendingFinalApprovals == 1 ? "report" : "reports")</strong>
+                        approved by HODs — awaiting your final sign-off.
+                    </div>
+                </div>
+            }
+
+            <!-- STAT CARDS -->
+            <div class="dash-stats dash-stats-4">
+
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon icon-blue">
+                        <i class="bi bi-diagram-3-fill"></i>
+                    </div>
+                    <div class="dash-stat-body">
+                        <strong>4</strong>
+                        <span>Departments</span>
+                    </div>
+                </div>
+
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon icon-teal">
+                        <i class="bi bi-journal-bookmark-fill"></i>
+                    </div>
+                    <div class="dash-stat-body">
+                        <strong>28</strong>
+                        <span>Courses Faculty-wide</span>
+                    </div>
+                </div>
+
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon icon-amber">
+                        <i class="bi bi-check2-square"></i>
+                    </div>
+                    <div class="dash-stat-body">
+                        <strong>5</strong>
+                        <span>Pending Final Approvals</span>
+                    </div>
+                </div>
+
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon icon-green">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <div class="dash-stat-body">
+                        <strong>88%</strong>
+                        <span>Faculty Delivery Rate</span>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- DEPARTMENT OVERVIEW + FINAL APPROVAL -->
+            <div class="dash-grid-2">
+
+                <!-- DEPARTMENT OVERVIEW TABLE -->
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <div>
+                            <h5>Department Overview</h5>
+                            <p>Delivery performance across all departments</p>
+                        </div>
+                        <a href="#" class="btn-dash-outline btn-dash-sm">
+                            <i class="bi bi-download"></i> Export
+                        </a>
+                    </div>
+                    <div class="dash-card-body" style="padding:0;">
+                        <table class="dash-table">
+                            <thead>
+                                <tr>
+                                    <th>Department</th>
+                                    <th>HOD</th>
+                                    <th>Courses</th>
+                                    <th>Delivery Rate</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <strong style="display:block;font-size:13px;">Computer Science &amp; IT</strong>
+                                    </td>
+                                    <td>Dr. A. Uwimana</td>
+                                    <td>8</td>
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:8px;">
+                                            <div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
+                                                <div style="width:91%;height:100%;background:#1e3a8a;border-radius:5px;"></div>
+                                            </div>
+                                            <span style="font-size:11px;font-weight:700;">91%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge-status badge-verified"><i class="bi bi-check-circle-fill"></i> Good</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong style="display:block;font-size:13px;">Civil Engineering</strong>
+                                    </td>
+                                    <td>Dr. F. Kayitesi</td>
+                                    <td>7</td>
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:8px;">
+                                            <div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
+                                                <div style="width:85%;height:100%;background:#1e3a8a;border-radius:5px;"></div>
+                                            </div>
+                                            <span style="font-size:11px;font-weight:700;">85%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge-status badge-verified"><i class="bi bi-check-circle-fill"></i> Good</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong style="display:block;font-size:13px;">Electrical Engineering</strong>
+                                    </td>
+                                    <td>Prof. R. Munyaneza</td>
+                                    <td>7</td>
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:8px;">
+                                            <div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
+                                                <div style="width:79%;height:100%;background:#d97706;border-radius:5px;"></div>
+                                            </div>
+                                            <span style="font-size:11px;font-weight:700;">79%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge-status badge-pending"><i class="bi bi-clock-history"></i> Monitor</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong style="display:block;font-size:13px;">Mechanical Engineering</strong>
+                                    </td>
+                                    <td>Dr. G. Iradukunda</td>
+                                    <td>6</td>
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:8px;">
+                                            <div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
+                                                <div style="width:96%;height:100%;background:#059669;border-radius:5px;"></div>
+                                            </div>
+                                            <span style="font-size:11px;font-weight:700;">96%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge-status badge-approved"><i class="bi bi-patch-check-fill"></i> Excellent</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- FINAL APPROVALS -->
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <div>
+                            <h5>Pending Final Approvals</h5>
+                            <p>HOD-approved sessions awaiting Dean sign-off</p>
+                        </div>
+                        @if (Model.PendingFinalApprovals > 0)
+                        {
+                            <span class="badge-status badge-pending">
+                                <i class="bi bi-clock-history"></i> @Model.PendingFinalApprovals pending
+                            </span>
+                        }
+                    </div>
+
+                    @if (!Model.AwaitingDeanApproval.Any())
+                    {
+                        <div class="dash-empty">
+                            <i class="bi bi-check2-circle"></i>
+                            <p>No sessions awaiting final approval. All up to date.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="dash-card-body" style="padding:0;">
+                            <table class="dash-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Course</th>
+                                        <th>Department</th>
+                                        <th>HOD</th>
+                                        <th>Topic</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var r in Model.AwaitingDeanApproval)
+                                    {
+                                        <tr>
+                                            <td style="font-size:12px;">@r.SessionDate.ToString("ddd dd MMM")</td>
+                                            <td>
+                                                <strong style="display:block;font-size:13px;">@r.CourseCode</strong>
+                                                <span style="font-size:11px;color:#9ca3af;">@r.CourseTitle</span>
+                                            </td>
+                                            <td style="font-size:12px;">
+                                                @{
+                                                    var course = Model.AllCourses.FirstOrDefault(c => c.Code == r.CourseCode);
+                                                }
+                                                @(course?.Department ?? "—")
+                                            </td>
+                                            <td style="font-size:12px;">@r.HODNotes?.Split(' ').FirstOrDefault() @r.LecturerName</td>
+                                            <td style="font-size:12px;max-width:120px;">
+                                                @(string.IsNullOrEmpty(r.TopicCovered) ? "—" : r.TopicCovered)
+                                            </td>
+                                            <td>
+                                                <div style="display:flex;gap:6px;">
+
+                                                    <!-- APPROVE -->
+                                                    <form method="post" asp-page-handler="ApproveSession" style="display:inline;">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="reportId" value="@r.Id" />
+                                                        <button type="submit" class="btn-dash-primary btn-dash-sm">
+                                                            <i class="bi bi-check-lg"></i> Approve
+                                                        </button>
+                                                    </form>
+
+                                                    <!-- REJECT -->
+                                                    <button class="btn-dash-outline btn-dash-sm"
+                                                            style="color:#dc2626;border-color:#fecaca;"
+                                                            onclick="openRejectModal(@r.Id, '@r.CourseCode', '@r.SessionDate.ToString("dd MMM")')">
+                                                        <i class="bi bi-x-lg"></i> Reject
+                                                    </button>
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+
+            </div>
+
+
+            <!-- FACULTY-WIDE DELIVERY PROGRESS -->
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <div>
+                        <h5>Faculty-Wide Delivery Progress</h5>
+                        <p>Overall academic delivery rate per department this semester</p>
+                    </div>
+                </div>
+                <div class="dash-card-body">
+
+                    <div class="dash-progress-row">
+                        <span class="dash-progress-label">Computer Science &amp; IT</span>
+                        <div class="dash-progress-bar-wrap">
+                            <div class="dash-progress-bar-fill" style="width:91%;"></div>
+                        </div>
+                        <span class="dash-progress-pct">91%</span>
+                    </div>
+
+                    <div class="dash-progress-row">
+                        <span class="dash-progress-label">Civil Engineering</span>
+                        <div class="dash-progress-bar-wrap">
+                            <div class="dash-progress-bar-fill" style="width:85%;"></div>
+                        </div>
+                        <span class="dash-progress-pct">85%</span>
+                    </div>
+
+                    <div class="dash-progress-row">
+                        <span class="dash-progress-label">Electrical Engineering</span>
+                        <div class="dash-progress-bar-wrap">
+                            <div class="dash-progress-bar-fill" style="width:79%;background:#d97706;"></div>
+                        </div>
+                        <span class="dash-progress-pct">79%</span>
+                    </div>
+
+                    <div class="dash-progress-row">
+                        <span class="dash-progress-label">Mechanical Engineering</span>
+                        <div class="dash-progress-bar-wrap">
+                            <div class="dash-progress-bar-fill" style="width:96%;background:#059669;"></div>
+                        </div>
+                        <span class="dash-progress-pct">96%</span>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- RECENT APPROVALS TIMELINE -->
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <div>
+                        <h5>Recent Approval Activity</h5>
+                        <p>Your latest actions across the faculty</p>
+                    </div>
+                </div>
+                <div class="dash-card-body">
+                    <div class="dash-timeline">
+
+                        <div class="dash-timeline-item">
+                            <div class="dash-timeline-dot icon-green">
+                                <i class="bi bi-patch-check-fill" style="color:#059669;font-size:14px;"></i>
+                            </div>
+                            <div class="dash-timeline-body">
+                                <strong>CSE402 – Software Architecture approved</strong>
+                                <span>Today, 08:30 AM · Computer Science &amp; IT</span>
+                            </div>
+                        </div>
+
+                        <div class="dash-timeline-item">
+                            <div class="dash-timeline-dot icon-green">
+                                <i class="bi bi-patch-check-fill" style="color:#059669;font-size:14px;"></i>
+                            </div>
+                            <div class="dash-timeline-body">
+                                <strong>ME201 – Thermodynamics approved</strong>
+                                <span>Yesterday, 02:15 PM · Mechanical Engineering</span>
+                            </div>
+                        </div>
+
+                        <div class="dash-timeline-item">
+                            <div class="dash-timeline-dot icon-red">
+                                <i class="bi bi-x-circle-fill" style="color:#dc2626;font-size:14px;"></i>
+                            </div>
+                            <div class="dash-timeline-body">
+                                <strong>EE302 report returned to HOD for revision</strong>
+                                <span>Yesterday, 11:00 AM · Electrical Engineering</span>
+                            </div>
+                        </div>
+
+                        <div class="dash-timeline-item">
+                            <div class="dash-timeline-dot icon-blue">
+                                <i class="bi bi-send-fill" style="color:#1e3a8a;font-size:14px;"></i>
+                            </div>
+                            <div class="dash-timeline-body">
+                                <strong>Faculty report forwarded to Quality Director</strong>
+                                <span>28 Sep, 04:00 PM</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- /dash-content -->
+
+    </div>
+    <!-- /dash-main -->
+
+</div>
+<!-- /dash-shell -->
+
+<!-- ── Dean Reject Modal ──────────────────────────────── -->
+<div id="deanRejectModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);
+     z-index:3000;align-items:center;justify-content:center;">
+    <div style="background:white;border-radius:14px;padding:28px;width:100%;max-width:440px;
+                margin:20px;box-shadow:0 20px 50px rgba(0,0,0,.2);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h5 style="margin:0;font-size:16px;font-weight:700;color:#0f1a3a;">
+                <i class="bi bi-x-circle-fill" style="color:#dc2626;margin-right:8px;"></i>
+                Return to HOD
+            </h5>
+            <button onclick="closeDeanReject()" style="background:none;border:none;font-size:18px;
+                    color:#9ca3af;cursor:pointer;"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <p id="deanRejectDesc" style="font-size:13px;color:#6b7280;margin-bottom:14px;"></p>
+        <form method="post" asp-page-handler="RejectSession">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="reportId" id="deanRejectId" />
+            <div style="margin-bottom:16px;">
+                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;">
+                    Reason for returning <span style="color:#dc2626;">*</span>
+                </label>
+                <textarea name="reason" id="deanRejectReason" rows="3" required
+                          style="width:100%;padding:9px 12px;border:1px solid #d1d5db;
+                                 border-radius:7px;font-size:13px;outline:none;resize:vertical;"
+                          placeholder="Explain what needs to be corrected..."></textarea>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button type="button" onclick="closeDeanReject()" class="btn-dash-outline">Cancel</button>
+                <button type="submit" class="btn-dash-primary" style="background:#dc2626;">
+                    <i class="bi bi-x-lg"></i> Return to HOD
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    /* ── Reject modal ─────────────────────────────────── */
+    function openRejectModal(reportId, courseCode, date) {
+        document.getElementById('deanRejectId').value = reportId;
+        document.getElementById('deanRejectDesc').textContent =
+            'Returning session report for ' + courseCode + ' on ' + date + ' to the HOD for revision.';
+        document.getElementById('deanRejectReason').value = '';
+        document.getElementById('deanRejectModal').style.display = 'flex';
+    }
+    function closeDeanReject() {
+        document.getElementById('deanRejectModal').style.display = 'none';
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        var m = document.getElementById('deanRejectModal');
+        if (m) m.addEventListener('click', function(e) { if (e.target === m) closeDeanReject(); });
+    });
+</script>
+</body>
+</html>
+
