@@ -81,6 +81,14 @@
 
         <div class="dash-content">
 
+            @if (TempData["StatusMessage"] != null)
+            {
+                var t  = TempData["StatusType"]?.ToString() ?? "info";
+                var ac = t == "success" ? "dash-alert-success" : t == "warning" ? "dash-alert-warning" : t == "danger" ? "dash-alert-danger" : "dash-alert-info";
+                var ic = t == "success" ? "bi-check-circle-fill" : t == "danger" ? "bi-x-circle-fill" : "bi-exclamation-triangle-fill";
+                <div class="dash-alert @ac"><i class="bi @ic"></i><div>@TempData["StatusMessage"]</div></div>
+            }
+
             <div class="dash-stats dash-stats-4" style="margin-bottom:24px;">
                 <div class="dash-stat-card">
                     <div class="dash-stat-icon icon-blue"><i class="bi bi-journal-bookmark-fill"></i></div>
@@ -379,6 +387,7 @@
                                 <th>Progress</th>
                                 <th>Status</th>
                                 <th>WhatsApp Group</th>
+                                <th>Enroll</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -468,6 +477,31 @@
                                                 <i class="bi bi-whatsapp"></i> Join group
                                             </a>
                                             <div style="font-size:10px;color:#9ca3af;margin-top:3px;">@daysLeft day@(daysLeft != 1 ? "s" : "") left</div>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (isEnrolled)
+                                        {
+                                            <form method="post" asp-page-handler="Unenroll" style="display:inline;">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="courseId" value="@c.Id" />
+                                                <button type="submit" class="btn-dash-outline btn-dash-sm"
+                                                        style="color:#dc2626;border-color:#fecaca;font-size:11px;"
+                                                        onclick="return confirm('Unenroll from @c.Code – @c.Title?')">
+                                                    <i class="bi bi-dash-circle"></i> Unenroll
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <form method="post" asp-page-handler="Enroll" style="display:inline;">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="courseId" value="@c.Id" />
+                                                <button type="submit" class="btn-dash-primary btn-dash-sm"
+                                                        style="font-size:11px;">
+                                                    <i class="bi bi-plus-circle-fill"></i> Enroll
+                                                </button>
+                                            </form>
                                         }
                                     </td>
                                 </tr>
