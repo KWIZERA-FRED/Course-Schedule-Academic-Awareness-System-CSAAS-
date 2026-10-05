@@ -3,11 +3,7 @@ using CourseScheduleSystem.Web.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ── Services ──────────────────────────────────────────────────
-
 builder.Services.AddRazorPages();
-
-// ── Entity Framework — SQL Server ─────────────────────────────
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -18,8 +14,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         )
     )
 );
-
-// ── Cookie authentication ──────────────────────────────────────
 builder.Services.AddAuthentication("CSASAuth")
     .AddCookie("CSASAuth", options =>
     {
@@ -31,11 +25,7 @@ builder.Services.AddAuthentication("CSASAuth")
 
 builder.Services.AddAuthorization();
 
-// ── Pipeline ──────────────────────────────────────────────────
-
 var app = builder.Build();
-
-// ── Migrate + Seed database on startup ────────────────────────
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();

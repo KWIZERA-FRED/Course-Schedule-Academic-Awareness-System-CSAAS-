@@ -2,19 +2,11 @@ using Microsoft.EntityFrameworkCore;
 using CourseScheduleSystem.Web.Models;
 
 namespace CourseScheduleSystem.Web.Data;
-
-/// <summary>
-/// Seeds the database with initial data on first run.
-/// Only inserts records if the tables are empty — safe to call on every startup.
-/// </summary>
 public static class DbInitializer
 {
     public static void Initialize(AppDbContext context)
     {
-        // Apply any pending migrations automatically
         context.Database.Migrate();
-
-        // ── Users ──────────────────────────────────────────
         if (!context.Users.Any())
         {
             context.Users.AddRange(
@@ -99,8 +91,6 @@ public static class DbInitializer
             );
             context.SaveChanges();
         }
-
-        // ── Courses ────────────────────────────────────────
         if (!context.Courses.Any())
         {
             context.Courses.AddRange(
@@ -171,8 +161,6 @@ public static class DbInitializer
             );
             context.SaveChanges();
         }
-
-        // ── Students ───────────────────────────────────────
         if (!context.Students.Any())
         {
             context.Students.AddRange(
@@ -207,8 +195,6 @@ public static class DbInitializer
             );
             context.SaveChanges();
         }
-
-        // ── Rooms ──────────────────────────────────────────
         if (!context.Rooms.Any())
         {
             context.Rooms.AddRange(
@@ -225,8 +211,6 @@ public static class DbInitializer
             );
             context.SaveChanges();
         }
-
-        // ── Session Reports ────────────────────────────────
         if (!context.SessionReports.Any())
         {
             context.SessionReports.AddRange(
@@ -286,8 +270,6 @@ public static class DbInitializer
             );
             context.SaveChanges();
         }
-
-        // ── Marks ──────────────────────────────────────────
         if (!context.Marks.Any())
         {
             context.Marks.AddRange(
@@ -328,8 +310,6 @@ public static class DbInitializer
             );
             context.SaveChanges();
         }
-
-        // ── Claims ─────────────────────────────────────────
         if (!context.Claims.Any())
         {
             context.Claims.Add(new Claim

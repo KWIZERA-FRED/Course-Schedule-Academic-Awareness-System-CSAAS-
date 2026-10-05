@@ -9,31 +9,18 @@ namespace CourseScheduleSystem.Web.Pages.CP
     [Authorize(Roles = "ClassRepresentative")]
     public class ChatModel : PageModel
     {
-        // ── Data exposed to the view ───────────────────────────
 
         public User              CurrentUser  { get; private set; } = default!;
-
-        /// <summary>The HOD this CP is currently chatting with</summary>
         public User?             ActiveHOD    { get; private set; }
-
-        /// <summary>All HODs — a CP can receive/send messages to any HOD</summary>
         public List<User>        AllHODs      { get; private set; } = new();
 
         public List<ChatMessage> Conversation { get; private set; } = new();
         public int               TotalUnread  { get; private set; }
 
-        // ── Which HOD is selected (query string) ───────────────
-
         [BindProperty(SupportsGet = true)]
         public string? HodEmail { get; set; }
 
-        // ── Feedback ───────────────────────────────────────────
-
         [TempData] public string? StatusMessage { get; set; }
-
-        // ══════════════════════════════════════════════════════
-        //  GET
-        // ══════════════════════════════════════════════════════
 
         public void OnGet()
         {
@@ -50,23 +37,17 @@ namespace CourseScheduleSystem.Web.Pages.CP
                 if (ActiveHOD != null)
                 {
                     Conversation = ChatData.GetConversation(ActiveHOD.Email, CurrentUser.Email);
-                    // Mark incoming HOD messages as read
                     ChatData.MarkRead(ActiveHOD.Email, CurrentUser.Email, "CP");
                 }
             }
             else if (AllHODs.Count > 0)
             {
-                // Auto-select the first HOD if none specified
                 ActiveHOD    = AllHODs[0];
                 HodEmail     = ActiveHOD.Email;
                 Conversation = ChatData.GetConversation(ActiveHOD.Email, CurrentUser.Email);
                 ChatData.MarkRead(ActiveHOD.Email, CurrentUser.Email, "CP");
             }
         }
-
-        // ══════════════════════════════════════════════════════
-        //  POST — Send a message
-        // ══════════════════════════════════════════════════════
 
         public IActionResult OnPostSend(string hodEmail, string text)
         {
@@ -95,10 +76,6 @@ namespace CourseScheduleSystem.Web.Pages.CP
 
             return RedirectToPage(new { hodEmail });
         }
-
-        // ═════════════════════════════════════════════════════��
-        //  Private helpers
-        // ══════════════════════════════════════════════════════
 
         private void LoadUser()
         {

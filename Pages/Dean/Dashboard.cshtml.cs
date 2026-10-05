@@ -9,36 +9,24 @@ namespace CourseScheduleSystem.Web.Pages.Dean
     [Authorize(Roles = "Dean")]
     public class DashboardModel : PageModel
     {
-        // ── Data exposed to the view ───────────────────────────
 
         public User                CurrentUser           { get; private set; } = default!;
         public List<Course>        AllCourses            { get; private set; } = new();
         public List<SessionReport> SessionReports        { get; private set; } = new();
         public List<SessionReport> AwaitingDeanApproval  { get; private set; } = new();
         public List<User>          HODs                  { get; private set; } = new();
+        public List<UmurongoIssue> EscalatedIssues       { get; private set; } = new();
         public Dictionary<string, double> DeliveryByDepartment { get; private set; } = new();
-
-        // ── Summary stats ──────────────────────────────────────
 
         public int    TotalDepartments      { get; private set; }
         public int    TotalCourses          { get; private set; }
         public int    PendingFinalApprovals { get; private set; }
         public double FacultyDeliveryRate   { get; private set; }
 
-        // ── Feedback after POST ────────────────────────────────
-
         [TempData] public string? StatusMessage { get; set; }
         [TempData] public string? StatusType    { get; set; }
 
-        // ══════════════════════════════════════════════════════
-        //  GET
-        // ══════════════════════════════════════════════════════
-
         public void OnGet() => LoadData();
-
-        // ══════════════════════════════════════════════════════
-        //  POST — Final approve a session report
-        // ══════════════════════════════════════════════════════
 
         public IActionResult OnPostApproveSession(int reportId)
         {
@@ -67,10 +55,6 @@ namespace CourseScheduleSystem.Web.Pages.Dean
             return RedirectToPage();
         }
 
-        // ══════════════════════════════════════════════════════
-        //  POST — Reject / return a session report
-        // ══════════════════════════════════════════════════════
-
         public IActionResult OnPostRejectSession(int reportId, string reason)
         {
             var report = SessionReportData.Reports.FirstOrDefault(r => r.Id == reportId);
@@ -92,9 +76,17 @@ namespace CourseScheduleSystem.Web.Pages.Dean
             return RedirectToPage();
         }
 
-        // ══════════════════════════════════════════════════════
-        //  Private helpers
-        // ══════════════════════════════════════════════════════
+        public IActionResult OnPostResolveIssue(int issueId, string deanNotes)
+        {
+            var issue = UmurongoIssueData.Issues.FirstOrDefault(i => i.Id == issueId);
+            if (issue == null) { StatusMessage = "Issue not found."; StatusType = "danger"; return RedirectToPage(); }
+            issue.Status     = IssueStatus.Resolved;
+            issue.ResolvedOn = DateTime.Now;
+            if (!string.IsNullOrWhiteSpace(deanNotes)) issue.DeanNotes = deanNotes.Trim();
+            StatusMessage = $"✓ Issue #{issueId} resolved by Dean.";
+            StatusType    = "success";
+            return RedirectToPage();
+        }
 
         private void LoadData()
         {
@@ -105,6 +97,7 @@ namespace CourseScheduleSystem.Web.Pages.Dean
             AllCourses    = CourseData.Courses.ToList();
             HODs          = UserData.Users.Where(u => u.Role == UserRole.HOD).ToList();
             SessionReports = SessionReportData.Reports.ToList();
+            EscalatedIssues = UmurongoIssueData.Issues.Where(i => i.EscalatedToDean).OrderByDescending(i => i.ReportedOn).ToList();
 
             AwaitingDeanApproval = SessionReports
                 .Where(r => r.Status == SessionReportStatus.HODApproved).ToList();

@@ -2,16 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using CourseScheduleSystem.Web.Models;
 
 namespace CourseScheduleSystem.Web.Data;
-
-/// <summary>
-/// Entity Framework Core DbContext for the CSAS application.
-/// Manages all database tables (DbSets) and their relationships.
-/// </summary>
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-
-    // ── Tables ─────────────────────────────────────────────
 
     public DbSet<User>           Users          { get; set; }
     public DbSet<Course>         Courses        { get; set; }
@@ -23,13 +16,9 @@ public class AppDbContext : DbContext
     public DbSet<ChatMessage>    ChatMessages   { get; set; }
     public DbSet<EscalationRecord> Escalations  { get; set; }
 
-    // ── Model configuration ─────────────────────────────────
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-        // ── User ──────────────────────────────────────────
         modelBuilder.Entity<User>(e =>
         {
             e.HasKey(u => u.Id);
@@ -41,8 +30,6 @@ public class AppDbContext : DbContext
             e.Property(u => u.LastName).HasMaxLength(100);
             e.Property(u => u.Department).HasMaxLength(200);
         });
-
-        // ── Course ────────────────────────────────────────
         modelBuilder.Entity<Course>(e =>
         {
             e.HasKey(c => c.Id);
@@ -54,8 +41,6 @@ public class AppDbContext : DbContext
             e.Property(c => c.Department).HasMaxLength(200);
             e.Property(c => c.WhatsappGroupUrl).HasMaxLength(500);
         });
-
-        // ── Student ───────────────────────────────────────
         modelBuilder.Entity<Student>(e =>
         {
             e.HasKey(s => s.Id);
@@ -66,12 +51,9 @@ public class AppDbContext : DbContext
             e.Property(s => s.LastName).HasMaxLength(100);
             e.Property(s => s.Department).HasMaxLength(200);
             e.Property(s => s.Programme).HasMaxLength(100);
-            // EnrolledCourseIds stored as comma-separated string
             e.Ignore(s => s.EnrolledCourseIds);
             e.Property<string>("EnrolledCourseIdsRaw").HasMaxLength(500);
         });
-
-        // ── Mark ──────────────────────────────────────────
         modelBuilder.Entity<Mark>(e =>
         {
             e.HasKey(m => m.Id);
@@ -82,8 +64,6 @@ public class AppDbContext : DbContext
             e.Property(m => m.LecturerName).HasMaxLength(200);
             e.Property(m => m.Remarks).HasMaxLength(500);
         });
-
-        // ── Claim ─────────────────────────────────────────
         modelBuilder.Entity<Claim>(e =>
         {
             e.HasKey(c => c.Id);
@@ -96,8 +76,6 @@ public class AppDbContext : DbContext
             e.Property(c => c.Reason).HasMaxLength(1000);
             e.Property(c => c.LecturerResponse).HasMaxLength(1000);
         });
-
-        // ── SessionReport ─────────────────────────────────
         modelBuilder.Entity<SessionReport>(e =>
         {
             e.HasKey(r => r.Id);
@@ -112,20 +90,15 @@ public class AppDbContext : DbContext
             e.Property(r => r.DeanNotes).HasMaxLength(500);
             e.Property(r => r.RejectionReason).HasMaxLength(500);
         });
-
-        // ── Room ──────────────────────────────────────────
         modelBuilder.Entity<Room>(e =>
         {
             e.HasKey(r => r.Id);
             e.Property(r => r.Block).HasMaxLength(100);
             e.Property(r => r.Number).HasMaxLength(50);
             e.Property(r => r.Notes).HasMaxLength(500);
-            // BookedSlots dictionary stored as JSON string
             e.Ignore(r => r.BookedSlots);
             e.Property<string>("BookedSlotsJson").HasMaxLength(2000);
         });
-
-        // ── ChatMessage ───────────────────────────────────
         modelBuilder.Entity<ChatMessage>(e =>
         {
             e.HasKey(m => m.Id);
@@ -136,8 +109,6 @@ public class AppDbContext : DbContext
             e.Property(m => m.SenderRole).HasMaxLength(50);
             e.Property(m => m.Text).IsRequired().HasMaxLength(2000);
         });
-
-        // ── EscalationRecord ──────────────────────────────
         modelBuilder.Entity<EscalationRecord>(e =>
         {
             e.HasKey(r => r.Id);

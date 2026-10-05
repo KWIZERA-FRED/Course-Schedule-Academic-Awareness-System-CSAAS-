@@ -2,19 +2,11 @@ using CourseScheduleSystem.Web.Models;
 
 namespace CourseScheduleSystem.Web.Data;
 
-// =============================================================
-//  CHAT DATA
-//  In-memory store for HOD ↔ CP private messages.
-//  CpList holds all Class Representatives across UNILAK.
-// =============================================================
-
 public static class ChatData
 {
-    // ── Message store (mutable — grows as users chat) ─────────
 
     public static List<ChatMessage> Messages { get; } = new()
     {
-        // Seed one starter message so the HOD conversation is not empty
         new ChatMessage
         {
             Id          = 1,
@@ -41,8 +33,6 @@ public static class ChatData
         }
     };
 
-    // ── Next ID counter ───────────────────────────────────────
-
     private static int _nextId = 3;
 
     public static ChatMessage AddMessage(
@@ -65,11 +55,6 @@ public static class ChatData
         Messages.Add(msg);
         return msg;
     }
-
-    /// <summary>
-    /// Get all messages in the conversation between one HOD and one CP,
-    /// ordered by time ascending.
-    /// </summary>
     public static List<ChatMessage> GetConversation(string hodEmail, string cpEmail)
         => Messages
             .Where(m =>
@@ -77,10 +62,6 @@ public static class ChatData
                 m.CPEmail.Equals(cpEmail,  StringComparison.OrdinalIgnoreCase))
             .OrderBy(m => m.SentAt)
             .ToList();
-
-    /// <summary>
-    /// Mark all messages in a conversation as read for the given reader role.
-    /// </summary>
     public static void MarkRead(string hodEmail, string cpEmail, string readerRole)
     {
         foreach (var m in Messages.Where(m =>
@@ -91,10 +72,6 @@ public static class ChatData
             m.IsRead = true;
         }
     }
-
-    /// <summary>
-    /// Count unread messages for a given reader (by their email and role).
-    /// </summary>
     public static int UnreadCount(string readerEmail, string readerRole)
         => Messages.Count(m =>
             !m.IsRead &&
@@ -103,12 +80,8 @@ public static class ChatData
                 ? m.HODEmail.Equals(readerEmail, StringComparison.OrdinalIgnoreCase)
                 : m.CPEmail.Equals(readerEmail,  StringComparison.OrdinalIgnoreCase)));
 
-    // ── All Class Representatives across UNILAK ───────────────
-    // This list is what the HOD sees when selecting who to chat with.
-
     public static List<CpEntry> CpList { get; } = new()
     {
-        // ── Computer Science & IT ──────────────────────────────
         new CpEntry
         {
             Id         = 1,
@@ -139,8 +112,6 @@ public static class ChatData
             Year       = 4,
             Programme  = "BIT"
         },
-
-        // ── Civil Engineering ──────────────────────────────────
         new CpEntry
         {
             Id         = 4,
@@ -161,8 +132,6 @@ public static class ChatData
             Year       = 3,
             Programme  = "BCE"
         },
-
-        // ── Electrical Engineering ─────────────────────────────
         new CpEntry
         {
             Id         = 6,
@@ -183,8 +152,6 @@ public static class ChatData
             Year       = 3,
             Programme  = "BEE"
         },
-
-        // ── Mechanical Engineering ─────────────────────────────
         new CpEntry
         {
             Id         = 8,
@@ -195,8 +162,6 @@ public static class ChatData
             Year       = 1,
             Programme  = "BME"
         },
-
-        // ── Business Administration ────────────────────────────
         new CpEntry
         {
             Id         = 9,
@@ -217,8 +182,6 @@ public static class ChatData
             Year       = 3,
             Programme  = "BBA"
         },
-
-        // ── Accounting & Finance ───────────────────────────────
         new CpEntry
         {
             Id         = 11,
@@ -229,8 +192,6 @@ public static class ChatData
             Year       = 2,
             Programme  = "BAF"
         },
-
-        // ── Social Sciences ────────────────────────────────────
         new CpEntry
         {
             Id         = 12,
@@ -251,8 +212,6 @@ public static class ChatData
             Year       = 3,
             Programme  = "BSS"
         },
-
-        // ── Law ────────────────────────────────────────────────
         new CpEntry
         {
             Id         = 14,
@@ -266,8 +225,6 @@ public static class ChatData
     };
 }
 
-// ── CP directory entry (lightweight, for the chat list) ───────
-
 public class CpEntry
 {
     public int    Id         { get; set; }
@@ -277,8 +234,6 @@ public class CpEntry
     public string Department { get; set; } = string.Empty;
     public int    Year       { get; set; }
     public string Programme  { get; set; } = string.Empty;
-
-    /// <summary>Initials for avatar display</summary>
     public string Initials => FullName.Length >= 2
         ? $"{FullName[0]}{FullName.Split(' ').LastOrDefault()?[0]}"
         : FullName.ToUpper();

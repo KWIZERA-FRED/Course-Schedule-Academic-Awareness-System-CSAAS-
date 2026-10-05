@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using CourseScheduleSystem.Web.Data;
 using CourseScheduleSystem.Web.Models;
-
-// Alias to avoid clash with the Pages.Student namespace
 using StudentModel = CourseScheduleSystem.Web.Models.Student;
 
 namespace CourseScheduleSystem.Web.Pages.Lecturer
@@ -12,7 +10,6 @@ namespace CourseScheduleSystem.Web.Pages.Lecturer
     [Authorize(Roles = "Lecturer")]
     public class DashboardModel : PageModel
     {
-        // ── Data exposed to the view ───────────────────────────
 
         public User                    CurrentUser       { get; private set; } = default!;
         public List<Course>            Courses           { get; private set; } = new();
@@ -22,26 +19,14 @@ namespace CourseScheduleSystem.Web.Pages.Lecturer
         public List<SessionReport>     SessionReports    { get; private set; } = new();
         public List<StudentModel>      Students          { get; private set; } = new();
 
-        // ── Summary stats ──────────────────────────────────────
-
         public int    TotalStudents       { get; private set; }
         public int    PendingSubmissions  { get; private set; }
         public double TotalDeliveredHours { get; private set; }
 
-        // ── Feedback after POST ────────────────────────────────
-
         [TempData] public string? StatusMessage { get; set; }
         [TempData] public string? StatusType    { get; set; }
 
-        // ══════════════════════════════════════════════════════
-        //  GET
-        // ══════════════════════════════════════════════════════
-
         public void OnGet() => LoadData();
-
-        // ══════════════════════════════════════════════════════
-        //  POST — Submit a new session report
-        // ══════════════════════════════════════════════════════
 
         public IActionResult OnPostSubmitSessionReport(
             int courseId, string topicCovered, double durationHours)
@@ -84,10 +69,6 @@ namespace CourseScheduleSystem.Web.Pages.Lecturer
             StatusType    = "success";
             return RedirectToPage();
         }
-
-        // ══════════════════════════════════════════════════════
-        //  POST — Save & publish a mark
-        // ══════════════════════════════════════════════════════
 
         public IActionResult OnPostSaveMark(
             int courseId, string assessmentType, string studentRegNo,
@@ -146,10 +127,6 @@ namespace CourseScheduleSystem.Web.Pages.Lecturer
             return RedirectToPage();
         }
 
-        // ══════════════════════════════════════════════════════
-        //  POST — Publish a draft mark
-        // ══════════════════════════════════════════════════════
-
         public IActionResult OnPostPublishMark(int markId)
         {
             var mark = MarkData.Marks.FirstOrDefault(m => m.Id == markId);
@@ -168,10 +145,6 @@ namespace CourseScheduleSystem.Web.Pages.Lecturer
             return RedirectToPage();
         }
 
-        // ══════════════════════════════════════════════════════
-        //  POST — Unpublish a mark (revert to Draft)
-        // ══════════════════════════════════════════════════════
-
         public IActionResult OnPostUnpublishMark(int markId)
         {
             var mark = MarkData.Marks.FirstOrDefault(m => m.Id == markId);
@@ -189,10 +162,6 @@ namespace CourseScheduleSystem.Web.Pages.Lecturer
             StatusType    = "warning";
             return RedirectToPage();
         }
-
-        // ══════════════════════════════════════════════════════
-        //  POST — Respond to a student mark claim
-        // ══════════════════════════════════════════════════════
 
         public IActionResult OnPostRespondClaim(
             int claimId, string decision, double? correctedScore, string explanation)
@@ -221,8 +190,6 @@ namespace CourseScheduleSystem.Web.Pages.Lecturer
             claim.LecturerResponse = explanation.Trim();
             claim.CorrectedScore   = correctedScore;
             claim.RespondedOn      = DateTime.Now;
-
-            // If upheld/partial, update the mark
             if (claim.Status != ClaimStatus.Rejected && correctedScore.HasValue)
             {
                 var mark = MarkData.Marks.FirstOrDefault(m => m.Id == claim.MarkId);
@@ -239,10 +206,6 @@ namespace CourseScheduleSystem.Web.Pages.Lecturer
             StatusType = claim.Status == ClaimStatus.Rejected ? "warning" : "success";
             return RedirectToPage();
         }
-
-        // ══════════════════════════════════════════════════════
-        //  Private helpers
-        // ══════════════════════════════════════════════════════
 
         private void LoadData()
         {

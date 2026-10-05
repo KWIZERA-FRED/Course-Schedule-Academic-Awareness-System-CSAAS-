@@ -1,14 +1,8 @@
-/* =========================================================
-   CSAAS — SHARED LAYOUT NAVIGATION BAR
-   Used by: Pages/Shared/_Layout.cshtml
-========================================================= */
 
-
-/* ─── Navbar Shell ────────────────────────────────────── */
 
 .layout-navbar {
     height: 62px;
-    background: #0f1a3a;
+    background: #0D1E47;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -18,9 +12,6 @@
     z-index: 1000;
     border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
-
-
-/* ─── Brand ───────────────────────────────────────────── */
 
 .layout-brand {
     display: flex;
@@ -33,7 +24,7 @@
 .layout-brand-icon {
     width: 36px;
     height: 36px;
-    background: #1e3a8a;
+    background: #1C3B83;
     border-radius: 9px;
     display: flex;
     align-items: center;
@@ -55,9 +46,6 @@
     font-size: 10px;
     color: #64748b;
 }
-
-
-/* ─── Nav Links ───────────────────────────────────────── */
 
 .layout-nav {
     display: flex;
@@ -87,9 +75,6 @@
 .layout-nav-link i {
     font-size: 14px;
 }
-
-
-/* ─── Dropdown ────────────────────────────────────────── */
 
 .layout-dropdown {
     position: relative;
@@ -158,7 +143,7 @@
 
 .layout-dropdown-item:hover {
     background: #f3f4f6;
-    color: #0f1a3a;
+    color: #0D1E47;
 }
 
 .layout-dropdown-item i {
@@ -174,9 +159,6 @@
     margin: 6px 0;
 }
 
-
-/* ─── Role Colour Dots ────────────────────────────────── */
-
 .role-dot {
     width: 8px;
     height: 8px;
@@ -185,15 +167,12 @@
     margin-left: auto;
 }
 
-.dot-student  { background: #1e3a8a; }
+.dot-student  { background: #1C3B83; }
 .dot-cp       { background: #0d9488; }
 .dot-lecturer { background: #7c3aed; }
 .dot-hod      { background: #d97706; }
 .dot-dean     { background: #059669; }
 .dot-quality  { background: #dc2626; }
-
-
-/* ─── Right Actions ───────────────────────────────────── */
 
 .layout-actions {
     display: flex;
@@ -206,7 +185,7 @@
     align-items: center;
     gap: 7px;
     padding: 8px 16px;
-    background: #1e3a8a;
+    background: #1C3B83;
     color: white;
     border-radius: 8px;
     text-decoration: none;
@@ -216,12 +195,9 @@
 }
 
 .layout-login-btn:hover {
-    background: #1a56db;
+    background: #2952C8;
     color: white;
 }
-
-
-/* ─── Responsive ──────────────────────────────────────── */
 
 @media (max-width: 768px) {
     .layout-navbar {

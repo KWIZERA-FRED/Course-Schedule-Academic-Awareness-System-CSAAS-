@@ -9,32 +9,20 @@ namespace CourseScheduleSystem.Web.Pages.Student
     [Authorize(Roles = "Student")]
     public class DashboardModel : PageModel
     {
-        // ── Data exposed to the view ───────────────────────────
 
         public User          CurrentUser  { get; private set; } = default!;
         public List<Course>  Courses      { get; private set; } = new();
         public List<Mark>    Marks        { get; private set; } = new();
         public List<Claim>   Claims       { get; private set; } = new();
 
-        // ── Computed summary stats ─────────────────────────────
-
         public double AverageMark      { get; private set; }
         public int    ActiveClaimCount { get; private set; }
-
-        // ── Feedback after POST ────────────────────────────────
+        public int    UnreadNotifications { get; private set; }
 
         [TempData] public string? StatusMessage { get; set; }
         [TempData] public string? StatusType    { get; set; }
 
-        // ══════════════════════════════════════════════════════
-        //  GET
-        // ══════════════════════════════════════════════════════
-
         public void OnGet() => LoadData();
-
-        // ══════════════════════════════════════════════════════
-        //  POST — Submit a mark claim
-        // ══════════════════════════════════════════════════════
 
         public IActionResult OnPostSubmitClaim(
             string courseCode, string assessmentLabel,
@@ -48,8 +36,6 @@ namespace CourseScheduleSystem.Web.Pages.Student
                 StatusType    = "warning";
                 return RedirectToPage();
             }
-
-            // Find the matching mark
             var identifier = User.FindFirst("Identifier")?.Value ?? string.Empty;
             var student    = StudentData.Students.FirstOrDefault(s =>
                 s.RegistrationNumber == identifier);
@@ -58,8 +44,6 @@ namespace CourseScheduleSystem.Web.Pages.Student
                 m.CourseCode.Equals(courseCode, StringComparison.OrdinalIgnoreCase) &&
                 m.AssessmentLabel.Equals(assessmentLabel, StringComparison.OrdinalIgnoreCase) &&
                 (student == null || m.StudentId == student.Id));
-
-            // Prevent duplicate claim for same mark
             if (mark != null)
             {
                 var existing = ClaimData.Claims.FirstOrDefault(c =>
@@ -97,10 +81,6 @@ namespace CourseScheduleSystem.Web.Pages.Student
             return RedirectToPage();
         }
 
-        // ══════════════════════════════════════════════════════
-        //  Private helpers
-        // ══════════════════════════════════════════════════════
-
         private void LoadData()
         {
             var identifier = User.FindFirst("Identifier")?.Value ?? string.Empty;
@@ -131,8 +111,10 @@ namespace CourseScheduleSystem.Web.Pages.Student
                 Claims  = ClaimData.Claims.Where(c => c.StudentId == 1).ToList();
             }
 
-            AverageMark      = Marks.Count > 0 ? Math.Round(Marks.Average(m => m.Percentage), 1) : 0;
-            ActiveClaimCount = Claims.Count(c => c.Status == ClaimStatus.UnderReview);
+            AverageMark          = Marks.Count > 0 ? Math.Round(Marks.Average(m => m.Percentage), 1) : 0;
+            ActiveClaimCount     = Claims.Count(c => c.Status == ClaimStatus.UnderReview);
+            UnreadNotifications  = NotificationData.Notifications
+                .Count(n => n.UserEmail.Equals(CurrentUser.Email, StringComparison.OrdinalIgnoreCase) && !n.IsRead);
         }
     }
 }

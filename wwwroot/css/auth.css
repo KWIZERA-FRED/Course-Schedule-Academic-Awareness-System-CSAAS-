@@ -1,10 +1,4 @@
-/* =========================================================
-   CSAAS — AUTH / LOGIN PAGE STYLES
-   Used by: Pages/Login.cshtml
-========================================================= */
 
-
-/* ─── Full-Page Layout ────────────────────────────────── */
 
 .auth-page {
     min-height: 100vh;
@@ -20,9 +14,6 @@
     background-size: cover;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-
-
-/* ─── Left Branding Panel ─────────────────────────────── */
 
 .auth-panel-brand {
     flex: 1;
@@ -64,9 +55,6 @@
     font-size: 0.95rem;
 }
 
-
-/* ─── Right Form Panel ────────────────────────────────── */
-
 .auth-panel-form {
     flex: 1;
     display: flex;
@@ -94,9 +82,6 @@
     font-size: 0.95rem;
 }
 
-
-/* ─── Form Controls ───────────────────────────────────── */
-
 .auth-form-group label {
     font-weight: 600;
     color: #333;
@@ -115,9 +100,6 @@
     box-shadow: 0 0 0 0.2rem rgba(27, 85, 155, 0.15);
 }
 
-
-/* ─── Submit Button ───────────────────────────────────── */
-
 .btn-auth-submit {
     background-color: #0f2043;
     color: #ffffff;
@@ -135,9 +117,6 @@
     color: #ffffff;
 }
 
-
-/* ─── Misc ────────────────────────────────────────────── */
-
 .auth-demo-note {
     font-size: 0.85rem;
 }
@@ -153,9 +132,6 @@
 .auth-switch-text a:hover {
     color: #1b559b;
 }
-
-
-/* ─── Responsive ──────────────────────────────────────── */
 
 @media (max-width: 991px) {
     .auth-page {

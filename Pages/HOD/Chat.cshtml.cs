@@ -9,7 +9,6 @@ namespace CourseScheduleSystem.Web.Pages.HOD
     [Authorize(Roles = "HOD")]
     public class ChatModel : PageModel
     {
-        // ── Data exposed to the view ───────────────────────────
 
         public User              CurrentUser    { get; private set; } = default!;
         public List<CpEntry>     AllCPs         { get; private set; } = new();
@@ -17,24 +16,14 @@ namespace CourseScheduleSystem.Web.Pages.HOD
         public List<ChatMessage> Conversation   { get; private set; } = new();
         public int               TotalUnread    { get; private set; }
 
-        // ── Which CP is currently selected (from query string) ─
-
         [BindProperty(SupportsGet = true)]
         public string? CpEmail { get; set; }
 
-        // ── Feedback ───────────────────────────────────────────
-
         [TempData] public string? StatusMessage { get; set; }
-
-        // ══════════════════════════════════════════════════════
-        //  GET
-        // ══════════════════════════════════════════════════════
 
         public void OnGet()
         {
             LoadUser();
-
-            // All CPs across UNILAK — HOD can message any of them
             AllCPs = ChatData.CpList.ToList();
 
             TotalUnread = ChatData.UnreadCount(CurrentUser.Email, "HOD");
@@ -47,15 +36,10 @@ namespace CourseScheduleSystem.Web.Pages.HOD
                 if (ActiveCP != null)
                 {
                     Conversation = ChatData.GetConversation(CurrentUser.Email, ActiveCP.Email);
-                    // Mark incoming CP messages as read
                     ChatData.MarkRead(CurrentUser.Email, ActiveCP.Email, "HOD");
                 }
             }
         }
-
-        // ══════════════════════════════════════════════════════
-        //  POST — Send a message
-        // ══════════════════════════════════════════════════════
 
         public IActionResult OnPostSend(string cpEmail, string text)
         {
@@ -83,10 +67,6 @@ namespace CourseScheduleSystem.Web.Pages.HOD
 
             return RedirectToPage(new { cpEmail });
         }
-
-        // ══════════════════════════════════════════════════════
-        //  Private helpers
-        // ══════════════════════════════════════════════════════
 
         private void LoadUser()
         {

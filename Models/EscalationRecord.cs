@@ -1,8 +1,4 @@
 namespace CourseScheduleSystem.Web.Models;
-
-/// <summary>
-/// Records a course escalation raised by the Director of Quality.
-/// </summary>
 public class EscalationRecord
 {
     public int    Id            { get; set; }   // PK for EF Core

@@ -1,12 +1,4 @@
-/* =========================================================
-   CSAAS
-   COURSE SCHEDULE & ACADEMIC AWARENESS SYSTEM
-========================================================= */
 
-
-/* =========================================================
-   RESET
-========================================================= */
 
 * {
     margin: 0;
@@ -20,15 +12,10 @@ html {
 
 body {
     font-family: 'Inter', sans-serif;
-    color: #0f1a3a;
+    color: #0D1E47;
     background: #ffffff;
     overflow-x: hidden;
 }
-
-
-/* =========================================================
-   NAVBAR
-========================================================= */
 
 .cs-navbar {
     width: 100%;
@@ -43,17 +30,12 @@ body {
     z-index: 1000;
 }
 
-
-/* =========================================================
-   NAVBAR BRAND
-========================================================= */
-
 .cs-brand {
     display: flex;
     align-items: center;
     gap: 12px;
     text-decoration: none;
-    color: #0f1a3a;
+    color: #0D1E47;
 }
 
 .cs-brand-icon {
@@ -63,7 +45,7 @@ body {
     align-items: center;
     justify-content: center;
     border-radius: 11px;
-    background: #1e3a8a;
+    background: #1C3B83;
     color: white;
     font-size: 19px;
     box-shadow: 0 6px 15px rgba(30, 58, 138, 0.18);
@@ -78,7 +60,7 @@ body {
 .cs-brand-title {
     font-size: 17px;
     font-weight: 800;
-    color: #0f1a3a;
+    color: #0D1E47;
     letter-spacing: -0.3px;
 }
 
@@ -88,11 +70,6 @@ body {
     color: #8b95a7;
     font-weight: 500;
 }
-
-
-/* =========================================================
-   NAVIGATION LINKS
-========================================================= */
 
 .cs-nav {
     display: flex;
@@ -116,22 +93,17 @@ body {
             bottom: -8px;
             width: 0;
             height: 2px;
-            background: #1e3a8a;
+            background: #1C3B83;
             transition: width 0.2s ease;
         }
 
         .cs-nav a:not(.cs-nav-login):hover {
-            color: #1e3a8a;
+            color: #1C3B83;
         }
 
             .cs-nav a:not(.cs-nav-login):hover::after {
                 width: 100%;
             }
-
-
-/* =========================================================
-   NAV LOGIN
-========================================================= */
 
 .cs-nav-login {
     display: inline-flex !important;
@@ -140,14 +112,14 @@ body {
     gap: 8px;
     padding: 11px 20px;
     border-radius: 8px;
-    background: #1e3a8a;
+    background: #1C3B83;
     color: white !important;
     box-shadow: 0 5px 14px rgba(30, 58, 138, 0.18);
     transition: background 0.2s ease, transform 0.2s ease;
 }
 
     .cs-nav-login:hover {
-        background: #1a56db;
+        background: #2952C8;
         color: white !important;
         transform: translateY(-1px);
     }
@@ -155,11 +127,6 @@ body {
     .cs-nav-login i {
         font-size: 14px;
     }
-
-
-/* =========================================================
-   HERO
-========================================================= */
 
 .cs-hero {
     position: relative;
@@ -186,7 +153,7 @@ body {
     align-items: center;
     gap: 8px;
     background: #e8f0fe;
-    color: #1e3a8a;
+    color: #1C3B83;
     border: 1px solid #d6e4ff;
     padding: 8px 15px;
     border-radius: 30px;
@@ -204,13 +171,13 @@ body {
     line-height: 1.05;
     letter-spacing: -2px;
     font-weight: 800;
-    color: #0f1a3a;
+    color: #0D1E47;
     margin-bottom: 24px;
 }
 
     .cs-hero h1 span {
         display: block;
-        color: #1e3a8a;
+        color: #1C3B83;
     }
 
 .cs-hero-description {
@@ -220,11 +187,6 @@ body {
     color: #6b7280;
     margin-bottom: 34px;
 }
-
-
-/* =========================================================
-   HERO BUTTONS
-========================================================= */
 
 .cs-hero-actions {
     display: flex;
@@ -239,7 +201,7 @@ body {
     justify-content: center;
     gap: 10px;
     padding: 14px 23px;
-    background: #1e3a8a;
+    background: #1C3B83;
     color: white;
     text-decoration: none;
     border-radius: 9px;
@@ -250,7 +212,7 @@ body {
 }
 
     .cs-btn-primary:hover {
-        background: #1a56db;
+        background: #2952C8;
         color: white;
         transform: translateY(-2px);
     }
@@ -262,7 +224,7 @@ body {
     gap: 10px;
     padding: 13px 23px;
     background: white;
-    color: #1e3a8a;
+    color: #1C3B83;
     text-decoration: none;
     border: 1px solid #cbd5e1;
     border-radius: 9px;
@@ -272,15 +234,10 @@ body {
 }
 
     .cs-btn-secondary:hover {
-        border-color: #1e3a8a;
+        border-color: #1C3B83;
         background: #f8fbff;
         transform: translateY(-2px);
     }
-
-
-/* =========================================================
-   DASHBOARD PREVIEW
-========================================================= */
 
 .cs-dashboard {
     position: relative;
@@ -347,17 +304,12 @@ body {
     width: 36px;
     height: 36px;
     background: #e8f0fe;
-    color: #1e3a8a;
+    color: #1C3B83;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
 }
-
-
-/* =========================================================
-   DASHBOARD CARDS
-========================================================= */
 
 .cs-dashboard-cards {
     display: grid;
@@ -378,7 +330,7 @@ body {
     height: 30px;
     border-radius: 8px;
     background: #e8f0fe;
-    color: #1e3a8a;
+    color: #1C3B83;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -389,18 +341,13 @@ body {
 .cs-mini-card strong {
     display: block;
     font-size: 18px;
-    color: #0f1a3a;
+    color: #0D1E47;
 }
 
 .cs-mini-card span {
     font-size: 9px;
     color: #9ca3af;
 }
-
-
-/* =========================================================
-   SCHEDULE
-========================================================= */
 
 .cs-schedule {
     border: 1px solid #edf0f4;
@@ -425,7 +372,7 @@ body {
 }
 
 .cs-time {
-    color: #1e3a8a;
+    color: #1C3B83;
     font-weight: 700;
 }
 
@@ -437,11 +384,6 @@ body {
     text-align: right;
     color: #9ca3af;
 }
-
-
-/* =========================================================
-   TRUST BAR
-========================================================= */
 
 .cs-trust {
     border-top: 1px solid #e5e7eb;
@@ -471,7 +413,7 @@ body {
     height: 40px;
     border-radius: 10px;
     background: #f0f6ff;
-    color: #1e3a8a;
+    color: #1C3B83;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -486,11 +428,6 @@ body {
     font-size: 11px;
     color: #9ca3af;
 }
-
-
-/* =========================================================
-   GENERAL SECTIONS
-========================================================= */
 
 .cs-section {
     max-width: 1200px;
@@ -519,7 +456,7 @@ body {
 .cs-section-heading h2 {
     font-size: 34px;
     line-height: 1.2;
-    color: #0f1a3a;
+    color: #0D1E47;
     margin-bottom: 14px;
 }
 
@@ -528,11 +465,6 @@ body {
     line-height: 1.7;
     font-size: 15px;
 }
-
-
-/* =========================================================
-   FEATURES
-========================================================= */
 
 .cs-features-grid {
     display: grid;
@@ -559,7 +491,7 @@ body {
     height: 50px;
     border-radius: 12px;
     background: #eef4ff;
-    color: #1e3a8a;
+    color: #1C3B83;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -570,7 +502,7 @@ body {
 .cs-feature h3 {
     font-size: 16px;
     margin-bottom: 10px;
-    color: #0f1a3a;
+    color: #0D1E47;
 }
 
 .cs-feature p {
@@ -578,11 +510,6 @@ body {
     color: #6b7280;
     line-height: 1.7;
 }
-
-
-/* =========================================================
-   ROLES
-========================================================= */
 
 .cs-roles-section {
     background: #f8fafc;
@@ -604,7 +531,7 @@ body {
 }
 
     .cs-role:hover {
-        border-color: #1e3a8a;
+        border-color: #1C3B83;
         transform: translateY(-3px);
         box-shadow: 0 10px 25px rgba(30, 58, 138, 0.06);
     }
@@ -612,7 +539,7 @@ body {
     .cs-role i {
         display: block;
         font-size: 24px;
-        color: #1e3a8a;
+        color: #1C3B83;
         margin-bottom: 12px;
     }
 
@@ -626,11 +553,6 @@ body {
         font-size: 10px;
         color: #9ca3af;
     }
-
-
-/* =========================================================
-   WORKFLOW
-========================================================= */
 
 .cs-workflow {
     display: grid;
@@ -647,7 +569,7 @@ body {
     width: 48px;
     height: 48px;
     margin: 0 auto 18px;
-    background: #1e3a8a;
+    background: #1C3B83;
     color: white;
     border-radius: 50%;
     display: flex;
@@ -668,17 +590,12 @@ body {
     line-height: 1.6;
 }
 
-
-/* =========================================================
-   CTA
-========================================================= */
-
 .cs-cta {
     margin: 0 6% 80px;
     border-radius: 20px;
     padding: 65px 30px;
     text-align: center;
-    background: radial-gradient( circle at 15% 20%, rgba(52, 211, 153, 0.12), transparent 25% ), radial-gradient( circle at 90% 80%, rgba(59, 130, 246, 0.15), transparent 30% ), #0f1a3a;
+    background: radial-gradient( circle at 15% 20%, rgba(52, 211, 153, 0.12), transparent 25% ), radial-gradient( circle at 90% 80%, rgba(59, 130, 246, 0.15), transparent 30% ), #0D1E47;
     color: white;
 }
 
@@ -715,11 +632,6 @@ body {
     .cs-cta .cs-btn-primary:hover {
         background: #34d399;
     }
-
-
-/* =========================================================
-   FOOTER
-========================================================= */
 
 .cs-footer {
     background: #091127;
@@ -783,11 +695,6 @@ body {
     font-size: 11px;
 }
 
-
-/* =========================================================
-   TABLET
-========================================================= */
-
 @media (max-width: 1000px) {
 
     .cs-hero-container {
@@ -828,11 +735,6 @@ body {
         row-gap: 40px;
     }
 }
-
-
-/* =========================================================
-   MOBILE
-========================================================= */
 
 @media (max-width: 768px) {
 
@@ -910,11 +812,6 @@ body {
         text-align: center;
     }
 }
-
-
-/* =========================================================
-   SMALL MOBILE
-========================================================= */
 
 @media (max-width: 520px) {
 

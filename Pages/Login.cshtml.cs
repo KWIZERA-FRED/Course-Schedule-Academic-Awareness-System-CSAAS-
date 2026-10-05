@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using CourseScheduleSystem.Web.Data;
 using CourseScheduleSystem.Web.Models;
-
-// Alias to avoid name clash with CourseScheduleSystem.Web.Models.Claim
 using SecurityClaim          = System.Security.Claims.Claim;
 using SecurityClaimsIdentity = System.Security.Claims.ClaimsIdentity;
 using SecurityClaimsPrincipal = System.Security.Claims.ClaimsPrincipal;
@@ -14,7 +12,6 @@ namespace CourseScheduleSystem.Web.Pages
 {
     public class LoginModel : PageModel
     {
-        // -- Bound form fields ----------------------------------
 
         [BindProperty]
         public string Identifier { get; set; } = string.Empty;   // email OR reg. number
@@ -25,19 +22,12 @@ namespace CourseScheduleSystem.Web.Pages
         [BindProperty]
         public string Role { get; set; } = string.Empty;
 
-        // -- Page state -----------------------------------------
-
         public string? ErrorMessage { get; set; }
-
-        // -- GET -----------------------------------------------
 
         public void OnGet() { }
 
-        // -- POST ----------------------------------------------
-
         public async Task<IActionResult> OnPostAsync()
         {
-            // Basic field validation
             if (string.IsNullOrWhiteSpace(Identifier))
             {
                 ErrorMessage = "Please enter your email or registration number.";
@@ -49,8 +39,6 @@ namespace CourseScheduleSystem.Web.Pages
                 ErrorMessage = "Please enter your password.";
                 return Page();
             }
-
-            // -- Find user by email or registration identifier ----
 
             var user = UserData.Users.FirstOrDefault(u =>
                 u.Email.Equals(Identifier.Trim(), StringComparison.OrdinalIgnoreCase) ||
@@ -68,18 +56,11 @@ namespace CourseScheduleSystem.Web.Pages
                 return Page();
             }
 
-            // -- Verify password -----------------------------------
-            // NOTE: PasswordHash currently stores plain-text demo passwords.
-            // Replace with BCrypt.Verify(Password, user.PasswordHash) when
-            // connecting a real backend.
-
             if (!user.PasswordHash.Equals(Password, StringComparison.Ordinal))
             {
                 ErrorMessage = "Incorrect password. Please try again.";
                 return Page();
             }
-
-            // -- Build claims and sign in --------------------------
 
             var claims = new List<SecurityClaim>
             {
@@ -95,8 +76,6 @@ namespace CourseScheduleSystem.Web.Pages
             var principal = new SecurityClaimsPrincipal(identity);
 
             await HttpContext.SignInAsync("CSASAuth", principal);
-
-            // -- Redirect to the matching role dashboard -----------
 
             return user.Role switch
             {

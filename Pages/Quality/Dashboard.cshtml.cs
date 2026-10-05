@@ -9,7 +9,6 @@ namespace CourseScheduleSystem.Web.Pages.Quality
     [Authorize(Roles = "DirectorOfQuality")]
     public class DashboardModel : PageModel
     {
-        // ── Data exposed to the view ───────────────────────────
 
         public User          CurrentUser          { get; private set; } = default!;
         public List<Course>  AllCourses           { get; private set; } = new();
@@ -18,28 +17,16 @@ namespace CourseScheduleSystem.Web.Pages.Quality
         public List<User>    HODs                 { get; private set; } = new();
         public Dictionary<string, double> DeliveryByDepartment { get; private set; } = new();
 
-        // ── Summary stats ──────────────────────────────────────
-
         public int    TotalCourses           { get; private set; }
         public int    BelowThresholdCount    { get; private set; }
         public double UniversityDeliveryRate { get; private set; }
 
         private const double FlagThreshold = 70.0;
 
-        // ── Feedback after POST ────────────────────────────────
-
         [TempData] public string? StatusMessage { get; set; }
         [TempData] public string? StatusType    { get; set; }
 
-        // ══════════════════════════════════════════════════════
-        //  GET
-        // ══════════════════════════════════════════════════════
-
         public void OnGet() => LoadData();
-
-        // ══════════════════════════════════════════════════════
-        //  POST — Escalate a flagged course to the Dean
-        // ══════════════════════════════════════════════════════
 
         public IActionResult OnPostEscalate(int courseId, string notes)
         {
@@ -50,11 +37,7 @@ namespace CourseScheduleSystem.Web.Pages.Quality
                 StatusType    = "danger";
                 return RedirectToPage();
             }
-
-            // Find the Dean responsible for this course's department
             var dean = UserData.Users.FirstOrDefault(u => u.Role == UserRole.Dean);
-
-            // Log an escalation notification (in-memory — a future DB would persist this)
             var escalation = new EscalationRecord
             {
                 CourseCode  = course.Code,
@@ -78,10 +61,6 @@ namespace CourseScheduleSystem.Web.Pages.Quality
             StatusType    = "success";
             return RedirectToPage();
         }
-
-        // ══════════════════════════════════════════════════════
-        //  Private helpers
-        // ══════════════════════════════════════════════════════
 
         private void LoadData()
         {

@@ -1,11 +1,6 @@
 using CourseScheduleSystem.Web.Models;
 
 namespace CourseScheduleSystem.Web.Data;
-
-/// <summary>
-/// Static in-memory seed data for Courses.
-/// The Course model lives in Models/Course.cs.
-/// </summary>
 public static class CourseData
 {
     public static List<Course> Courses { get; } = new()
