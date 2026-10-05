@@ -288,70 +288,30 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>
-                                        <strong style="display:block;font-size:13px;">Computer Science &amp; IT</strong>
-                                    </td>
-                                    <td>Dr. A. Uwimana</td>
-                                    <td>8</td>
-                                    <td>
-                                        <div style="display:flex;align-items:center;gap:8px;">
-                                            <div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
-                                                <div style="width:91%;height:100%;background:#1C3B83;border-radius:5px;"></div>
+                                @foreach (var dept in Model.DeliveryByDepartment.OrderByDescending(d => d.Value))
+                                {
+                                    var pct      = (int)dept.Value;
+                                    var barColor = pct >= 90 ? "#059669" : pct >= 75 ? "#1C3B83" : pct >= 60 ? "#d97706" : "#dc2626";
+                                    var badgeClass = pct >= 90 ? "badge-approved" : pct >= 75 ? "badge-verified" : pct >= 60 ? "badge-pending" : "badge-missed";
+                                    var badgeIcon  = pct >= 90 ? "bi-patch-check-fill" : pct >= 75 ? "bi-check-circle-fill" : pct >= 60 ? "bi-clock-history" : "bi-x-circle-fill";
+                                    var badgeLabel = pct >= 90 ? "Excellent" : pct >= 75 ? "Good" : pct >= 60 ? "Monitor" : "Critical";
+                                    var hod        = Model.HODs.FirstOrDefault(h => h.Department == dept.Key);
+                                    var courseCount = Model.AllCourses.Count(c => c.Department == dept.Key);
+                                    <tr>
+                                        <td><strong style="display:block;font-size:13px;">@dept.Key</strong></td>
+                                        <td style="font-size:12px;">@(hod != null ? hod.FullName : "—")</td>
+                                        <td>@courseCount</td>
+                                        <td>
+                                            <div style="display:flex;align-items:center;gap:8px;">
+                                                <div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
+                                                    <div style="width:@pct%;height:100%;background:@barColor;border-radius:5px;"></div>
+                                                </div>
+                                                <span style="font-size:11px;font-weight:700;">@pct%</span>
                                             </div>
-                                            <span style="font-size:11px;font-weight:700;">91%</span>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge-status badge-verified"><i class="bi bi-check-circle-fill"></i> Good</span></td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong style="display:block;font-size:13px;">Civil Engineering</strong>
-                                    </td>
-                                    <td>Dr. F. Kayitesi</td>
-                                    <td>7</td>
-                                    <td>
-                                        <div style="display:flex;align-items:center;gap:8px;">
-                                            <div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
-                                                <div style="width:85%;height:100%;background:#1C3B83;border-radius:5px;"></div>
-                                            </div>
-                                            <span style="font-size:11px;font-weight:700;">85%</span>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge-status badge-verified"><i class="bi bi-check-circle-fill"></i> Good</span></td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong style="display:block;font-size:13px;">Electrical Engineering</strong>
-                                    </td>
-                                    <td>Prof. R. Munyaneza</td>
-                                    <td>7</td>
-                                    <td>
-                                        <div style="display:flex;align-items:center;gap:8px;">
-                                            <div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
-                                                <div style="width:79%;height:100%;background:#d97706;border-radius:5px;"></div>
-                                            </div>
-                                            <span style="font-size:11px;font-weight:700;">79%</span>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge-status badge-pending"><i class="bi bi-clock-history"></i> Monitor</span></td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong style="display:block;font-size:13px;">Mechanical Engineering</strong>
-                                    </td>
-                                    <td>Dr. G. Iradukunda</td>
-                                    <td>6</td>
-                                    <td>
-                                        <div style="display:flex;align-items:center;gap:8px;">
-                                            <div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
-                                                <div style="width:96%;height:100%;background:#059669;border-radius:5px;"></div>
-                                            </div>
-                                            <span style="font-size:11px;font-weight:700;">96%</span>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge-status badge-approved"><i class="bi bi-patch-check-fill"></i> Excellent</span></td>
-                                </tr>
+                                        </td>
+                                        <td><span class="badge-status @badgeClass"><i class="bi @badgeIcon"></i> @badgeLabel</span></td>
+                                    </tr>
+                                }
                             </tbody>
                         </table>
                     </div>
