@@ -112,6 +112,72 @@
                 </div>
             </div>
 
+            @{
+                var closedGroups  = Model.Enrolled.Where(c => !string.IsNullOrEmpty(c.WhatsappGroupUrl) && c.JoinDeadline < DateTime.Now).ToList();
+                var urgentGroups  = Model.Enrolled.Where(c => !string.IsNullOrEmpty(c.WhatsappGroupUrl) && c.JoinDeadline >= DateTime.Now && (c.JoinDeadline - DateTime.Now).TotalDays <= 3).ToList();
+                var openGroups    = Model.Enrolled.Where(c => !string.IsNullOrEmpty(c.WhatsappGroupUrl) && c.JoinDeadline >= DateTime.Now && (c.JoinDeadline - DateTime.Now).TotalDays > 3).ToList();
+                var noGroupYet    = Model.Enrolled.Where(c => string.IsNullOrEmpty(c.WhatsappGroupUrl)).ToList();
+            }
+
+            @foreach (var c in closedGroups)
+            {
+                <div class="dash-alert dash-alert-danger" style="margin-bottom:10px;">
+                    <i class="bi bi-x-circle-fill"></i>
+                    <div>
+                        <strong>Group Closed &mdash; @c.Code &ndash; @c.Title:</strong>
+                        The WhatsApp joining deadline has passed. You can no longer join this group.
+                        Contact your Class Representative for help.
+                    </div>
+                </div>
+            }
+
+            @foreach (var c in urgentGroups)
+            {
+                var days  = (int)Math.Ceiling((c.JoinDeadline - DateTime.Now).TotalDays);
+                var hours = (int)(c.JoinDeadline - DateTime.Now).TotalHours;
+                var timeMsg = days <= 0 ? $"{hours} hour{(hours != 1 ? "s" : "")}"
+                            : days == 1 ? "1 day"
+                            : $"{days} days";
+                <div class="dash-alert dash-alert-warning" style="margin-bottom:10px;">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <div>
+                        <strong>Join Soon &mdash; @c.Code &ndash; @c.Title:</strong>
+                        You have <strong>@timeMsg left</strong> to join the WhatsApp group before the deadline closes.
+                        <a href="@c.WhatsappGroupUrl" target="_blank"
+                           style="font-weight:700;margin-left:8px;color:#92400e;">
+                            <i class="bi bi-whatsapp"></i> Join now &rarr;
+                        </a>
+                    </div>
+                </div>
+            }
+
+            @foreach (var c in openGroups)
+            {
+                var daysLeft = (c.JoinDeadline - DateTime.Now).Days;
+                <div class="dash-alert dash-alert-info" style="margin-bottom:10px;">
+                    <i class="bi bi-whatsapp" style="color:#25d366;"></i>
+                    <div>
+                        <strong>Group Open &mdash; @c.Code &ndash; @c.Title:</strong>
+                        You can join the WhatsApp group. Deadline in <strong>@daysLeft day@(daysLeft != 1 ? "s" : "")</strong>.
+                        <a href="@c.WhatsappGroupUrl" target="_blank"
+                           style="font-weight:700;margin-left:8px;color:#1C3B83;">
+                            <i class="bi bi-whatsapp"></i> Join &rarr;
+                        </a>
+                    </div>
+                </div>
+            }
+
+            @foreach (var c in noGroupYet)
+            {
+                <div class="dash-alert" style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;">
+                    <i class="bi bi-clock-history" style="color:#d97706;font-size:16px;margin-top:1px;flex-shrink:0;"></i>
+                    <div style="font-size:13px;color:#92400e;">
+                        <strong>No Group Yet &mdash; @c.Code &ndash; @c.Title:</strong>
+                        The Class Representative has not set up a WhatsApp group for this course yet. Check back soon.
+                    </div>
+                </div>
+            }
+
             @if (Model.Ongoing.Any())
             {
                 <div class="dash-card" style="margin-bottom:22px;">
