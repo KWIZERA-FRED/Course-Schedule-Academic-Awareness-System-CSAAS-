@@ -1,0 +1,389 @@
+@page
+@model CourseScheduleSystem.Web.Pages.Student.CoursesModel
+@{
+    ViewData["Title"] = "My Courses";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Courses | CSAS</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <link rel="stylesheet" href="~/css/dashboard.css" />
+</head>
+<body>
+<div class="dash-shell">
+
+    <aside class="dash-sidebar">
+        <a href="/" class="dash-sidebar-brand">
+            <div class="dash-sidebar-brand-icon" style="background:transparent;box-shadow:none;padding:2px;">
+                <img src="/images/logo.jpeg" alt="UNILAK" style="width:34px;height:34px;border-radius:50%;object-fit:cover;" />
+            </div>
+            <div class="dash-sidebar-brand-text">
+                <strong>CSAS</strong>
+                <span>Student Portal</span>
+            </div>
+        </a>
+
+        <div class="dash-sidebar-section">Main Menu</div>
+        <nav class="dash-sidebar-nav">
+            <a href="/" class="dash-nav-link"><i class="bi bi-house-fill"></i> Home</a>
+            <a href="/Student/Dashboard" class="dash-nav-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="/Student/Courses" class="dash-nav-link active"><i class="bi bi-journal-bookmark-fill"></i> My Courses</a>
+            <a href="/Student/Schedule" class="dash-nav-link"><i class="bi bi-calendar3-week"></i> My Schedule</a>
+            <a href="/Student/Groups" class="dash-nav-link"><i class="bi bi-whatsapp"></i> Class Groups</a>
+            <a href="/Student/Notifications" class="dash-nav-link">
+                <i class="bi bi-bell"></i> Notifications
+                @if (Model.UnreadNotifications > 0)
+                {
+                    <span style="margin-left:auto;background:#dc2626;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;">@Model.UnreadNotifications</span>
+                }
+            </a>
+            <a href="https://umurongosmart.com/" target="_blank" class="dash-nav-link"
+               style="border-top:1px solid rgba(255,255,255,0.07);margin-top:4px;padding-top:12px;">
+                <iconify-icon icon="mdi:headset-mic" style="font-size:16px;vertical-align:middle;"></iconify-icon> UmurongoSmart Support
+            </a>
+        </nav>
+
+        <div class="dash-sidebar-section">Account</div>
+        <nav class="dash-sidebar-nav">
+            <a href="/Profile" class="dash-nav-link"><i class="bi bi-person"></i> My Profile</a>
+            <a href="/Logout" class="dash-nav-link"><i class="bi bi-box-arrow-left"></i> Logout</a>
+        </nav>
+
+        <div class="dash-sidebar-footer">
+            <div class="dash-sidebar-user">
+                <div class="dash-user-avatar"><i class="bi bi-person-fill"></i></div>
+                <div class="dash-user-info">
+                    <strong>@Model.CurrentUser.FullName</strong>
+                    <span>Student</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="dash-main">
+        <div class="dash-topbar">
+            <div class="dash-topbar-title">
+                <h1>My Courses</h1>
+                <p>@Model.Enrolled.Count enrolled &mdash; @Model.Ongoing.Count ongoing, @Model.Completed.Count completed</p>
+            </div>
+            <div class="dash-topbar-actions">
+                <a href="/Student/Notifications" class="dash-icon-btn" title="Notifications">
+                    <i class="bi bi-bell"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="dash-content">
+
+            <div class="dash-stats dash-stats-4" style="margin-bottom:24px;">
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon icon-blue"><i class="bi bi-journal-bookmark-fill"></i></div>
+                    <div class="dash-stat-body">
+                        <strong>@Model.Enrolled.Count</strong>
+                        <span>Total Enrolled</span>
+                    </div>
+                </div>
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon icon-amber"><i class="bi bi-play-circle-fill"></i></div>
+                    <div class="dash-stat-body">
+                        <strong>@Model.Ongoing.Count</strong>
+                        <span>Ongoing</span>
+                    </div>
+                </div>
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon icon-green"><i class="bi bi-patch-check-fill"></i></div>
+                    <div class="dash-stat-body">
+                        <strong>@Model.Completed.Count</strong>
+                        <span>Completed</span>
+                    </div>
+                </div>
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon icon-teal"><i class="bi bi-hourglass"></i></div>
+                    <div class="dash-stat-body">
+                        <strong>@Model.NotStarted.Count</strong>
+                        <span>Not Started</span>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.Ongoing.Any())
+            {
+                <div class="dash-card" style="margin-bottom:22px;">
+                    <div class="dash-card-header">
+                        <div>
+                            <h5><i class="bi bi-play-circle-fill" style="color:#d97706;margin-right:8px;"></i>Ongoing Courses</h5>
+                            <p>Currently in progress &mdash; delivery has started but not yet complete</p>
+                        </div>
+                        <span class="badge-status badge-pending" style="font-size:11px;">
+                            <i class="bi bi-clock-history"></i> @Model.Ongoing.Count in progress
+                        </span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding:20px;">
+                        @foreach (var c in Model.Ongoing.OrderBy(x => x.ScheduleTime))
+                        {
+                            var pct      = c.ScheduledHours > 0 ? (int)Math.Round((double)c.DeliveredHours / c.ScheduledHours * 100) : 0;
+                            var barColor = pct >= 80 ? "#059669" : pct >= 50 ? "#d97706" : "#dc2626";
+                            var isOpen   = c.JoinDeadline >= DateTime.Now;
+                            <div style="border:2px solid #fef3c7;border-radius:14px;padding:20px;background:white;position:relative;overflow:hidden;">
+                                <div style="position:absolute;top:0;left:0;width:4px;height:100%;background:#d97706;border-radius:4px 0 0 4px;"></div>
+                                <div style="padding-left:8px;">
+                                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+                                        <div>
+                                            <span style="display:inline-block;background:#eff6ff;color:#1C3B83;font-size:11px;font-weight:700;padding:2px 9px;border-radius:6px;margin-bottom:5px;">@c.Code</span>
+                                            <div style="font-size:14px;font-weight:700;color:#0D1E47;">@c.Title</div>
+                                        </div>
+                                        <span style="background:#fef3c7;color:#92400e;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;">
+                                            &#9679; Ongoing
+                                        </span>
+                                    </div>
+                                    <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">
+                                        <i class="bi bi-person-fill" style="color:#1C3B83;margin-right:5px;"></i>@c.Lecturer
+                                    </div>
+                                    <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">
+                                        <i class="bi bi-clock-fill" style="color:#1C3B83;margin-right:5px;"></i>@c.ScheduleTime
+                                    </div>
+                                    <div style="font-size:12px;color:#6b7280;margin-bottom:14px;">
+                                        <i class="bi bi-geo-alt-fill" style="color:#1C3B83;margin-right:5px;"></i>@c.Venue
+                                    </div>
+                                    <div style="margin-bottom:8px;">
+                                        <div style="display:flex;justify-content:space-between;font-size:11px;color:#6b7280;margin-bottom:4px;">
+                                            <span>Delivery progress</span>
+                                            <span style="font-weight:700;color:@barColor;">@c.DeliveredHours / @c.ScheduledHours hrs (@pct%)</span>
+                                        </div>
+                                        <div style="height:7px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
+                                            <div style="height:100%;width:@pct%;background:@barColor;border-radius:5px;transition:width .4s;"></div>
+                                        </div>
+                                    </div>
+                                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid #f1f5f9;">
+                                        <span style="font-size:11px;color:#9ca3af;">
+                                            WhatsApp group:
+                                            @if (isOpen && !string.IsNullOrEmpty(c.WhatsappGroupUrl))
+                                            {
+                                                <a href="@c.WhatsappGroupUrl" target="_blank" style="color:#1C3B83;font-weight:600;">Join &rarr;</a>
+                                            }
+                                            else if (!isOpen)
+                                            {
+                                                <span style="color:#dc2626;">Closed</span>
+                                            }
+                                            else
+                                            {
+                                                <span>Not set yet</span>
+                                            }
+                                        </span>
+                                        <a href="/Student/Schedule" style="font-size:11px;color:#1C3B83;font-weight:600;text-decoration:none;">
+                                            View schedule &rarr;
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (Model.Completed.Any())
+            {
+                <div class="dash-card" style="margin-bottom:22px;">
+                    <div class="dash-card-header">
+                        <div>
+                            <h5><i class="bi bi-patch-check-fill" style="color:#059669;margin-right:8px;"></i>Completed Courses</h5>
+                            <p>All scheduled hours delivered</p>
+                        </div>
+                        <span class="badge-status badge-approved" style="font-size:11px;">
+                            <i class="bi bi-patch-check-fill"></i> @Model.Completed.Count complete
+                        </span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding:20px;">
+                        @foreach (var c in Model.Completed.OrderBy(x => x.Code))
+                        {
+                            <div style="border:2px solid #d1fae5;border-radius:14px;padding:20px;background:white;position:relative;overflow:hidden;">
+                                <div style="position:absolute;top:0;left:0;width:4px;height:100%;background:#059669;border-radius:4px 0 0 4px;"></div>
+                                <div style="padding-left:8px;">
+                                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+                                        <div>
+                                            <span style="display:inline-block;background:#eff6ff;color:#1C3B83;font-size:11px;font-weight:700;padding:2px 9px;border-radius:6px;margin-bottom:5px;">@c.Code</span>
+                                            <div style="font-size:14px;font-weight:700;color:#0D1E47;">@c.Title</div>
+                                        </div>
+                                        <span style="background:#d1fae5;color:#065f46;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;">
+                                            <i class="bi bi-check2"></i> Complete
+                                        </span>
+                                    </div>
+                                    <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">
+                                        <i class="bi bi-person-fill" style="color:#1C3B83;margin-right:5px;"></i>@c.Lecturer
+                                    </div>
+                                    <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">
+                                        <i class="bi bi-clock-fill" style="color:#1C3B83;margin-right:5px;"></i>@c.ScheduleTime
+                                    </div>
+                                    <div style="font-size:12px;color:#6b7280;margin-bottom:14px;">
+                                        <i class="bi bi-geo-alt-fill" style="color:#1C3B83;margin-right:5px;"></i>@c.Venue
+                                    </div>
+                                    <div style="height:7px;background:#d1fae5;border-radius:5px;overflow:hidden;">
+                                        <div style="height:100%;width:100%;background:#059669;border-radius:5px;"></div>
+                                    </div>
+                                    <div style="font-size:11px;color:#059669;font-weight:600;margin-top:5px;">
+                                        @c.DeliveredHours / @c.ScheduledHours hrs &mdash; 100% delivered
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (Model.NotStarted.Any())
+            {
+                <div class="dash-card" style="margin-bottom:22px;">
+                    <div class="dash-card-header">
+                        <div>
+                            <h5><i class="bi bi-hourglass" style="color:#6b7280;margin-right:8px;"></i>Not Yet Started</h5>
+                            <p>Enrolled but delivery has not begun</p>
+                        </div>
+                        <span class="badge-status badge-inactive" style="font-size:11px;">
+                            @Model.NotStarted.Count pending
+                        </span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding:20px;">
+                        @foreach (var c in Model.NotStarted.OrderBy(x => x.Code))
+                        {
+                            <div style="border:2px solid #e5e7eb;border-radius:14px;padding:20px;background:#fafafa;position:relative;overflow:hidden;opacity:.85;">
+                                <div style="position:absolute;top:0;left:0;width:4px;height:100%;background:#9ca3af;border-radius:4px 0 0 4px;"></div>
+                                <div style="padding-left:8px;">
+                                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+                                        <div>
+                                            <span style="display:inline-block;background:#f3f4f6;color:#6b7280;font-size:11px;font-weight:700;padding:2px 9px;border-radius:6px;margin-bottom:5px;">@c.Code</span>
+                                            <div style="font-size:14px;font-weight:700;color:#374151;">@c.Title</div>
+                                        </div>
+                                        <span style="background:#f3f4f6;color:#6b7280;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;">
+                                            Not Started
+                                        </span>
+                                    </div>
+                                    <div style="font-size:12px;color:#9ca3af;margin-bottom:4px;">
+                                        <i class="bi bi-person-fill" style="margin-right:5px;"></i>@c.Lecturer
+                                    </div>
+                                    <div style="font-size:12px;color:#9ca3af;margin-bottom:4px;">
+                                        <i class="bi bi-clock-fill" style="margin-right:5px;"></i>@c.ScheduleTime
+                                    </div>
+                                    <div style="font-size:12px;color:#9ca3af;">
+                                        <i class="bi bi-geo-alt-fill" style="margin-right:5px;"></i>@c.Venue
+                                    </div>
+                                    <div style="height:7px;background:#e5e7eb;border-radius:5px;margin-top:14px;"></div>
+                                    <div style="font-size:11px;color:#9ca3af;margin-top:5px;">0 / @c.ScheduledHours hrs &mdash; awaiting first session</div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <div>
+                        <h5><i class="bi bi-grid-3x3-gap-fill" style="color:#1C3B83;margin-right:8px;"></i>All Available Courses</h5>
+                        <p>Every course offered at UNILAK this semester &mdash; @Model.AllCourses.Count total</p>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <input type="text" id="searchAll"
+                               placeholder="Search code, name, lecturer..."
+                               oninput="filterAll(this.value)"
+                               onkeydown="if(event.key==='Enter'){event.preventDefault();filterAll(this.value);}"
+                               autocomplete="off"
+                               style="padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;outline:none;width:240px;" />
+                        <button type="button" onclick="filterAll('');document.getElementById('searchAll').value='';"
+                                class="btn-dash-outline btn-dash-sm">
+                            Clear
+                        </button>
+                    </div>
+                </div>
+                <div class="dash-card-body" style="padding:0;">
+                    <table class="dash-table" id="allTable">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Course Name</th>
+                                <th>Lecturer</th>
+                                <th>Schedule</th>
+                                <th>Venue</th>
+                                <th>Department</th>
+                                <th>Progress</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var enrolledIds = Model.Enrolled.Select(c => c.Id).ToHashSet();
+                            }
+                            @foreach (var c in Model.AllCourses)
+                            {
+                                var isEnrolled = enrolledIds.Contains(c.Id);
+                                var pct        = c.ScheduledHours > 0 ? (int)Math.Round((double)c.DeliveredHours / c.ScheduledHours * 100) : 0;
+                                var barColor   = pct >= 80 ? "#059669" : pct >= 50 ? "#d97706" : "#e5e7eb";
+                                string statusClass, statusIcon, statusLabel;
+                                if (pct >= 100)       { statusClass = "badge-approved"; statusIcon = "patch-check-fill"; statusLabel = "Complete"; }
+                                else if (pct > 0)     { statusClass = "badge-pending";  statusIcon = "play-circle-fill"; statusLabel = "Ongoing"; }
+                                else                  { statusClass = "badge-inactive"; statusIcon = "hourglass";        statusLabel = "Not Started"; }
+                                <tr data-search="@c.Code.ToLower() @c.Title.ToLower() @c.Lecturer.ToLower() @c.Department.ToLower()">
+                                    <td>
+                                        <strong style="font-size:13px;color:#1C3B83;">@c.Code</strong>
+                                        <div style="font-size:10px;color:#9ca3af;">Yr @c.Year &middot; Sem @c.Semester</div>
+                                    </td>
+                                    <td>
+                                        <strong style="font-size:13px;">@c.Title</strong>
+                                    </td>
+                                    <td style="font-size:12px;">@c.Lecturer</td>
+                                    <td style="font-size:12px;">@c.ScheduleTime</td>
+                                    <td style="font-size:12px;">@c.Venue</td>
+                                    <td>
+                                        <span style="font-size:10px;background:#eff6ff;color:#1C3B83;padding:2px 8px;border-radius:10px;font-weight:600;">
+                                            @(c.Department.Length > 18 ? c.Department.Substring(0, 18) + "…" : c.Department)
+                                        </span>
+                                    </td>
+                                    <td style="min-width:90px;">
+                                        <div style="display:flex;align-items:center;gap:5px;">
+                                            <div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
+                                                <div style="width:@pct%;height:100%;background:@barColor;border-radius:5px;"></div>
+                                            </div>
+                                            <span style="font-size:10px;font-weight:700;color:@barColor;min-width:28px;">@pct%</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="display:flex;flex-direction:column;gap:4px;">
+                                            <span class="badge-status @statusClass" style="font-size:10px;">
+                                                <i class="bi bi-@statusIcon"></i> @statusLabel
+                                            </span>
+                                            @if (isEnrolled)
+                                            {
+                                                <span class="badge-status badge-verified" style="font-size:10px;">
+                                                    <i class="bi bi-check-circle-fill"></i> Enrolled
+                                                </span>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function filterAll(q) {
+        var rows = document.querySelectorAll('#allTable tbody tr');
+        var term = (q || '').toLowerCase().trim();
+        rows.forEach(function(r) {
+            r.style.display = !term || (r.dataset.search || '').includes(term) ? '' : 'none';
+        });
+    }
+</script>
+</body>
+</html>
