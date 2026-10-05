@@ -13,6 +13,7 @@
     <title>Dean Dashboard | CSAS</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <link rel="stylesheet" href="~/css/dashboard.css" />
 </head>
 <body>
@@ -55,9 +56,12 @@
             <a href="#section-activity" class="dash-nav-link" onclick="revealAndScroll('section-activity')">
                 <i class="bi bi-clock-history"></i> Recent Activity
             </a>
+            <a href="#section-audit" class="dash-nav-link" onclick="revealAndScroll('section-audit')">
+                <i class="bi bi-journal-text"></i> Audit Log
+            </a>
             <a href="https://umurongosmart.com/" target="_blank" class="dash-nav-link"
                style="border-top:1px solid rgba(255,255,255,0.07);margin-top:4px;padding-top:12px;">
-                <i class="bi bi-headset"></i> UmurongoSmart Support
+                <iconify-icon icon="mdi:headset-mic" style="font-size:16px;vertical-align:middle;"></iconify-icon> UmurongoSmart Support
             </a>
         </nav>
 
@@ -176,6 +180,9 @@
                         </button>
                         <button type="button" onclick="revealAndScroll('section-activity')" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);">
                             <i class="bi bi-clock-history"></i> Recent Activity
+                        </button>
+                        <button type="button" onclick="revealAndScroll('section-audit')" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.25);">
+                            <i class="bi bi-journal-text"></i> Audit Log
                         </button>
                     </div>
                 </div>
@@ -509,6 +516,102 @@
 
             </div><!-- /#deanContent -->
 
+            <div class="dash-card" id="section-audit" style="display:none;">
+                <div class="dash-card-header">
+                    <div>
+                        <h5><i class="bi bi-journal-text" style="color:#1C3B83;margin-right:8px;"></i>Faculty Audit Log</h5>
+                        <p>Complete record of all approvals, rejections, escalations and delivery flags this semester</p>
+                    </div>
+                    <span class="badge-status badge-active" style="font-size:11px;">
+                        <i class="bi bi-shield-check"></i> Dean Only
+                    </span>
+                </div>
+                <div class="dash-card-body" style="padding:0;">
+                    <table class="dash-table">
+                        <thead>
+                            <tr>
+                                <th style="width:140px;">Date &amp; Time</th>
+                                <th style="width:100px;">Type</th>
+                                <th>Description</th>
+                                <th style="width:130px;">Actor / Subject</th>
+                                <th style="width:90px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var auditRows = new List<(DateTime When, string Type, string TypeColor, string TypeBg, string Icon, string Desc, string Actor, string StatusClass, string StatusLabel)>();
+
+                                foreach (var r in Model.SessionReports.Where(x => x.Status == SessionReportStatus.DeanApproved && x.DeanApprovedOn.HasValue).OrderByDescending(x => x.DeanApprovedOn))
+                                {
+                                    auditRows.Add((r.DeanApprovedOn!.Value, "Approved", "#059669", "#ecfdf5", "patch-check-fill",
+                                        $"Session report for {r.CourseCode} – {r.CourseTitle} given final Dean approval",
+                                        r.LecturerName, "badge-approved", "Final Approved"));
+                                }
+                                foreach (var r in Model.SessionReports.Where(x => x.Status == SessionReportStatus.Rejected && x.SessionDate != default).OrderByDescending(x => x.SessionDate))
+                                {
+                                    auditRows.Add((r.SessionDate, "Rejected", "#dc2626", "#fef2f2", "x-circle-fill",
+                                        $"Session report for {r.CourseCode} returned for revision" + (string.IsNullOrEmpty(r.RejectionReason) ? "" : $": {r.RejectionReason}"),
+                                        r.LecturerName, "badge-missed", "Returned"));
+                                }
+                                foreach (var r in Model.SessionReports.Where(x => x.Status >= SessionReportStatus.HODApproved && x.HODApprovedOn.HasValue).OrderByDescending(x => x.HODApprovedOn))
+                                {
+                                    auditRows.Add((r.HODApprovedOn!.Value, "HOD Sign-off", "#1C3B83", "#eff6ff", "check2-square",
+                                        $"{r.CourseCode} – {r.CourseTitle} approved by HOD, forwarded to Dean",
+                                        r.ClassRepresentativeName, "badge-verified", "HOD Approved"));
+                                }
+                                foreach (var issue in Model.EscalatedIssues.OrderByDescending(i => i.ReportedOn))
+                                {
+                                    var statusLabel = issue.Status == IssueStatus.Resolved ? "Resolved" : "Escalated";
+                                    var statusClass = issue.Status == IssueStatus.Resolved ? "badge-approved" : "badge-missed";
+                                    auditRows.Add((issue.ReportedOn, "Escalation", "#dc2626", "#fef2f2", "bug-fill",
+                                        $"UmurongoSmart issue escalated to Dean: {issue.Title}",
+                                        issue.ReportedBy, statusClass, statusLabel));
+                                }
+                                foreach (var c in Model.AllCourses.Where(x => x.ScheduledHours > 0 && (double)x.DeliveredHours / x.ScheduledHours * 100 < 70).OrderBy(x => x.DeliveredHours))
+                                {
+                                    var pct = (int)Math.Round((double)c.DeliveredHours / c.ScheduledHours * 100);
+                                    auditRows.Add((DateTime.Now, "Flag", "#d97706", "#fffbeb", "exclamation-triangle-fill",
+                                        $"{c.Code} – {c.Title} below 70% delivery threshold ({pct}%)",
+                                        c.Lecturer, "badge-pending", "Flagged"));
+                                }
+
+                                auditRows = auditRows.OrderByDescending(x => x.When).ToList();
+                            }
+
+                            @if (!auditRows.Any())
+                            {
+                                <tr>
+                                    <td colspan="5" style="text-align:center;padding:32px;color:#9ca3af;">
+                                        <i class="bi bi-journal-text" style="font-size:28px;display:block;margin-bottom:8px;"></i>
+                                        No audit entries yet this semester.
+                                    </td>
+                                </tr>
+                            }
+                            @foreach (var row in auditRows)
+                            {
+                                <tr>
+                                    <td style="font-size:11px;color:#6b7280;white-space:nowrap;">
+                                        <strong style="display:block;color:#374151;">@row.When.ToString("dd MMM yyyy")</strong>
+                                        @row.When.ToString("HH:mm")
+                                    </td>
+                                    <td>
+                                        <span style="display:inline-flex;align-items:center;gap:5px;background:@row.TypeBg;color:@row.TypeColor;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;">
+                                            <i class="bi bi-@row.Icon" style="font-size:10px;"></i>
+                                            @row.Type
+                                        </span>
+                                    </td>
+                                    <td style="font-size:12px;color:#374151;">@row.Desc</td>
+                                    <td style="font-size:11px;color:#6b7280;max-width:130px;">@row.Actor</td>
+                                    <td>
+                                        <span class="badge-status @row.StatusClass" style="font-size:10px;">@row.StatusLabel</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
 
     </div>
@@ -555,6 +658,8 @@
     function revealAndScroll(sectionId) {
         var c = document.getElementById('deanContent');
         if (c) c.style.display = 'block';
+        var audit = document.getElementById('section-audit');
+        if (audit) audit.style.display = 'block';
         setTimeout(function() {
             var el = document.getElementById(sectionId);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });

@@ -13,9 +13,10 @@
     <title>CP Chat | CSAS</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <link rel="stylesheet" href="~/css/dashboard.css" />
     <style>
-        /* ── Chat layout ──────────────────────────────────── */
+        
         .chat-shell {
             display: flex;
             height: 100vh;
@@ -24,11 +25,11 @@
             font-family: 'Segoe UI', sans-serif;
         }
 
-        /* ── App sidebar ────────────────────────────────── */
+        
         .app-sidebar {
             width: 220px;
             min-height: 100vh;
-            background: #0f1a3a;
+            background: #0D1E47;
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
@@ -86,7 +87,7 @@
         .app-user strong { display: block; font-size: 11px; color: white; font-weight: 600; }
         .app-user span   { font-size: 9px; color: #64748b; }
 
-        /* ── HOD list panel ─────────────────────────────── */
+        
         .hod-list-panel {
             width: 260px;
             background: white;
@@ -102,7 +103,7 @@
         }
 
         .hod-panel-header h2 {
-            font-size: 15px; font-weight: 700; color: #0f1a3a; margin-bottom: 4px;
+            font-size: 15px; font-weight: 700; color: #0D1E47; margin-bottom: 4px;
         }
 
         .hod-panel-header p { font-size: 11px; color: #9ca3af; }
@@ -122,18 +123,18 @@
 
         .hod-avatar {
             width: 40px; height: 40px; border-radius: 50%;
-            background: linear-gradient(135deg, #1e3a8a, #0d9488);
+            background: linear-gradient(135deg, #1C3B83, #0d9488);
             color: white;
             display: flex; align-items: center; justify-content: center;
             font-size: 14px; font-weight: 700; flex-shrink: 0;
         }
 
         .hod-item-body           { flex: 1; min-width: 0; }
-        .hod-item-body strong    { display: block; font-size: 13px; font-weight: 700; color: #0f1a3a; }
+        .hod-item-body strong    { display: block; font-size: 13px; font-weight: 700; color: #0D1E47; }
         .hod-item-body span      { font-size: 11px; color: #9ca3af; }
         .hod-item-body .dept-tag {
             display: inline-block; margin-top: 3px;
-            background: #eff6ff; color: #1e3a8a;
+            background: #eff6ff; color: #1C3B83;
             font-size: 9px; font-weight: 700;
             padding: 2px 7px; border-radius: 10px;
         }
@@ -145,7 +146,7 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* ── Conversation panel ─────────────────────────── */
+        
         .conv-panel {
             flex: 1; display: flex; flex-direction: column; overflow: hidden;
         }
@@ -158,13 +159,13 @@
 
         .conv-topbar-avatar {
             width: 36px; height: 36px; border-radius: 50%;
-            background: linear-gradient(135deg, #1e3a8a, #0d9488);
+            background: linear-gradient(135deg, #1C3B83, #0d9488);
             color: white;
             display: flex; align-items: center; justify-content: center;
             font-size: 13px; font-weight: 700; flex-shrink: 0;
         }
 
-        .conv-topbar-info strong { font-size: 14px; font-weight: 700; color: #0f1a3a; display: block; }
+        .conv-topbar-info strong { font-size: 14px; font-weight: 700; color: #0D1E47; display: block; }
         .conv-topbar-info span   { font-size: 11px; color: #9ca3af; }
 
         .conv-messages {
@@ -180,16 +181,16 @@
             font-size: 13px; line-height: 1.5;
         }
 
-        /* CP's own messages — teal */
+        
         .msg-bubble.me {
             background: #0d9488; color: white;
             border-bottom-right-radius: 3px;
             align-self: flex-end;
         }
 
-        /* HOD messages — white card */
+        
         .msg-bubble.them {
-            background: white; color: #0f1a3a;
+            background: white; color: #0D1E47;
             border: 1px solid #e5e7eb;
             border-bottom-left-radius: 3px;
             align-self: flex-start;
@@ -252,9 +253,7 @@
 
 <div class="chat-shell">
 
-    <!-- ═══════════════════════════════════════
-         APP SIDEBAR
-    ════════════════════════════════════════ -->
+    
     <aside class="app-sidebar">
 
         <a href="/" class="app-sidebar-brand">
@@ -281,6 +280,12 @@
             <a href="#" class="app-nav-link">
                 <i class="bi bi-person"></i> Profile
             </a>
+            
+            <a href="https://umurongosmart.com/" target="_blank" class="app-nav-link"
+               title="UmurongoSmart Support"
+               style="border-top:1px solid rgba(255,255,255,0.07);margin-top:4px;padding-top:10px;">
+                <iconify-icon icon="mdi:headset-mic" style="font-size:16px;vertical-align:middle;"></iconify-icon> UmurongoSmart Support
+            </a>
             <a href="/Logout" class="app-nav-link">
                 <i class="bi bi-box-arrow-left"></i> Logout
             </a>
@@ -298,10 +303,7 @@
 
     </aside>
 
-
-    <!-- ═══════════════════════════════════════
-         HOD LIST PANEL
-    ════════════════════════════════════════ -->
+    
     <div class="hod-list-panel">
 
         <div class="hod-panel-header">
@@ -341,10 +343,7 @@
 
     </div>
 
-
-    <!-- ═══════════════════════════════════════
-         CONVERSATION PANEL
-    ════════════════════════════════════════ -->
+    
     <div class="conv-panel">
 
         @if (Model.ActiveHOD == null)
@@ -363,7 +362,7 @@
                 ? $"{Model.ActiveHOD.FirstName[0]}{Model.ActiveHOD.LastName[0]}"
                 : "H";
 
-            <!-- Topbar -->
+            
             <div class="conv-topbar">
                 <div class="conv-topbar-avatar">@hodInitials</div>
                 <div class="conv-topbar-info">
@@ -372,7 +371,7 @@
                 </div>
             </div>
 
-            <!-- Messages -->
+            
             <div class="conv-messages" id="msgArea">
 
                 @if (!Model.Conversation.Any())
@@ -422,7 +421,7 @@
 
             </div>
 
-            <!-- Compose -->
+            
             <div class="conv-compose">
                 <form method="post" asp-page-handler="Send" class="compose-form">
                     @Html.AntiForgeryToken()
@@ -442,18 +441,17 @@
         }
 
     </div>
-    <!-- /conv-panel -->
+    
 
 </div>
-<!-- /chat-shell -->
 
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    /* Auto-scroll to bottom */
+    
     var msgArea = document.getElementById('msgArea');
     if (msgArea) msgArea.scrollTop = msgArea.scrollHeight;
 
-    /* Send on Enter (Shift+Enter = newline) */
+    
     function handleEnter(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -461,7 +459,7 @@
         }
     }
 
-    /* Auto-grow textarea */
+    
     var box = document.getElementById('composeBox');
     if (box) {
         box.addEventListener('input', function() {

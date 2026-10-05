@@ -13,9 +13,10 @@
     <title>HOD Chat | CSAS</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <link rel="stylesheet" href="~/css/dashboard.css" />
     <style>
-        /* ── Chat layout ──────────────────────────────────── */
+        
         .chat-shell {
             display: flex;
             height: 100vh;
@@ -24,11 +25,11 @@
             font-family: 'Segoe UI', sans-serif;
         }
 
-        /* ── Left: app sidebar ──────────────────────────── */
+        
         .app-sidebar {
             width: 220px;
             min-height: 100vh;
-            background: #0f1a3a;
+            background: #0D1E47;
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
@@ -46,7 +47,7 @@
 
         .app-brand-icon {
             width: 34px; height: 34px; border-radius: 9px;
-            background: #1e3a8a;
+            background: #1C3B83;
             display: flex; align-items: center; justify-content: center;
             font-size: 15px; color: white; flex-shrink: 0;
         }
@@ -65,7 +66,7 @@
         }
 
         .app-nav-link:hover { background: rgba(255,255,255,.06); color: white; }
-        .app-nav-link.active { background: #1e3a8a; color: white; }
+        .app-nav-link.active { background: #1C3B83; color: white; }
         .app-nav-link i { font-size: 14px; width: 16px; text-align: center; }
 
         .app-sidebar-footer {
@@ -81,7 +82,7 @@
 
         .app-avatar {
             width: 30px; height: 30px; border-radius: 50%;
-            background: #1e3a8a; color: white;
+            background: #1C3B83; color: white;
             display: flex; align-items: center; justify-content: center;
             font-size: 12px; flex-shrink: 0;
         }
@@ -89,7 +90,7 @@
         .app-user strong { display: block; font-size: 11px; color: white; font-weight: 600; }
         .app-user span   { font-size: 9px; color: #64748b; }
 
-        /* ── Middle: CP list panel ──────────────────────── */
+        
         .cp-list-panel {
             width: 280px;
             background: white;
@@ -105,12 +106,12 @@
         }
 
         .cp-panel-header h2 {
-            font-size: 15px; font-weight: 700; color: #0f1a3a; margin-bottom: 4px;
+            font-size: 15px; font-weight: 700; color: #0D1E47; margin-bottom: 4px;
         }
 
         .cp-panel-header p { font-size: 11px; color: #9ca3af; }
 
-        /* Search */
+        
         .cp-search-wrap {
             padding: 10px 14px;
             border-bottom: 1px solid #f1f5f9;
@@ -128,16 +129,16 @@
             font-size: 12px; outline: none; background: #f8fafc;
         }
 
-        .cp-search-wrap input:focus { border-color: #1e3a8a; }
+        .cp-search-wrap input:focus { border-color: #1C3B83; }
 
-        /* Department label */
+        
         .dept-label {
             padding: 8px 16px 4px;
             font-size: 9px; font-weight: 700; color: #9ca3af;
             text-transform: uppercase; letter-spacing: .08em;
         }
 
-        /* CP item */
+        
         .cp-item {
             display: flex; align-items: center; gap: 11px;
             padding: 10px 14px; cursor: pointer;
@@ -150,18 +151,18 @@
 
         .cp-item.active {
             background: #eff6ff;
-            border-left-color: #1e3a8a;
+            border-left-color: #1C3B83;
         }
 
         .cp-avatar {
             width: 36px; height: 36px; border-radius: 50%;
-            background: #1e3a8a; color: white;
+            background: #1C3B83; color: white;
             display: flex; align-items: center; justify-content: center;
             font-size: 12px; font-weight: 700; flex-shrink: 0;
         }
 
         .cp-item-body { flex: 1; min-width: 0; }
-        .cp-item-body strong { display: block; font-size: 12px; font-weight: 700; color: #0f1a3a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cp-item-body strong { display: block; font-size: 12px; font-weight: 700; color: #0D1E47; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .cp-item-body span   { font-size: 10px; color: #9ca3af; }
 
         .cp-unread {
@@ -174,7 +175,7 @@
 
         .cp-list-scroll { flex: 1; overflow-y: auto; }
 
-        /* ── Right: conversation panel ──────────────────── */
+        
         .conv-panel {
             flex: 1;
             display: flex;
@@ -182,7 +183,7 @@
             overflow: hidden;
         }
 
-        /* Conversation top bar */
+        
         .conv-topbar {
             height: 58px; padding: 0 20px;
             background: white; border-bottom: 1px solid #e5e7eb;
@@ -197,10 +198,10 @@
             font-size: 13px; font-weight: 700; flex-shrink: 0;
         }
 
-        .conv-topbar-info strong { font-size: 14px; font-weight: 700; color: #0f1a3a; display: block; }
+        .conv-topbar-info strong { font-size: 14px; font-weight: 700; color: #0D1E47; display: block; }
         .conv-topbar-info span   { font-size: 11px; color: #9ca3af; }
 
-        /* Messages area */
+        
         .conv-messages {
             flex: 1; overflow-y: auto;
             padding: 20px 24px;
@@ -217,13 +218,13 @@
         }
 
         .msg-bubble.me {
-            background: #1e3a8a; color: white;
+            background: #1C3B83; color: white;
             border-bottom-right-radius: 3px;
             align-self: flex-end;
         }
 
         .msg-bubble.them {
-            background: white; color: #0f1a3a;
+            background: white; color: #0D1E47;
             border: 1px solid #e5e7eb;
             border-bottom-left-radius: 3px;
             align-self: flex-start;
@@ -238,7 +239,7 @@
         .msg-bubble.me   .msg-time { color: rgba(255,255,255,.55); text-align: right; }
         .msg-bubble.them .msg-time { color: #9ca3af; }
 
-        /* Date separator */
+        
         .date-sep {
             text-align: center; font-size: 11px; color: #9ca3af;
             display: flex; align-items: center; gap: 10px; margin: 6px 0;
@@ -248,7 +249,7 @@
             content: ''; flex: 1; height: 1px; background: #e5e7eb;
         }
 
-        /* Empty state */
+        
         .conv-empty {
             flex: 1; display: flex; flex-direction: column;
             align-items: center; justify-content: center;
@@ -258,7 +259,7 @@
         .conv-empty i { font-size: 48px; margin-bottom: 14px; color: #d1d5db; }
         .conv-empty p { font-size: 13px; }
 
-        /* No CP selected */
+        
         .no-cp-selected {
             flex: 1; display: flex; align-items: center;
             justify-content: center; flex-direction: column;
@@ -270,7 +271,7 @@
         .no-cp-selected h3 { font-size: 16px; color: #374151; margin-bottom: 8px; }
         .no-cp-selected p  { font-size: 13px; }
 
-        /* Compose bar */
+        
         .conv-compose {
             padding: 14px 20px;
             background: white;
@@ -290,26 +291,24 @@
             transition: border .15s ease;
         }
 
-        .compose-input:focus { border-color: #1e3a8a; }
+        .compose-input:focus { border-color: #1C3B83; }
 
         .compose-send {
             width: 40px; height: 40px; border-radius: 10px;
-            background: #1e3a8a; color: white; border: none;
+            background: #1C3B83; color: white; border: none;
             display: flex; align-items: center; justify-content: center;
             font-size: 16px; cursor: pointer; flex-shrink: 0;
             transition: .15s ease;
         }
 
-        .compose-send:hover { background: #1a56db; }
+        .compose-send:hover { background: #2952C8; }
     </style>
 </head>
 <body>
 
 <div class="chat-shell">
 
-    <!-- ═══════════════════════════════════════
-         APP SIDEBAR
-    ════════════════════════════════════════ -->
+    
     <aside class="app-sidebar">
 
         <a href="/" class="app-sidebar-brand">
@@ -336,6 +335,12 @@
             <a href="#" class="app-nav-link">
                 <i class="bi bi-person"></i> Profile
             </a>
+            
+            <a href="https://umurongosmart.com/" target="_blank" class="app-nav-link"
+               title="UmurongoSmart Support"
+               style="border-top:1px solid rgba(255,255,255,0.07);margin-top:4px;padding-top:10px;">
+                <iconify-icon icon="mdi:headset-mic" style="font-size:16px;vertical-align:middle;"></iconify-icon> UmurongoSmart Support
+            </a>
             <a href="/Logout" class="app-nav-link">
                 <i class="bi bi-box-arrow-left"></i> Logout
             </a>
@@ -353,18 +358,15 @@
 
     </aside>
 
-
-    <!-- ═══════════════════════════════════════
-         CP LIST PANEL
-    ════════════════════════════════════════ -->
+    
     <div class="cp-list-panel">
 
         <div class="cp-panel-header">
-            <h2><i class="bi bi-chat-dots-fill" style="color:#1e3a8a;margin-right:7px;"></i>Messages</h2>
+            <h2><i class="bi bi-chat-dots-fill" style="color:#1C3B83;margin-right:7px;"></i>Messages</h2>
             <p>Select a Class Representative to chat with</p>
         </div>
 
-        <!-- Search -->
+        
         <div class="cp-search-wrap">
             <i class="bi bi-search"></i>
             <input type="text" id="cpSearch"
@@ -410,15 +412,12 @@
 
     </div>
 
-
-    <!-- ═══════════════════════════════════════
-         CONVERSATION PANEL
-    ════════════════════════════════════════ -->
+    
     <div class="conv-panel">
 
         @if (Model.ActiveCP == null)
         {
-            <!-- Nothing selected -->
+            
             <div class="no-cp-selected">
                 <i class="bi bi-chat-square-dots"></i>
                 <h3>Select a Class Representative</h3>
@@ -427,7 +426,7 @@
         }
         else
         {
-            <!-- Topbar -->
+            
             <div class="conv-topbar">
                 <div class="conv-topbar-avatar">@Model.ActiveCP.Initials</div>
                 <div class="conv-topbar-info">
@@ -436,7 +435,7 @@
                 </div>
             </div>
 
-            <!-- Messages -->
+            
             <div class="conv-messages" id="msgArea">
 
                 @if (!Model.Conversation.Any())
@@ -486,7 +485,7 @@
 
             </div>
 
-            <!-- Compose -->
+            
             <div class="conv-compose">
                 <form method="post" asp-page-handler="Send" class="compose-form">
                     @Html.AntiForgeryToken()
@@ -506,18 +505,17 @@
         }
 
     </div>
-    <!-- /conv-panel -->
+    
 
 </div>
-<!-- /chat-shell -->
 
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    /* Auto-scroll to bottom of messages */
+    
     var msgArea = document.getElementById('msgArea');
     if (msgArea) msgArea.scrollTop = msgArea.scrollHeight;
 
-    /* Send on Enter (Shift+Enter = newline) */
+    
     function handleEnter(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -525,7 +523,7 @@
         }
     }
 
-    /* Auto-grow textarea */
+    
     var box = document.getElementById('composeBox');
     if (box) {
         box.addEventListener('input', function() {
@@ -534,7 +532,7 @@
         });
     }
 
-    /* Filter CP list by search */
+    
     function filterCPs(query) {
         var q = query.toLowerCase().trim();
         document.querySelectorAll('.cp-list-item').forEach(function(item) {

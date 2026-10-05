@@ -17,27 +17,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <style>
 
-        /* ── Reset ─────────────────────────────── */
+        
         *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
         html  { scroll-behavior: smooth; }
         body  {
             font-family: 'Inter', sans-serif;
-            color: #0f1a3a;
+            color: #0D1E47;
             overflow-x: hidden;
-            background: #0b1535; /* matches video dark tone — no white flash */
+            background: #0D1E47; 
         }
         a     { text-decoration: none; }
 
         :root {
-            --navy:   #0b1535;
-            --blue:   #1e3a8a;
-            --mid:    #2563eb;
+            --navy:   #0D1E47;
+            --blue:   #1C3B83;
+            --mid:    #2952C8;
             --green:  #10b981;
             --muted:  #6b7280;
             --border: #e5e7eb;
         }
 
-        /* ── Navbar ────────────────────────────── */
+        
         .lp-nav {
             position: fixed;
             top: 0; left: 0; right: 0;
@@ -81,8 +81,7 @@
         }
         .lp-cta:hover { background: var(--mid); color: white; transform: translateY(-1px); }
 
-
-        /* ── Hero ──────────────────────────────── */
+        
         .hero {
             position: relative;
             height: 100vh;
@@ -93,11 +92,11 @@
             justify-content: center;
         }
 
-        /* Video — fixed to viewport so it never clips or shows black on overscroll */
+        
         .hero-video-wrap {
             position: fixed;
             inset: 0;
-            z-index: -1;          /* sits behind everything */
+            z-index: -1;          
             width: 100vw;
             height: 100vh;
         }
@@ -108,7 +107,7 @@
             object-position: center center;
             display: block;
         }
-        /* Gradient overlay */
+        
         .hero-video-wrap::after {
             content: '';
             position: absolute;
@@ -122,7 +121,7 @@
             );
         }
 
-        /* Cover image shown until video loads — avoids black flash */
+        
         .hero-video-cover {
             position: absolute;
             inset: 0;
@@ -140,14 +139,14 @@
 
         
 
-        /* Text content — centred over video */
+        
         .hero-content {
             position: relative;
             z-index: 1;
             text-align: center;
             max-width: 780px;
             padding: 0 24px;
-            padding-top: 70px; /* navbar offset */
+            padding-top: 70px; 
         }
 
         .hero-title {
@@ -186,7 +185,7 @@
         .btn-hero-primary {
             display: inline-flex; align-items: center; gap: 10px;
             padding: 18px 38px; border-radius: 12px;
-            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #1C3B83 0%, #2952C8 100%);
             color: white;
             font-size: 16px; font-weight: 700;
             box-shadow: 0 8px 32px rgba(30,58,138,0.65),
@@ -196,7 +195,7 @@
             border: 1px solid rgba(255,255,255,0.15);
         }
         .btn-hero-primary:hover {
-            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, #2952C8 0%, #3b82f6 100%);
             color: white;
             transform: translateY(-3px);
             box-shadow: 0 14px 40px rgba(30,58,138,0.70);
@@ -220,8 +219,7 @@
             box-shadow: 0 8px 24px rgba(0,0,0,0.2);
         }
 
-
-        /* ── Stats strip ───────────────────────── */
+        
         .stats-strip {
             position: relative;
             z-index: 1;
@@ -236,8 +234,7 @@
         .stat-item span   { font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 500; }
         .accent           { color: #34d399; }
 
-
-        /* ── Sections ──────────────────────────── */
+        
         .section       { max-width: 1200px; margin: auto; padding: 90px 6%; }
         .section-label {
             display: inline-block;
@@ -251,8 +248,7 @@
         .section-heading h2  { font-size: 2rem; font-weight: 800; line-height: 1.2; margin-bottom: 13px; }
         .section-heading p   { font-size: 15px; line-height: 1.75; color: var(--muted); }
 
-
-        /* ── Features ──────────────────────────── */
+        
         .features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; }
         .feature-card {
             padding: 28px; border: 1px solid var(--border);
@@ -272,8 +268,7 @@
         .feature-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
         .feature-card p  { font-size: 13px; color: var(--muted); line-height: 1.7; }
 
-
-        /* ── How it works ──────────────────────── */
+        
         .how-bg { background: #f8faff; position: relative; z-index: 1; }
         .steps  { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; }
         .step   { text-align: center; position: relative; }
@@ -293,8 +288,7 @@
         .step h3 { font-size: 14px; font-weight: 700; margin-bottom: 7px; }
         .step p  { font-size: 12px; color: var(--muted); line-height: 1.6; }
 
-
-        /* ── Roles ─────────────────────────────── */
+        
         .roles-grid {
             display: grid; grid-template-columns: repeat(3,1fr); gap: 16px;
         }
@@ -316,8 +310,7 @@
         .role-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
         .role-card p  { font-size: 13px; color: var(--muted); line-height: 1.6; }
 
-
-        /* ── CTA ───────────────────────────────── */
+        
         .cta-section {
             position: relative;
             z-index: 1;
@@ -349,9 +342,8 @@
         }
         .btn-cta:hover { background: #34d399; color: white; transform: translateY(-2px); }
 
-
-        /* ── Footer ────────────────────────────── */
-        footer { position: relative; z-index: 1; background: #080f20; color: white; padding: 60px 6% 28px; }
+        
+        footer { position: relative; z-index: 1; background: #0A1230; color: white; padding: 60px 6% 28px; }
         .footer-grid {
             max-width: 1200px; margin: auto;
             display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr;
@@ -369,8 +361,7 @@
             color: #475569; font-size: 11px;
         }
 
-
-        /* ── Responsive ────────────────────────── */
+        
         @@media (max-width: 1024px) {
             .features-grid { grid-template-columns: repeat(2,1fr); }
             .stats-strip   { grid-template-columns: repeat(2,1fr); }
@@ -397,9 +388,6 @@
 </head>
 <body>
 
-<!-- ═══════════════════════
-     NAVBAR
-═══════════════════════ -->
 <nav class="lp-nav" id="navbar">
     <a href="/" class="lp-brand">
         <img src="/images/logo.jpeg" alt="UNILAK" />
@@ -415,19 +403,29 @@
         <a href="#roles"    class="lp-link">Roles</a>
     </div>
 
+    <a href="https://umurongosmart.com/" target="_blank"
+           style="display:inline-flex;align-items:center;gap:7px;
+                  padding:8px 16px;border-radius:8px;
+                  border:1px solid rgba(255,255,255,0.3);
+                  background:rgba(255,255,255,0.08);
+                  color:rgba(255,255,255,0.85);
+                  font-size:12px;font-weight:600;
+                  transition:.15s ease;text-decoration:none;"
+           title="UmurongoSmart Support"
+           onmouseover="this.style.background='rgba(255,255,255,0.18)'"
+           onmouseout="this.style.background='rgba(255,255,255,0.08)'">
+            <iconify-icon icon="mdi:headset-mic" style="font-size:14px;vertical-align:middle;"></iconify-icon> Support
+        </a>
+
     <a href="/Login" class="lp-cta">
         <i class="bi bi-box-arrow-in-right"></i> Sign In
     </a>
 </nav>
 
-
-<!-- ═══════════════════════
-     HERO — full-screen video
-═══════════════════════ -->
 <section class="hero">
 
     <div class="hero-video-wrap">
-        <!-- Cover image shown until video reaches a good frame -->
+        
         <div class="hero-video-cover" id="videoCover"></div>
         <video id="heroVideo" autoplay muted loop playsinline
                poster="/images/zpc1.jpeg"
@@ -458,10 +456,6 @@
     </div>
 </section>
 
-
-<!-- ═══════════════════════
-     STATS STRIP
-═══════════════════════ -->
 <div class="stats-strip">
     <div class="stat-item">
         <strong><span class="accent">6</span></strong>
@@ -481,10 +475,6 @@
     </div>
 </div>
 
-
-<!-- ═══════════════════════
-     FEATURES
-═══════════════════════ -->
 <div id="features">
     <div class="section">
         <div class="section-heading">
@@ -531,10 +521,6 @@
     </div>
 </div>
 
-
-<!-- ═══════════════════════
-     HOW IT WORKS
-═══════════════════════ -->
 <div class="how-bg" id="how">
     <div class="section">
         <div class="section-heading">
@@ -568,10 +554,6 @@
     </div>
 </div>
 
-
-<!-- ═══════════════════════
-     ROLES
-═══════════════════════ -->
 <div id="roles">
     <div class="section">
         <div class="section-heading">
@@ -583,7 +565,7 @@
         <div class="roles-grid">
 
             <div class="role-card">
-                <div class="role-icon" style="background:#eff6ff;color:#1e3a8a;">
+                <div class="role-icon" style="background:#eff6ff;color:#1C3B83;">
                     <i class="bi bi-mortarboard-fill"></i>
                 </div>
                 <h3>Students</h3>
@@ -634,10 +616,6 @@
     </div>
 </div>
 
-
-<!-- ═══════════════════════
-     CTA
-═══════════════════════ -->
 <div class="cta-section">
     <div class="cta-icon"><i class="bi bi-mortarboard-fill"></i></div>
     <h2>Ready to access your academic portal?</h2>
@@ -651,10 +629,6 @@
     </a>
 </div>
 
-
-<!-- ═══════════════════════
-     FOOTER
-═══════════════════════ -->
 <footer>
     <div class="footer-grid">
         <div class="footer-brand">
@@ -692,11 +666,10 @@
     </div>
 </footer>
 
-
 <script>
     
 
-    /* Skip black opening frames and hide the cover once video is playing */
+    
     (function () {
         var video  = document.getElementById('heroVideo');
         var cover  = document.getElementById('videoCover');
@@ -706,15 +679,15 @@
             cover.classList.add('hidden');
         }
 
-        /* If the video's first frame is still black, skip ahead 0.5s */
+        
         video.addEventListener('loadeddata', function () {
             if (video.readyState >= 2) {
-                /* Skip to 0.5s to avoid any black opening frame */
+                
                 video.currentTime = 0.5;
             }
         });
 
-        /* Hide cover once video is actually playing with real content */
+        
         video.addEventListener('timeupdate', function onFirstFrame() {
             if (video.currentTime > 0.4) {
                 showVideo();
@@ -722,11 +695,11 @@
             }
         });
 
-        /* Fallback: hide cover after 1.5s regardless */
+        
         setTimeout(showVideo, 1500);
     })();
 
-    /* Navbar darkens on scroll */
+    
     var nav = document.getElementById('navbar');
     window.addEventListener('scroll', function () {
         nav.classList.toggle('scrolled', window.scrollY > 60);
