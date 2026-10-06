@@ -483,3 +483,14 @@ $RECYCLE.BIN/
 
 # Bootstrap vendor library — managed by libman, not tracked in source control
 wwwroot/lib/
+
+# Source map files — large debug-only files not needed in source control
+wwwroot/**/*.map
+wwwroot/**/*.js.map
+wwwroot/**/*.css.map
+
+# Empty scaffolded JS file
+wwwroot/js/site.js
+
+# Publish output
+publish/
