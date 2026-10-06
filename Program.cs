@@ -53,8 +53,8 @@ builder.Services.AddAuthentication("CSASAuth")
         options.ExpireTimeSpan    = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
         options.Cookie.HttpOnly   = true;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        options.Cookie.SameSite   = SameSiteMode.Strict;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.Cookie.SameSite   = SameSiteMode.Lax;
         options.Cookie.Name       = "__csas_auth";
     });
 
@@ -64,8 +64,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddAntiforgery(options =>
 {
     options.Cookie.HttpOnly     = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.SameSite     = SameSiteMode.Strict;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SameSite     = SameSiteMode.Lax;
     options.Cookie.Name         = "__csas_af";
     options.HeaderName          = "X-CSRF-TOKEN";
 });
@@ -100,7 +100,11 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseResponseCompression();
-app.UseHttpsRedirection();
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 // Security headers on every response
 app.Use(async (ctx, next) =>

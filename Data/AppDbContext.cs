@@ -29,6 +29,7 @@ public class AppDbContext : DbContext
             e.Property(u => u.FirstName).HasMaxLength(100);
             e.Property(u => u.LastName).HasMaxLength(100);
             e.Property(u => u.Department).HasMaxLength(200);
+            e.Property(u => u.PhoneNumber).HasMaxLength(30);
         });
         modelBuilder.Entity<Course>(e =>
         {
