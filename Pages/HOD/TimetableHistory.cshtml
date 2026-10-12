@@ -1,0 +1,231 @@
+@page
+@model CourseScheduleSystem.Web.Pages.HOD.TimetableHistoryModel
+@{
+    ViewData["Title"] = "Timetable Revision History";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Timetable History | CSAS</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <link rel="stylesheet" href="~/css/dashboard.css" />
+    <style>
+        .hod-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:3000; align-items:center; justify-content:center; }
+        .hod-modal-overlay.open { display:flex; }
+        .hod-modal { background:white; border-radius:14px; padding:28px; width:100%; max-width:560px; margin:20px; box-shadow:0 20px 50px rgba(0,0,0,.2); }
+        .hod-modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+        .hod-modal-header h5 { margin:0; font-size:16px; font-weight:700; color:#0D1E47; }
+        .hod-close { background:none; border:none; font-size:18px; color:#9ca3af; cursor:pointer; }
+
+        .rev-badge {
+            display:inline-flex; align-items:center; gap:4px;
+            padding:3px 10px; border-radius:20px; font-size:10px; font-weight:700;
+        }
+        .rev-created  { background:#ecfdf5; color:#059669; }
+        .rev-venue    { background:#eff6ff; color:#1C3B83; }
+        .rev-schedule { background:#fffbeb; color:#d97706; }
+        .rev-lecturer { background:#f5f3ff; color:#7c3aed; }
+        .rev-other    { background:#f3f4f6; color:#6b7280; }
+
+        .diff-old { text-decoration:line-through; color:#dc2626; font-size:11px; }
+        .diff-new { color:#059669; font-size:11px; font-weight:600; }
+        .diff-arrow { color:#9ca3af; margin:0 4px; font-size:11px; }
+
+        @@media print {
+            .dash-sidebar, .dash-topbar, .no-print { display:none !important; }
+            .dash-shell { display:block !important; }
+            .dash-main { margin-left:0 !important; }
+        }
+    </style>
+</head>
+<body>
+<div class="dash-shell">
+
+    <aside class="dash-sidebar">
+        <a href="/" class="dash-sidebar-brand">
+            <div class="dash-sidebar-brand-icon" style="background:transparent;box-shadow:none;padding:2px;">
+                <img src="/images/logo.jpeg" alt="UNILAK" style="width:34px;height:34px;border-radius:50%;object-fit:cover;" />
+            </div>
+            <div class="dash-sidebar-brand-text"><strong>CSAS</strong><span>HOD Portal</span></div>
+        </a>
+
+        <div class="dash-sidebar-section">Main Menu</div>
+        <nav class="dash-sidebar-nav">
+            <a href="/" class="dash-nav-link"><i class="bi bi-house-fill"></i> Home</a>
+            <a href="/HOD/Dashboard" class="dash-nav-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="/HOD/TimetableHistory" class="dash-nav-link active"><i class="bi bi-clock-history"></i> Revision History</a>
+            <a href="/Timetable/Report" class="dash-nav-link"><i class="bi bi-printer-fill"></i> Timetable Report</a>
+            <a href="/HOD/Chat" class="dash-nav-link"><i class="bi bi-chat-dots-fill"></i> Messages to CPs</a>
+            <a href="https://umurongosmart.com/" target="_blank" class="dash-nav-link"
+               style="border-top:1px solid rgba(255,255,255,0.07);margin-top:4px;padding-top:12px;">
+                <iconify-icon icon="mdi:headset-mic" style="font-size:16px;vertical-align:middle;"></iconify-icon> UmurongoSmart
+            </a>
+        </nav>
+
+        <div class="dash-sidebar-section">Account</div>
+        <nav class="dash-sidebar-nav">
+            <a href="/Profile" class="dash-nav-link"><i class="bi bi-person"></i> My Profile</a>
+            <a href="/Logout" class="dash-nav-link"><i class="bi bi-box-arrow-left"></i> Logout</a>
+        </nav>
+
+        <div class="dash-sidebar-footer">
+            <div class="dash-sidebar-user">
+                <div class="dash-user-avatar"><i class="bi bi-building"></i></div>
+                <div class="dash-user-info">
+                    <strong>@Model.CurrentUser.FullName</strong>
+                    <span>HOD &middot; @Model.CurrentUser.Department</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="dash-main">
+        <div class="dash-topbar">
+            <div class="dash-topbar-title">
+                <h1>Timetable Revision History</h1>
+                <p>Complete audit trail of all timetable changes in @Model.CurrentUser.Department</p>
+            </div>
+            <div class="dash-topbar-actions">
+                <button onclick="window.print()" class="btn-dash-outline btn-dash-sm no-print">
+                    <i class="bi bi-printer-fill"></i> Print
+                </button>
+                <a href="/HOD/Dashboard" class="btn-dash-outline btn-dash-sm no-print">
+                    <i class="bi bi-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+
+        <div class="dash-content">
+
+            <div class="dash-stats dash-stats-4" style="margin-bottom:24px;">
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon icon-blue"><i class="bi bi-clock-history"></i></div>
+                    <div class="dash-stat-body"><strong>@Model.TotalChanges</strong><span>Total Revisions</span></div>
+                </div>
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon icon-green"><i class="bi bi-calendar-check-fill"></i></div>
+                    <div class="dash-stat-body"><strong>@Model.TodayChanges</strong><span>Changes Today</span></div>
+                </div>
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon icon-amber"><i class="bi bi-calendar-week-fill"></i></div>
+                    <div class="dash-stat-body"><strong>@Model.ThisWeekChanges</strong><span>This Week</span></div>
+                </div>
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon icon-teal"><i class="bi bi-journal-bookmark-fill"></i></div>
+                    <div class="dash-stat-body"><strong>@Model.Courses.Count</strong><span>Courses Tracked</span></div>
+                </div>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-card-header no-print">
+                    <div>
+                        <h5><i class="bi bi-clock-history" style="color:#1C3B83;margin-right:8px;"></i>All Timetable Changes</h5>
+                        <p>Every schedule time, venue, lecturer or course creation change — newest first</p>
+                    </div>
+                    <input type="text" id="histSearch"
+                           placeholder="Search by course, field or changed by..."
+                           oninput="filterHistory(this.value)"
+                           onkeydown="if(event.key==='Enter'){event.preventDefault();filterHistory(this.value);}"
+                           autocomplete="off"
+                           style="padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;outline:none;width:260px;" />
+                </div>
+                <div class="dash-card-body" style="padding:0;">
+                    @if (!Model.Revisions.Any())
+                    {
+                        <div class="dash-empty">
+                            <i class="bi bi-clock-history"></i>
+                            <p>No timetable changes recorded yet. Changes will appear here when courses are added or modified.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <table class="dash-table" id="histTable">
+                            <thead>
+                                <tr>
+                                    <th>Date &amp; Time</th>
+                                    <th>Course</th>
+                                    <th>Change Type</th>
+                                    <th>Before &rarr; After</th>
+                                    <th>Changed By</th>
+                                    <th>Reason</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var r in Model.Revisions)
+                                {
+                                    var badgeClass = r.FieldChanged switch {
+                                        "Created"      => "rev-created",
+                                        "Venue"        => "rev-venue",
+                                        "ScheduleTime" => "rev-schedule",
+                                        "Lecturer"     => "rev-lecturer",
+                                        _              => "rev-other"
+                                    };
+                                    var badgeIcon = r.FieldChanged switch {
+                                        "Created"      => "plus-circle-fill",
+                                        "Venue"        => "door-open-fill",
+                                        "ScheduleTime" => "clock-fill",
+                                        "Lecturer"     => "person-fill",
+                                        _              => "pencil-fill"
+                                    };
+                                    <tr data-search="@r.CourseCode.ToLower() @r.CourseTitle.ToLower() @r.FieldChanged.ToLower() @r.ChangedBy.ToLower() @r.OldValue.ToLower() @r.NewValue.ToLower()">
+                                        <td style="white-space:nowrap;">
+                                            <strong style="display:block;font-size:12px;">@r.ChangedOn.ToString("dd MMM yyyy")</strong>
+                                            <span style="font-size:11px;color:#9ca3af;">@r.ChangedOn.ToString("HH:mm")</span>
+                                        </td>
+                                        <td>
+                                            <strong style="display:block;font-size:13px;color:#1C3B83;">@r.CourseCode</strong>
+                                            <span style="font-size:11px;color:#9ca3af;">@r.CourseTitle</span>
+                                        </td>
+                                        <td>
+                                            <span class="rev-badge @badgeClass">
+                                                <i class="bi bi-@badgeIcon"></i> @r.FieldChanged
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if (r.FieldChanged == "Created")
+                                            {
+                                                <span class="diff-new"><i class="bi bi-plus-lg"></i> @r.NewValue</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="diff-old">@(string.IsNullOrEmpty(r.OldValue) ? "—" : r.OldValue)</span>
+                                                <span class="diff-arrow">&rarr;</span>
+                                                <span class="diff-new">@(string.IsNullOrEmpty(r.NewValue) ? "—" : r.NewValue)</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <strong style="font-size:12px;">@r.ChangedBy</strong>
+                                            <span style="display:block;font-size:10px;background:#eff6ff;color:#1C3B83;padding:1px 7px;border-radius:10px;font-weight:700;margin-top:2px;width:fit-content;">@r.ChangedByRole</span>
+                                        </td>
+                                        <td style="font-size:12px;color:#6b7280;max-width:180px;">
+                                            @(string.IsNullOrEmpty(r.Reason) ? "—" : r.Reason)
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function filterHistory(q) {
+        var rows = document.querySelectorAll('#histTable tbody tr');
+        var term = (q || '').toLowerCase().trim();
+        rows.forEach(function(r) {
+            r.style.display = !term || (r.dataset.search || '').includes(term) ? '' : 'none';
+        });
+    }
+</script>
+</body>
+</html>

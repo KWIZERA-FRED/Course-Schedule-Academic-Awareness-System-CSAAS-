@@ -1,0 +1,260 @@
+@page
+@model CourseScheduleSystem.Web.Pages.Lecturer.AvailabilityModel
+@{
+    ViewData["Title"] = "My Availability";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Availability | CSAS</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <link rel="stylesheet" href="~/css/dashboard.css" />
+    <style>
+        .avail-grid { width:100%; border-collapse:collapse; }
+        .avail-grid th, .avail-grid td { padding:10px 14px; border:1px solid #e5e7eb; text-align:center; font-size:13px; }
+        .avail-grid thead th { background:#0D1E47; color:white; font-weight:700; font-size:12px; }
+        .avail-grid tbody td:first-child { background:#f8fafc; font-weight:600; color:#374151; text-align:left; white-space:nowrap; }
+        .avail-cell { position:relative; }
+        .avail-cell input[type=checkbox] { display:none; }
+        .avail-cell label {
+            display:flex; align-items:center; justify-content:center;
+            width:100%; height:44px; border-radius:8px; cursor:pointer;
+            background:#f1f5f9; border:2px solid #e5e7eb; transition:.15s;
+            font-size:11px; font-weight:600; color:#6b7280; user-select:none;
+        }
+        .avail-cell input:checked + label {
+            background:#ecfdf5; border-color:#059669; color:#059669;
+        }
+        .avail-cell label:hover { border-color:#1C3B83; background:#eff6ff; color:#1C3B83; }
+        .avail-cell input:checked + label:hover { border-color:#047857; }
+        .legend-dot { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:5px; }
+    </style>
+</head>
+<body>
+<div class="dash-shell">
+
+    <aside class="dash-sidebar">
+        <a href="/" class="dash-sidebar-brand">
+            <div class="dash-sidebar-brand-icon" style="background:transparent;box-shadow:none;padding:2px;">
+                <img src="/images/logo.jpeg" alt="UNILAK" style="width:34px;height:34px;border-radius:50%;object-fit:cover;" />
+            </div>
+            <div class="dash-sidebar-brand-text"><strong>CSAS</strong><span>Lecturer Portal</span></div>
+        </a>
+
+        <div class="dash-sidebar-section">Main Menu</div>
+        <nav class="dash-sidebar-nav">
+            <a href="/" class="dash-nav-link"><i class="bi bi-house-fill"></i> Home</a>
+            <a href="/Lecturer/Dashboard" class="dash-nav-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="/Lecturer/Availability" class="dash-nav-link active"><i class="bi bi-calendar-check-fill"></i> My Availability</a>
+            <a href="/Timetable/Report" class="dash-nav-link"><i class="bi bi-printer-fill"></i> Timetable Report</a>
+            <a href="https://umurongosmart.com/" target="_blank" class="dash-nav-link"
+               style="border-top:1px solid rgba(255,255,255,0.07);margin-top:4px;padding-top:12px;">
+                <iconify-icon icon="mdi:headset-mic" style="font-size:16px;vertical-align:middle;"></iconify-icon> UmurongoSmart Support
+            </a>
+        </nav>
+
+        <div class="dash-sidebar-section">Account</div>
+        <nav class="dash-sidebar-nav">
+            <a href="/Profile" class="dash-nav-link"><i class="bi bi-person"></i> My Profile</a>
+            <a href="/Logout" class="dash-nav-link"><i class="bi bi-box-arrow-left"></i> Logout</a>
+        </nav>
+
+        <div class="dash-sidebar-footer">
+            <div class="dash-sidebar-user">
+                <div class="dash-user-avatar"><i class="bi bi-person-workspace"></i></div>
+                <div class="dash-user-info">
+                    <strong>@Model.CurrentUser.FullName</strong>
+                    <span>Lecturer</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="dash-main">
+        <div class="dash-topbar">
+            <div class="dash-topbar-title">
+                <h1>My Teaching Availability</h1>
+                <p>Mark the time slots you are available to teach — used by HOD for smart scheduling</p>
+            </div>
+            <div class="dash-topbar-actions">
+                <a href="/Lecturer/Dashboard" class="btn-dash-outline btn-dash-sm">
+                    <i class="bi bi-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+
+        <div class="dash-content">
+
+            @if (TempData["StatusMessage"] != null)
+            {
+                var t  = TempData["StatusType"]?.ToString() ?? "info";
+                var ac = t == "success" ? "dash-alert-success" : t == "warning" ? "dash-alert-warning" : "dash-alert-info";
+                var ic = t == "success" ? "bi-check-circle-fill" : "bi-exclamation-triangle-fill";
+                <div class="dash-alert @ac"><i class="bi @ic"></i><div>@TempData["StatusMessage"]</div></div>
+            }
+
+            <div class="dash-alert dash-alert-info" style="margin-bottom:20px;">
+                <i class="bi bi-info-circle-fill"></i>
+                <div style="font-size:13px;">
+                    <strong>How it works:</strong> Check the slots you are available to teach.
+                    The HOD will see your availability when assigning courses — helping avoid scheduling conflicts.
+                    Your availability is saved immediately when you click <strong>Save Availability</strong>.
+                </div>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <div>
+                        <h5><i class="bi bi-calendar-check-fill" style="color:#1C3B83;margin-right:8px;"></i>Weekly Availability Grid</h5>
+                        <p>Tick the cells where you are available to teach — untick to mark as unavailable</p>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#6b7280;">
+                        <span><span class="legend-dot" style="background:#ecfdf5;border:2px solid #059669;"></span>Available</span>
+                        <span><span class="legend-dot" style="background:#f1f5f9;border:2px solid #e5e7eb;"></span>Unavailable</span>
+                    </div>
+                </div>
+                <div class="dash-card-body" style="overflow-x:auto;">
+                    <form method="post" asp-page-handler="SaveAvailability" id="availForm">
+                        @Html.AntiForgeryToken()
+                        <table class="avail-grid">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:left;min-width:130px;">Time Slot</th>
+                                    @foreach (var day in Model.AllDays)
+                                    {
+                                        <th>@day</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var slot in Model.AllTimeSlots)
+                                {
+                                    <tr>
+                                        <td>@slot</td>
+                                        @foreach (var day in Model.AllDays)
+                                        {
+                                            var slotKey = $"{day[..3]} {slot}";
+                                            var entry   = Model.MyAvailability.FirstOrDefault(a =>
+                                                a.Day == day && a.TimeSlot == slot);
+                                            var isAvail = entry?.IsAvailable ?? true;
+                                            var cbId    = $"cb_{day}_{slot.Replace(":", "").Replace(" ", "_").Replace("-", "")}";
+                                            <td class="avail-cell">
+                                                <input type="checkbox"
+                                                       name="availableSlots"
+                                                       value="@slotKey"
+                                                       id="@cbId"
+                                                       @(isAvail ? "checked" : "") />
+                                                <label for="@cbId">
+                                                    @if (isAvail)
+                                                    {
+                                                        <i class="bi bi-check-lg" style="font-size:16px;"></i>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="bi bi-x-lg" style="font-size:14px;color:#9ca3af;"></i>
+                                                    }
+                                                </label>
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:16px;border-top:1px solid #f1f5f9;">
+                            <div style="font-size:12px;color:#6b7280;">
+                                <i class="bi bi-info-circle" style="margin-right:5px;"></i>
+                                Changes are reflected immediately in the HOD's smart scheduling panel.
+                            </div>
+                            <div style="display:flex;gap:10px;">
+                                <button type="button" onclick="selectAll(true)" class="btn-dash-outline btn-dash-sm">
+                                    <i class="bi bi-check-all"></i> Mark All Available
+                                </button>
+                                <button type="button" onclick="selectAll(false)" class="btn-dash-outline btn-dash-sm" style="color:#dc2626;border-color:#fecaca;">
+                                    <i class="bi bi-x-circle"></i> Clear All
+                                </button>
+                                <button type="submit" class="btn-dash-primary">
+                                    <i class="bi bi-save-fill"></i> Save Availability
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <div>
+                        <h5><i class="bi bi-journal-bookmark-fill" style="color:#1C3B83;margin-right:8px;"></i>Currently Assigned Classes</h5>
+                        <p>Your existing course schedule — for reference when setting availability</p>
+                    </div>
+                </div>
+                <div class="dash-card-body" style="padding:0;">
+                    @{
+                        var myCourses = CourseScheduleSystem.Web.Data.CourseData.Courses
+                            .Where(c => c.Lecturer.Contains(Model.CurrentUser.LastName, StringComparison.OrdinalIgnoreCase))
+                            .ToList();
+                    }
+                    @if (!myCourses.Any())
+                    {
+                        <div class="dash-empty"><i class="bi bi-calendar3"></i><p>No courses assigned yet.</p></div>
+                    }
+                    else
+                    {
+                        <table class="dash-table">
+                            <thead>
+                                <tr><th>Code</th><th>Course</th><th>Schedule</th><th>Venue</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var c in myCourses)
+                                {
+                                    <tr>
+                                        <td><strong style="color:#1C3B83;">@c.Code</strong></td>
+                                        <td>@c.Title</td>
+                                        <td>
+                                            <span style="background:#eff6ff;color:#1C3B83;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;">
+                                                @c.ScheduleTime
+                                            </span>
+                                        </td>
+                                        <td style="font-size:12px;">@c.Venue</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Toggle check/cross icon on click
+    document.querySelectorAll('.avail-cell input[type=checkbox]').forEach(function(cb) {
+        cb.addEventListener('change', function() {
+            var lbl  = this.nextElementSibling;
+            lbl.innerHTML = this.checked
+                ? '<i class="bi bi-check-lg" style="font-size:16px;"></i>'
+                : '<i class="bi bi-x-lg" style="font-size:14px;color:#9ca3af;"></i>';
+        });
+    });
+
+    function selectAll(val) {
+        document.querySelectorAll('.avail-cell input[type=checkbox]').forEach(function(cb) {
+            cb.checked = val;
+            var lbl = cb.nextElementSibling;
+            lbl.innerHTML = val
+                ? '<i class="bi bi-check-lg" style="font-size:16px;"></i>'
+                : '<i class="bi bi-x-lg" style="font-size:14px;color:#9ca3af;"></i>';
+        });
+    }
+</script>
+</body>
+</html>

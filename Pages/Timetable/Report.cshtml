@@ -1,0 +1,277 @@
+@page
+@model CourseScheduleSystem.Web.Pages.Timetable.ReportModel
+@{
+    ViewData["Title"] = "Timetable Report";
+    Layout = null;
+    var printDate = DateTime.Now.ToString("dd MMM yyyy, HH:mm");
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Timetable Report | CSAS – UNILAK</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <link rel="stylesheet" href="~/css/dashboard.css" />
+    <style>
+        /* ── Screen styles ─────────────────────────────────────────────────── */
+        .filter-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+        .filter-tab  {
+            padding:7px 16px; border-radius:20px; font-size:12px; font-weight:600;
+            border:1px solid #e5e7eb; background:white; color:#6b7280; cursor:pointer;
+            text-decoration:none; transition:.15s;
+        }
+        .filter-tab:hover, .filter-tab.active {
+            background:#1C3B83; color:white; border-color:#1C3B83;
+        }
+
+        /* ── Timetable grid ────────────────────────────────────────────────── */
+        .tt-grid { width:100%; border-collapse:collapse; font-size:12px; }
+        .tt-grid th {
+            background:#0D1E47; color:white; padding:10px 12px;
+            text-align:center; font-weight:700; font-size:11px;
+            text-transform:uppercase; letter-spacing:.05em;
+        }
+        .tt-grid th:first-child { text-align:left; width:120px; }
+        .tt-grid td {
+            border:1px solid #e5e7eb; padding:8px; vertical-align:top;
+            min-width:140px; height:70px;
+        }
+        .tt-grid td:first-child {
+            background:#f8fafc; font-weight:700; color:#374151;
+            font-size:11px; text-align:center; vertical-align:middle;
+            white-space:nowrap;
+        }
+        .tt-cell {
+            background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px;
+            padding:6px 8px; height:100%;
+        }
+        .tt-cell-code  { font-weight:800; color:#1C3B83; font-size:11px; }
+        .tt-cell-title { font-size:10px; color:#374151; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:120px; }
+        .tt-cell-lec   { font-size:10px; color:#6b7280; margin-top:2px; }
+        .tt-cell-venue { font-size:9px; color:#9ca3af; margin-top:1px; }
+        .tt-empty { background:#fafafa; }
+
+        /* ── Print styles ──────────────────────────────────────────────────── */
+        @@media print {
+            .no-print, .dash-sidebar, .dash-topbar, .filter-tabs, .btn-dash-primary,
+            .btn-dash-outline, .dash-alert { display:none !important; }
+            .dash-shell { display:block !important; }
+            .dash-main  { margin-left:0 !important; padding:0 !important; }
+            .dash-content { padding:0 !important; }
+            .print-header { display:block !important; }
+            .dash-card { box-shadow:none !important; border:1px solid #e5e7eb !important; page-break-inside:avoid; }
+            .tt-grid { font-size:10px; }
+            .tt-grid th { background:#1C3B83 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+            .tt-cell { background:#eff6ff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+            body { font-size:11px; }
+        }
+        .print-header { display:none; text-align:center; margin-bottom:16px; }
+        .print-header h2 { font-size:18px; font-weight:800; color:#0D1E47; margin:0 0 2px; }
+        .print-header p  { font-size:11px; color:#6b7280; margin:0; }
+    </style>
+</head>
+<body>
+<div class="dash-shell">
+
+    <aside class="dash-sidebar no-print">
+        <a href="/" class="dash-sidebar-brand">
+            <div class="dash-sidebar-brand-icon" style="background:transparent;box-shadow:none;padding:2px;">
+                <img src="/images/logo.jpeg" alt="UNILAK" style="width:34px;height:34px;border-radius:50%;object-fit:cover;" />
+            </div>
+            <div class="dash-sidebar-brand-text"><strong>CSAS</strong><span>Timetable</span></div>
+        </a>
+        <div class="dash-sidebar-section">Navigation</div>
+        <nav class="dash-sidebar-nav">
+            <a href="@Model.DashboardUrl" class="dash-nav-link"><i class="bi bi-arrow-left-circle-fill"></i> Back to Dashboard</a>
+            <a href="/Timetable/Report" class="dash-nav-link active"><i class="bi bi-printer-fill"></i> Timetable Report</a>
+            <a href="https://umurongosmart.com/" target="_blank" class="dash-nav-link"
+               style="border-top:1px solid rgba(255,255,255,0.07);margin-top:4px;padding-top:12px;">
+                <iconify-icon icon="mdi:headset-mic" style="font-size:16px;vertical-align:middle;"></iconify-icon> UmurongoSmart
+            </a>
+        </nav>
+        <div class="dash-sidebar-section">Account</div>
+        <nav class="dash-sidebar-nav">
+            <a href="/Profile" class="dash-nav-link"><i class="bi bi-person"></i> My Profile</a>
+            <a href="/Logout" class="dash-nav-link"><i class="bi bi-box-arrow-left"></i> Logout</a>
+        </nav>
+        <div class="dash-sidebar-footer">
+            <div class="dash-sidebar-user">
+                <div class="dash-user-avatar"><i class="bi bi-person-fill"></i></div>
+                <div class="dash-user-info">
+                    <strong>@Model.CurrentUser.FullName</strong>
+                    <span>@Model.RoleLabel</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="dash-main">
+        <div class="dash-topbar no-print">
+            <div class="dash-topbar-title">
+                <h1>Timetable Report</h1>
+                <p>View, filter and print academic timetables — @Model.Courses.Count course@(Model.Courses.Count != 1 ? "s" : "") shown</p>
+            </div>
+            <div class="dash-topbar-actions">
+                <button onclick="window.print()" class="btn-dash-primary btn-dash-sm">
+                    <i class="bi bi-printer-fill"></i> Print
+                </button>
+                <a href="@Model.DashboardUrl" class="btn-dash-outline btn-dash-sm">
+                    <i class="bi bi-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+
+        <div class="dash-content">
+
+            <div class="print-header">
+                <img src="/images/logo.jpeg" alt="UNILAK" style="width:50px;height:50px;border-radius:50%;margin-bottom:8px;" />
+                <h2>UNILAK — Academic Timetable</h2>
+                <p>CSAS – Course Schedule Awareness System &nbsp;|&nbsp; Generated: @printDate</p>
+                <p>@Model.CurrentUser.FullName &nbsp;|&nbsp; @Model.RoleLabel</p>
+            </div>
+
+            <div class="filter-tabs no-print">
+                <a href="/Timetable/Report?filter=all" class="filter-tab @(Model.FilterBy=="all"?"active":"")">
+                    <i class="bi bi-grid-fill"></i> All Courses
+                </a>
+                <a href="/Timetable/Report?filter=mine" class="filter-tab @(Model.FilterBy=="mine"?"active":"")">
+                    <i class="bi bi-person-fill"></i> My Courses
+                </a>
+                <a href="/Timetable/Report?filter=dept" class="filter-tab @(Model.FilterBy=="dept"?"active":"")">
+                    <i class="bi bi-building"></i> My Department
+                </a>
+            </div>
+
+            <div class="dash-card" style="margin-bottom:20px;">
+                <div class="dash-card-header no-print">
+                    <div>
+                        <h5><i class="bi bi-calendar3-week" style="color:#1C3B83;margin-right:8px;"></i>Weekly Timetable Grid</h5>
+                        <p>Visual overview — one cell per time slot per day</p>
+                    </div>
+                    <button onclick="window.print()" class="btn-dash-primary btn-dash-sm">
+                        <i class="bi bi-printer-fill"></i> Print This
+                    </button>
+                </div>
+                <div class="dash-card-body" style="overflow-x:auto;padding:16px;">
+                    <table class="tt-grid">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                @foreach (var day in CourseScheduleSystem.Web.Pages.Timetable.ReportModel.Days)
+                                {
+                                    <th>@day</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var slot in CourseScheduleSystem.Web.Pages.Timetable.ReportModel.TimeSlots)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@slot</strong>
+                                    </td>
+                                    @foreach (var day in CourseScheduleSystem.Web.Pages.Timetable.ReportModel.Days)
+                                    {
+                                        var course = Model.TimetableGrid[day][slot];
+                                        <td class="@(course == null ? "tt-empty" : "")">
+                                            @if (course != null)
+                                            {
+                                                <div class="tt-cell">
+                                                    <div class="tt-cell-code">@course.Code</div>
+                                                    <div class="tt-cell-title">@course.Title</div>
+                                                    <div class="tt-cell-lec"><i class="bi bi-person-fill"></i> @course.Lecturer.Split(' ').LastOrDefault()</div>
+                                                    <div class="tt-cell-venue"><i class="bi bi-geo-alt-fill"></i> @course.Venue</div>
+                                                </div>
+                                            }
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-card-header no-print">
+                    <div>
+                        <h5><i class="bi bi-table" style="color:#1C3B83;margin-right:8px;"></i>Full Course List</h5>
+                        <p>Detailed timetable table — all @Model.Courses.Count course@(Model.Courses.Count != 1 ? "s" : "")</p>
+                    </div>
+                </div>
+                <div class="dash-card-body" style="padding:0;">
+                    @if (!Model.Courses.Any())
+                    {
+                        <div class="dash-empty">
+                            <i class="bi bi-calendar-x"></i>
+                            <p>No courses to display for the selected filter.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <table class="dash-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Code</th>
+                                    <th>Course Title</th>
+                                    <th>Lecturer</th>
+                                    <th>Schedule</th>
+                                    <th>Venue</th>
+                                    <th>Department</th>
+                                    <th>Yr / Sem</th>
+                                    <th>Delivery</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.Courses.Count; i++)
+                                {
+                                    var c   = Model.Courses[i];
+                                    var pct = c.ScheduledHours > 0 ? (int)Math.Round((double)c.DeliveredHours / c.ScheduledHours * 100) : 0;
+                                    var barColor = pct >= 80 ? "#059669" : pct >= 50 ? "#d97706" : "#dc2626";
+                                    <tr>
+                                        <td style="font-size:11px;color:#9ca3af;">@(i+1)</td>
+                                        <td><strong style="color:#1C3B83;font-size:13px;">@c.Code</strong></td>
+                                        <td style="font-size:13px;">@c.Title</td>
+                                        <td style="font-size:12px;">@c.Lecturer</td>
+                                        <td>
+                                            <span style="background:#eff6ff;color:#1C3B83;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;white-space:nowrap;">
+                                                @c.ScheduleTime
+                                            </span>
+                                        </td>
+                                        <td style="font-size:12px;">@c.Venue</td>
+                                        <td style="font-size:11px;color:#6b7280;">
+                                            @(c.Department.Length > 20 ? c.Department[..20] + "…" : c.Department)
+                                        </td>
+                                        <td style="font-size:11px;text-align:center;">Y@(c.Year) / S@(c.Semester)</td>
+                                        <td style="min-width:80px;">
+                                            <div style="display:flex;align-items:center;gap:5px;">
+                                                <div style="flex:1;height:5px;background:#f1f5f9;border-radius:5px;overflow:hidden;">
+                                                    <div style="width:@pct%;height:100%;background:@barColor;border-radius:5px;"></div>
+                                                </div>
+                                                <span style="font-size:10px;font-weight:700;color:@barColor;">@pct%</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                        <div style="padding:12px 20px;background:#f8fafc;border-top:1px solid #f1f5f9;font-size:11px;color:#9ca3af;display:flex;justify-content:space-between;">
+                            <span>CSAS – Course Schedule Awareness System | UNILAK</span>
+                            <span>Generated: @printDate &nbsp;|&nbsp; @Model.CurrentUser.FullName (@Model.RoleLabel)</span>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

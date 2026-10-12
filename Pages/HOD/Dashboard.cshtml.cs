@@ -77,6 +77,10 @@ namespace CourseScheduleSystem.Web.Pages.HOD
             CourseData.Courses.Add(newCourse);
             if (!string.IsNullOrWhiteSpace(venue) && !string.IsNullOrWhiteSpace(scheduleTime))
                 RoomData.Rooms.FirstOrDefault(r => r.FullName.Equals(venue.Trim(), StringComparison.OrdinalIgnoreCase))?.BookedSlots.TryAdd(scheduleTime.Trim(), newCourse.Code);
+
+            TimetableRevisionData.Record(newCourse.Id, newCourse.Code, newCourse.Title,
+                "Created", "", $"{scheduleTime} @ {venue}", CurrentUser.FullName, "HOD", "New course added");
+
             StatusMessage = $"✓ Course {newCourse.Code} – {newCourse.Title} added.";
             StatusType    = "success";
             return RedirectToPage();
@@ -91,8 +95,13 @@ namespace CourseScheduleSystem.Web.Pages.HOD
             if (!string.IsNullOrWhiteSpace(course.ScheduleTime) && room.BookedSlots.ContainsKey(course.ScheduleTime)) { StatusMessage = $"⚠ Conflict: {room.FullName} already booked at {course.ScheduleTime}."; StatusType = "warning"; return RedirectToPage(); }
             if (!string.IsNullOrWhiteSpace(course.Venue) && !string.IsNullOrWhiteSpace(course.ScheduleTime))
                 RoomData.Rooms.FirstOrDefault(r => r.FullName.Equals(course.Venue, StringComparison.OrdinalIgnoreCase))?.BookedSlots.Remove(course.ScheduleTime);
+            var oldVenue = course.Venue;
             course.Venue = room.FullName;
             if (!string.IsNullOrWhiteSpace(course.ScheduleTime)) room.BookedSlots.TryAdd(course.ScheduleTime, course.Code);
+
+            TimetableRevisionData.Record(course.Id, course.Code, course.Title,
+                "Venue", oldVenue, room.FullName, CurrentUser.FullName, "HOD", "Room reassigned");
+
             StatusMessage = $"✓ {course.Code} assigned to {room.FullName}.";
             StatusType    = "success";
             return RedirectToPage();

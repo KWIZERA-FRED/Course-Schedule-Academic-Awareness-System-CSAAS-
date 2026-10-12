@@ -78,6 +78,7 @@
         <nav class="dash-sidebar-nav">
             <a href="/" class="dash-nav-link"><i class="bi bi-house-fill"></i> Home</a>
             <a href="/HOD/Dashboard" class="dash-nav-link active"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="/HOD/TimetableHistory" class="dash-nav-link"><i class="bi bi-clock-history"></i> Revision History</a>
             <a href="#section-issues" class="dash-nav-link" onclick="revealAndScroll('section-issues')">
                 <i class="bi bi-bug-fill" style="color:#dc2626;"></i> Platform Issues
                 @if (Model.OpenIssues > 0)
@@ -108,6 +109,7 @@
         <div class="dash-sidebar-section">Account</div>
         <nav class="dash-sidebar-nav">
             <a href="/Profile" class="dash-nav-link"><i class="bi bi-person"></i> My Profile</a>
+            <a href="/Timetable/Report" class="dash-nav-link"><i class="bi bi-printer-fill"></i> Timetable Report</a>
             <a href="/Logout" class="dash-nav-link"><i class="bi bi-box-arrow-left"></i> Logout</a>
         </nav>
 
@@ -573,6 +575,40 @@
             <h5><i class="bi bi-journal-plus" style="color:#1C3B83;margin-right:8px;"></i>Add New Course</h5>
             <button class="hod-close" onclick="closeModal('addCourseModal')"><i class="bi bi-x-lg"></i></button>
         </div>
+
+        @{
+            // Build conflict data for JS: slot -> list of booked course codes
+            var bookedSlots = CourseScheduleSystem.Web.Data.CourseData.Courses
+                .Where(c => !string.IsNullOrEmpty(c.ScheduleTime))
+                .GroupBy(c => c.ScheduleTime)
+                .ToDictionary(g => g.Key, g => g.Select(c => c.Code).ToList());
+
+            // Build lecturer availability data: lecturer email -> available slot keys
+            var lecturerAvailMap = CourseScheduleSystem.Web.Data.UserData.Users
+                .Where(u => u.Role == CourseScheduleSystem.Web.Models.UserRole.Lecturer)
+                .ToDictionary(
+                    l => l.FullName,
+                    l => CourseScheduleSystem.Web.Data.AvailabilityData.GetAvailableSlots(l.Email)
+                );
+
+            // All possible slots
+            var allSlots = new[]
+            {
+                "Mon 08:00 - 10:00","Mon 10:00 - 12:00","Mon 13:00 - 15:00",
+                "Tue 08:00 - 10:00","Tue 10:00 - 12:00","Tue 13:00 - 15:00",
+                "Wed 08:00 - 10:00","Wed 10:00 - 12:00","Wed 13:00 - 15:00",
+                "Thu 08:00 - 10:00","Thu 10:00 - 12:00","Thu 13:00 - 15:00",
+                "Fri 08:00 - 10:00","Fri 10:00 - 12:00","Fri 13:00 - 15:00"
+            };
+        }
+
+        <script id="conflictData" type="application/json">
+        {
+            "bookedSlots": @Html.Raw(System.Text.Json.JsonSerializer.Serialize(bookedSlots)),
+            "lecturerAvailability": @Html.Raw(System.Text.Json.JsonSerializer.Serialize(lecturerAvailMap))
+        }
+        </script>
+
         <form method="post" asp-page-handler="AddCourse">
             @Html.AntiForgeryToken()
             <div class="form-row-2">
@@ -581,13 +617,55 @@
             </div>
             <div class="form-field"><label>Course Title *</label><input type="text" name="title" placeholder="e.g. Advanced Algorithms" required /></div>
             <div class="form-row-2">
-                <div class="form-field"><label>Assigned Lecturer</label><select name="lecturer"><option value="">— Select —</option>@foreach (var l in Model.Lecturers){<option value="@l.FullName">@l.FullName</option>}</select></div>
+                <div class="form-field">
+                    <label>Assigned Lecturer</label>
+                    <select name="lecturer" id="lecturerSelect" onchange="updateSlots()">
+                        <option value="">— Select —</option>
+                        @foreach (var l in Model.Lecturers)
+                        {
+                            <option value="@l.FullName">@l.FullName</option>
+                        }
+                    </select>
+                </div>
                 <div class="form-field"><label>Semester</label><select name="semester"><option value="1" selected>Semester 1</option><option value="2">Semester 2</option></select></div>
             </div>
             <div class="form-row-2">
-                <div class="form-field"><label>Schedule Time</label><select name="scheduleTime"><option value="">— Select Slot —</option><option>Mon 08:00 - 10:00</option><option>Mon 10:00 - 12:00</option><option>Mon 13:00 - 15:00</option><option>Tue 08:00 - 10:00</option><option>Tue 10:00 - 12:00</option><option>Tue 13:00 - 15:00</option><option>Wed 08:00 - 10:00</option><option>Wed 10:00 - 12:00</option><option>Wed 13:00 - 15:00</option><option>Thu 08:00 - 10:00</option><option>Thu 10:00 - 12:00</option><option>Thu 13:00 - 15:00</option><option>Fri 08:00 - 10:00</option><option>Fri 10:00 - 12:00</option><option>Fri 13:00 - 15:00</option></select></div>
-                <div class="form-field"><label>Venue / Room</label><select name="venue"><option value="">— Select Room —</option>@foreach (var r in Model.AvailableRooms){<option value="@r.FullName">@r.FullName (@r.Type, cap. @r.Capacity)</option>}</select></div>
+                <div class="form-field">
+                    <label>Schedule Time</label>
+                    <select name="scheduleTime" id="scheduleTimeSelect" onchange="updateConflictHint()">
+                        <option value="">— Select Slot —</option>
+                        @foreach (var slot in allSlots)
+                        {
+                            var booked = bookedSlots.ContainsKey(slot) ? bookedSlots[slot] : new List<string>();
+                            var label  = booked.Any() ? $"{slot} ⚠ Booked ({string.Join(", ", booked)})" : slot;
+                            if (booked.Any())
+                            {
+                                <option value="@slot" style="color:#dc2626;font-weight:700;">@label</option>
+                            }
+                            else
+                            {
+                                <option value="@slot">@label</option>
+                            }
+                        }
+                    </select>
+                    <div id="slotConflictHint" style="font-size:11px;margin-top:4px;"></div>
+                </div>
+                <div class="form-field"><label>Venue / Room</label><select name="venue" id="venueSelect" onchange="updateConflictHint()"><option value="">— Select Room —</option>@foreach (var r in Model.AvailableRooms){<option value="@r.FullName">@r.FullName (@r.Type, cap. @r.Capacity)</option>}</select></div>
             </div>
+
+            <div id="conflictPanel" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 14px;margin-bottom:14px;">
+                <div style="font-size:12px;font-weight:700;color:#dc2626;margin-bottom:6px;">
+                    <i class="bi bi-exclamation-triangle-fill" style="margin-right:6px;"></i>Scheduling Conflicts Detected
+                </div>
+                <ul id="conflictList" style="margin:0;padding-left:16px;font-size:12px;color:#991b1b;"></ul>
+            </div>
+
+            <div id="availablePanel" style="display:none;background:#ecfdf5;border:1px solid #bbf7d0;border-radius:8px;padding:12px 14px;margin-bottom:14px;">
+                <div style="font-size:12px;font-weight:700;color:#059669;margin-bottom:4px;">
+                    <i class="bi bi-check-circle-fill" style="margin-right:6px;"></i>No conflicts — this slot is available
+                </div>
+            </div>
+
             <div class="form-field"><label>Scheduled Hours</label><input type="number" name="scheduledHours" value="36" min="1" max="120" /></div>
             <input type="hidden" name="whatsappUrl" value="" />
             <div class="form-actions">
@@ -773,6 +851,76 @@
             list.appendChild(div);
         });
         openModal('assignRoomModal');
+    }
+
+    // ── Smart conflict detection ─────────────────────────────────────────────
+    var _conflictData = null;
+    function getConflictData() {
+        if (!_conflictData) {
+            var el = document.getElementById('conflictData');
+            _conflictData = el ? JSON.parse(el.textContent) : { bookedSlots:{}, lecturerAvailability:{} };
+        }
+        return _conflictData;
+    }
+
+    function updateSlots() {
+        // When lecturer changes, highlight unavailable slots in the schedule dropdown
+        var lecturerName = document.getElementById('lecturerSelect')?.value || '';
+        var slotSel      = document.getElementById('scheduleTimeSelect');
+        if (!slotSel) return;
+        var data         = getConflictData();
+        var availSlots   = lecturerName && data.lecturerAvailability[lecturerName]
+                           ? data.lecturerAvailability[lecturerName] : [];
+
+        Array.from(slotSel.options).forEach(function(opt) {
+            if (!opt.value) return;
+            var booked     = data.bookedSlots[opt.value] && data.bookedSlots[opt.value].length > 0;
+            var notAvail   = lecturerName && availSlots.length > 0 && !availSlots.includes(opt.value);
+            if (booked)        { opt.style.color = '#dc2626'; opt.style.fontWeight = '700'; }
+            else if (notAvail) { opt.style.color = '#d97706'; opt.style.fontWeight = '600'; }
+            else               { opt.style.color = ''; opt.style.fontWeight = ''; }
+        });
+        updateConflictHint();
+    }
+
+    function updateConflictHint() {
+        var slot         = document.getElementById('scheduleTimeSelect')?.value || '';
+        var venue        = document.getElementById('venueSelect')?.value || '';
+        var lecturer     = document.getElementById('lecturerSelect')?.value || '';
+        var panel        = document.getElementById('conflictPanel');
+        var availPanel   = document.getElementById('availablePanel');
+        var list         = document.getElementById('conflictList');
+        if (!panel || !list) return;
+
+        if (!slot) { panel.style.display='none'; availPanel.style.display='none'; return; }
+
+        var data     = getConflictData();
+        var conflicts = [];
+
+        // Room conflict
+        if (venue && data.bookedSlots[slot]) {
+            var bookedBy = data.bookedSlots[slot];
+            if (bookedBy.length > 0) {
+                conflicts.push('Room conflict: <strong>' + slot + '</strong> already booked for <strong>' + bookedBy.join(', ') + '</strong>.');
+            }
+        }
+
+        // Lecturer availability
+        if (lecturer && data.lecturerAvailability[lecturer]) {
+            var lecAvail = data.lecturerAvailability[lecturer];
+            if (!lecAvail.includes(slot)) {
+                conflicts.push('Lecturer unavailable: <strong>' + lecturer + '</strong> has not marked <strong>' + slot + '</strong> as available.');
+            }
+        }
+
+        if (conflicts.length > 0) {
+            list.innerHTML = conflicts.map(function(c){ return '<li style="margin-bottom:4px;">' + c + '</li>'; }).join('');
+            panel.style.display      = 'block';
+            availPanel.style.display = 'none';
+        } else {
+            panel.style.display      = 'none';
+            availPanel.style.display = slot ? 'block' : 'none';
+        }
     }
 
     function submitAssignRoom(courseId, roomId) {
