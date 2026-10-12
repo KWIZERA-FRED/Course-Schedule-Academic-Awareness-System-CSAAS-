@@ -1,0 +1,417 @@
+@page
+@model CourseScheduleSystem.Web.Pages.Timetable.ExamsModel
+@{
+    ViewData["Title"] = "Exam Timetable";
+    Layout = null;
+    var printDate = DateTime.Now.ToString("dd MMM yyyy, HH:mm");
+}
+@removeTagHelper Microsoft.AspNetCore.Mvc.Razor.TagHelpers.BodyTagHelper, Microsoft.AspNetCore.Mvc.Razor
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exam Timetable | CSAS – UNILAK</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <link rel="stylesheet" href="~/css/dashboard.css" />
+    <style>
+        .exam-type-regular      { background:#eff6ff; color:#1C3B83; }
+        .exam-type-special      { background:#fffbeb; color:#d97706; }
+        .exam-type-supplementary{ background:#fef2f2; color:#dc2626; }
+        .exam-type-retake       { background:#f5f3ff; color:#7c3aed; }
+        .exam-badge {
+            display:inline-flex; align-items:center; gap:4px;
+            padding:3px 10px; border-radius:20px; font-size:10px; font-weight:700;
+        }
+        .exam-row-special      { border-left:4px solid #d97706; }
+        .exam-row-supplementary{ border-left:4px solid #dc2626; }
+        .exam-row-retake       { border-left:4px solid #7c3aed; }
+        .exam-row-regular      { border-left:4px solid #1C3B83; }
+
+        .hod-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:3000; align-items:center; justify-content:center; }
+        .hod-modal-overlay.open { display:flex; }
+        .hod-modal { background:white; border-radius:14px; padding:28px; width:100%; max-width:560px; margin:20px; box-shadow:0 20px 50px rgba(0,0,0,.2); max-height:92vh; overflow-y:auto; }
+        .hod-modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+        .hod-modal-header h5 { margin:0; font-size:16px; font-weight:700; color:#0D1E47; }
+        .hod-close { background:none; border:none; font-size:18px; color:#9ca3af; cursor:pointer; }
+        .form-field { margin-bottom:14px; }
+        .form-field label { display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:5px; }
+        .form-field input, .form-field select, .form-field textarea {
+            width:100%; padding:9px 12px; border:1px solid #d1d5db;
+            border-radius:7px; font-size:13px; outline:none;
+        }
+        .form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .form-actions { display:flex; gap:10px; justify-content:flex-end; }
+
+        @@media print {
+            .no-print, .dash-sidebar, .dash-topbar, .btn-dash-primary, .btn-dash-outline { display:none !important; }
+            .dash-shell { display:block !important; }
+            .dash-main  { margin-left:0 !important; }
+            .print-header { display:block !important; }
+            .dash-card  { box-shadow:none !important; border:1px solid #ddd !important; }
+            .dash-table th { background:#1C3B83 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+        }
+        .print-header { display:none; text-align:center; margin-bottom:20px; padding-bottom:12px; border-bottom:2px solid #0D1E47; }
+        .print-header h2 { font-size:20px; font-weight:800; color:#0D1E47; margin:6px 0 2px; }
+        .print-header p  { font-size:11px; color:#6b7280; margin:0; }
+    </style>
+</head>
+<body class="csas-body">
+<div class="dash-shell">
+
+    <aside class="dash-sidebar">
+        <a href="/" class="dash-sidebar-brand">
+            <div class="dash-sidebar-brand-icon" style="background:transparent;box-shadow:none;padding:2px;">
+                <img src="/images/logo.jpeg" alt="UNILAK" style="width:34px;height:34px;border-radius:50%;object-fit:cover;" />
+            </div>
+            <div class="dash-sidebar-brand-text"><strong>CSAS</strong><span>Timetable</span></div>
+        </a>
+        <div class="dash-sidebar-section">Navigation</div>
+        <nav class="dash-sidebar-nav">
+            <a href="@Model.DashboardUrl" class="dash-nav-link"><i class="bi bi-arrow-left-circle-fill"></i> Back to Dashboard</a>
+            <a href="/Timetable/Report" class="dash-nav-link"><i class="bi bi-calendar3-week"></i> Class Timetable</a>
+            <a href="/Timetable/Exams" class="dash-nav-link active"><i class="bi bi-journal-check"></i> Exam Timetable</a>
+            <a href="https://umurongosmart.com/" target="_blank" class="dash-nav-link"
+               style="border-top:1px solid rgba(255,255,255,0.07);margin-top:4px;padding-top:12px;">
+                <iconify-icon icon="mdi:headset-mic" style="font-size:16px;vertical-align:middle;"></iconify-icon> UmurongoSmart
+            </a>
+        </nav>
+        <div class="dash-sidebar-section">Account</div>
+        <nav class="dash-sidebar-nav">
+            <a href="/Profile" class="dash-nav-link"><i class="bi bi-person"></i> My Profile</a>
+            <a href="/Logout" class="dash-nav-link"><i class="bi bi-box-arrow-left"></i> Logout</a>
+        </nav>
+        <div class="dash-sidebar-footer">
+            <div class="dash-sidebar-user">
+                <div class="dash-user-avatar"><i class="bi bi-person-fill"></i></div>
+                <div class="dash-user-info">
+                    <strong>@Model.CurrentUser.FullName</strong>
+                    <span>@Model.RoleLabel</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="dash-main">
+        <div class="dash-topbar no-print">
+            <div class="dash-topbar-title">
+                <h1>Exam Timetable</h1>
+                <p>
+                    Regular &amp; Special exam schedule for @Model.CurrentUser.Department
+                    &mdash; @Model.AllExams.Count exam@(Model.AllExams.Count != 1 ? "s" : "") scheduled
+                </p>
+            </div>
+            <div class="dash-topbar-actions">
+                @if (Model.IsHOD)
+                {
+                    <button type="button" onclick="openModal('addExamModal')" class="btn-dash-primary btn-dash-sm">
+                        <i class="bi bi-plus-lg"></i> Add Exam
+                    </button>
+                }
+                <button onclick="window.print()" class="btn-dash-outline btn-dash-sm">
+                    <i class="bi bi-printer-fill"></i> Print
+                </button>
+                <a href="@Model.DashboardUrl" class="btn-dash-outline btn-dash-sm">
+                    <i class="bi bi-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+
+        <div class="dash-content">
+
+            @if (TempData["StatusMessage"] != null)
+            {
+                var t  = TempData["StatusType"]?.ToString() ?? "info";
+                var ac = t == "success" ? "dash-alert-success" : t == "warning" ? "dash-alert-warning" : t == "danger" ? "dash-alert-danger" : "dash-alert-info";
+                var ic = t == "success" ? "bi-check-circle-fill" : t == "danger" ? "bi-x-circle-fill" : "bi-exclamation-triangle-fill";
+                <div class="dash-alert @ac no-print"><i class="bi @ic"></i><div>@TempData["StatusMessage"]</div></div>
+            }
+
+            <div class="print-header">
+                <img src="/images/logo.jpeg" alt="UNILAK" style="width:50px;height:50px;border-radius:50%;" />
+                <h2>UNILAK — Exam Timetable</h2>
+                <p>CSAS – Course Schedule Awareness System &nbsp;|&nbsp; Generated: @printDate</p>
+                <p>@Model.CurrentUser.FullName &nbsp;|&nbsp; @Model.RoleLabel &nbsp;|&nbsp; @Model.CurrentUser.Department</p>
+            </div>
+
+            @if (Model.AllExams.Any())
+            {
+                <div class="dash-alert dash-alert-info no-print" style="margin-bottom:20px;">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <div>
+                        <strong>@Model.RegularExams.Count regular exam@(Model.RegularExams.Count != 1 ? "s" : "")</strong>
+                        and <strong>@Model.SpecialExams.Count special / supplementary exam@(Model.SpecialExams.Count != 1 ? "s" : "")</strong>
+                        scheduled this semester.
+                        @if (Model.SpecialExams.Any())
+                        {
+                            <text>Special exams require individual registration — check with your HOD.</text>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (Model.RegularExams.Any())
+            {
+                <div class="dash-card" style="margin-bottom:22px;">
+                    <div class="dash-card-header">
+                        <div>
+                            <h5><i class="bi bi-journal-check" style="color:#1C3B83;margin-right:8px;"></i>Regular Examinations</h5>
+                            <p>End-of-semester exams for all enrolled students</p>
+                        </div>
+                        <span class="badge-status badge-verified" style="font-size:11px;">
+                            <i class="bi bi-calendar-check-fill"></i> @Model.RegularExams.Count scheduled
+                        </span>
+                    </div>
+                    <div class="dash-card-body" style="padding:0;">
+                        <table class="dash-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th><th>Course</th><th>Type</th><th>Time</th>
+                                    <th>Venue</th><th>Invigilator</th>
+                                    @if (Model.IsHOD) { <th>Status</th><th>Actions</th> }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var e in Model.RegularExams)
+                                {
+                                    var tc = e.Type switch { CourseScheduleSystem.Web.Models.ExamType.Special=>"exam-type-special", CourseScheduleSystem.Web.Models.ExamType.Supplementary=>"exam-type-supplementary", CourseScheduleSystem.Web.Models.ExamType.Retake=>"exam-type-retake", _=>"exam-type-regular" };
+                                    var rc = e.Type switch { CourseScheduleSystem.Web.Models.ExamType.Special=>"exam-row-special", CourseScheduleSystem.Web.Models.ExamType.Supplementary=>"exam-row-supplementary", CourseScheduleSystem.Web.Models.ExamType.Retake=>"exam-row-retake", _=>"exam-row-regular" };
+                                    <tr class="@rc">
+                                        <td style="white-space:nowrap;"><strong style="display:block;font-size:13px;">@e.ExamDate.ToString("dd MMM yyyy")</strong><span style="font-size:11px;color:#9ca3af;">@e.ExamDate.ToString("dddd")</span></td>
+                                        <td><strong style="display:block;font-size:13px;color:#1C3B83;">@e.CourseCode</strong><span style="font-size:11px;color:#9ca3af;">@e.CourseTitle</span></td>
+                                        <td><span class="exam-badge @tc">@e.Type</span></td>
+                                        <td style="white-space:nowrap;font-size:12px;font-weight:600;">@e.StartTime – @e.EndTime</td>
+                                        <td style="font-size:12px;">@e.Venue</td>
+                                        <td style="font-size:12px;">@e.Invigilator</td>
+                                        @if (Model.IsHOD)
+                                        {
+                                            <td>
+                                                @if (e.IsPublished) { <span class="badge-status badge-verified" style="font-size:10px;"><i class="bi bi-eye-fill"></i> Published</span> }
+                                                else { <span class="badge-status badge-inactive" style="font-size:10px;"><i class="bi bi-eye-slash-fill"></i> Draft</span> }
+                                            </td>
+                                            <td><div style="display:flex;gap:5px;">
+                                                @if (!e.IsPublished)
+                                                {
+                                                    <form method="post" asp-page-handler="PublishExam" style="display:inline;">@Html.AntiForgeryToken()<input type="hidden" name="examId" value="@e.Id" /><button type="submit" class="btn-dash-primary btn-dash-sm" style="font-size:10px;"><i class="bi bi-send-fill"></i> Publish</button></form>
+                                                }
+                                                else
+                                                {
+                                                    <form method="post" asp-page-handler="UnpublishExam" style="display:inline;">@Html.AntiForgeryToken()<input type="hidden" name="examId" value="@e.Id" /><button type="submit" class="btn-dash-outline btn-dash-sm" style="font-size:10px;color:#dc2626;border-color:#fecaca;"><i class="bi bi-eye-slash"></i> Unpublish</button></form>
+                                                }
+                                                <form method="post" asp-page-handler="DeleteExam" style="display:inline;">@Html.AntiForgeryToken()<input type="hidden" name="examId" value="@e.Id" /><button type="submit" class="btn-dash-icon" style="color:#dc2626;" onclick="return confirm('Delete this exam?')"><i class="bi bi-trash3"></i></button></form>
+                                            </div></td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+
+            @if (Model.SpecialExams.Any())
+            {
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <div>
+                            <h5><i class="bi bi-exclamation-circle-fill" style="color:#d97706;margin-right:8px;"></i>Special / Supplementary / Retake Exams</h5>
+                            <p>Special exams for eligible students only — confirm eligibility with your HOD</p>
+                        </div>
+                        <span class="badge-status badge-pending" style="font-size:11px;">
+                            <i class="bi bi-exclamation-triangle-fill"></i> @Model.SpecialExams.Count special
+                        </span>
+                    </div>
+                    <div class="dash-card-body" style="padding:0;">
+                        <table class="dash-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th><th>Course</th><th>Type</th><th>Time</th>
+                                    <th>Venue</th><th>Invigilator</th><th>Notes</th>
+                                    @if (Model.IsHOD) { <th>Status</th><th>Actions</th> }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var e in Model.SpecialExams)
+                                {
+                                    var tc = e.Type switch { CourseScheduleSystem.Web.Models.ExamType.Special=>"exam-type-special", CourseScheduleSystem.Web.Models.ExamType.Supplementary=>"exam-type-supplementary", CourseScheduleSystem.Web.Models.ExamType.Retake=>"exam-type-retake", _=>"exam-type-regular" };
+                                    var rc = e.Type switch { CourseScheduleSystem.Web.Models.ExamType.Special=>"exam-row-special", CourseScheduleSystem.Web.Models.ExamType.Supplementary=>"exam-row-supplementary", CourseScheduleSystem.Web.Models.ExamType.Retake=>"exam-row-retake", _=>"exam-row-regular" };
+                                    <tr class="@rc">
+                                        <td style="white-space:nowrap;"><strong style="display:block;font-size:13px;">@e.ExamDate.ToString("dd MMM yyyy")</strong><span style="font-size:11px;color:#9ca3af;">@e.ExamDate.ToString("dddd")</span></td>
+                                        <td><strong style="display:block;font-size:13px;color:#1C3B83;">@e.CourseCode</strong><span style="font-size:11px;color:#9ca3af;">@e.CourseTitle</span></td>
+                                        <td><span class="exam-badge @tc">@e.Type</span></td>
+                                        <td style="white-space:nowrap;font-size:12px;font-weight:600;">@e.StartTime – @e.EndTime</td>
+                                        <td style="font-size:12px;">@e.Venue</td>
+                                        <td style="font-size:12px;">@e.Invigilator</td>
+                                        <td style="font-size:11px;color:#6b7280;max-width:180px;">@(string.IsNullOrEmpty(e.Notes) ? "—" : e.Notes)</td>
+                                        @if (Model.IsHOD)
+                                        {
+                                            <td>
+                                                @if (e.IsPublished) { <span class="badge-status badge-verified" style="font-size:10px;"><i class="bi bi-eye-fill"></i> Published</span> }
+                                                else { <span class="badge-status badge-inactive" style="font-size:10px;"><i class="bi bi-eye-slash-fill"></i> Draft</span> }
+                                            </td>
+                                            <td><div style="display:flex;gap:5px;">
+                                                @if (!e.IsPublished)
+                                                {
+                                                    <form method="post" asp-page-handler="PublishExam" style="display:inline;">@Html.AntiForgeryToken()<input type="hidden" name="examId" value="@e.Id" /><button type="submit" class="btn-dash-primary btn-dash-sm" style="font-size:10px;"><i class="bi bi-send-fill"></i> Publish</button></form>
+                                                }
+                                                else
+                                                {
+                                                    <form method="post" asp-page-handler="UnpublishExam" style="display:inline;">@Html.AntiForgeryToken()<input type="hidden" name="examId" value="@e.Id" /><button type="submit" class="btn-dash-outline btn-dash-sm" style="font-size:10px;color:#dc2626;border-color:#fecaca;"><i class="bi bi-eye-slash"></i> Unpublish</button></form>
+                                                }
+                                                <form method="post" asp-page-handler="DeleteExam" style="display:inline;">@Html.AntiForgeryToken()<input type="hidden" name="examId" value="@e.Id" /><button type="submit" class="btn-dash-icon" style="color:#dc2626;" onclick="return confirm('Delete this exam?')"><i class="bi bi-trash3"></i></button></form>
+                                            </div></td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+
+            @if (!Model.AllExams.Any())
+            {
+                <div class="dash-empty" style="padding:60px;text-align:center;">
+                    <i class="bi bi-journal-x" style="font-size:48px;color:#d1d5db;display:block;margin-bottom:12px;"></i>
+                    <h4 style="color:#6b7280;font-weight:600;">No Exam Timetable Published Yet</h4>
+                    <p style="color:#9ca3af;font-size:14px;">
+                        @if (Model.IsHOD)
+                        {
+                            <text>Click <strong>Add Exam</strong> above to schedule exams for your department.</text>
+                        }
+                        else
+                        {
+                            <text>Exam timetables will appear here once your HOD publishes them. Check back soon.</text>
+                        }
+                    </p>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+@if (Model.IsHOD)
+{
+    <div id="addExamModal" class="hod-modal-overlay">
+        <div class="hod-modal">
+            <div class="hod-modal-header">
+                <h5><i class="bi bi-journal-plus" style="color:#1C3B83;margin-right:8px;"></i>Add Exam</h5>
+                <button class="hod-close" onclick="closeModal('addExamModal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <form method="post" asp-page-handler="AddExam">
+                @Html.AntiForgeryToken()
+                <div class="form-row-2">
+                    <div class="form-field">
+                        <label>Course Code *</label>
+                        <select name="courseCode" onchange="fillCourseTitle(this.value)">
+                            <option value="">— Select —</option>
+                            @foreach (var c in CourseScheduleSystem.Web.Data.CourseData.Courses.Where(c => c.Department == Model.CurrentUser.Department || string.IsNullOrEmpty(Model.CurrentUser.Department)))
+                            {
+                                <option value="@c.Code" data-title="@c.Title" data-dept="@c.Department" data-year="@c.Year" data-sem="@c.Semester">
+                                    @c.Code – @c.Title
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label>Exam Type</label>
+                        <select name="examType">
+                            <option value="Regular">Regular</option>
+                            <option value="Special">Special</option>
+                            <option value="Supplementary">Supplementary</option>
+                            <option value="Retake">Retake</option>
+                        </select>
+                    </div>
+                </div>
+                <input type="hidden" name="courseTitle"  id="hiddenTitle"  value="" />
+                <input type="hidden" name="department"   id="hiddenDept"   value="@Model.CurrentUser.Department" />
+                <input type="hidden" name="year"         id="hiddenYear"   value="3" />
+                <input type="hidden" name="semester"     id="hiddenSem"    value="1" />
+                <div class="form-row-2">
+                    <div class="form-field">
+                        <label>Exam Date *</label>
+                        <input type="date" name="examDate" required />
+                    </div>
+                    <div class="form-field">
+                        <label>Venue *</label>
+                        <select name="venue">
+                            <option value="">— Select Room —</option>
+                            @foreach (var r in CourseScheduleSystem.Web.Data.RoomData.Rooms.Where(r => r.IsAvailable))
+                            {
+                                <option value="@r.FullName">@r.FullName (cap. @r.Capacity)</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-field">
+                        <label>Start Time *</label>
+                        <select name="startTime">
+                            <option value="08:00">08:00</option>
+                            <option value="09:00">09:00</option>
+                            <option value="10:00">10:00</option>
+                            <option value="13:00">13:00</option>
+                            <option value="14:00">14:00</option>
+                            <option value="15:00">15:00</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label>End Time *</label>
+                        <select name="endTime">
+                            <option value="11:00">11:00</option>
+                            <option value="12:00">12:00</option>
+                            <option value="13:00">13:00</option>
+                            <option value="16:00">16:00</option>
+                            <option value="17:00">17:00</option>
+                            <option value="18:00">18:00</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label>Invigilator</label>
+                    <select name="invigilator">
+                        <option value="">— Select —</option>
+                        @foreach (var l in CourseScheduleSystem.Web.Data.UserData.Users.Where(u => u.Role == CourseScheduleSystem.Web.Models.UserRole.Lecturer))
+                        {
+                            <option value="@l.FullName">@l.FullName</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label>Notes (optional)</label>
+                    <textarea name="notes" rows="2" placeholder="e.g. Special exam for students with valid medical excuse..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-dash-outline" onclick="closeModal('addExamModal')">Cancel</button>
+                    <button type="submit" class="btn-dash-primary"><i class="bi bi-plus-lg"></i> Add Exam</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function openModal(id)  { document.getElementById(id)?.classList.add('open'); }
+    function closeModal(id) { document.getElementById(id)?.classList.remove('open'); }
+
+    document.querySelectorAll('.hod-modal-overlay').forEach(function(o) {
+        o.addEventListener('click', function(e) { if (e.target === o) o.classList.remove('open'); });
+    });
+
+    function fillCourseTitle(code) {
+        var sel = document.querySelector('select[name=courseCode]');
+        var opt = sel?.querySelector('option[value="' + code + '"]');
+        if (!opt) return;
+        document.getElementById('hiddenTitle').value = opt.dataset.title  || '';
+        document.getElementById('hiddenDept').value  = opt.dataset.dept   || '';
+        document.getElementById('hiddenYear').value  = opt.dataset.year   || '1';
+        document.getElementById('hiddenSem').value   = opt.dataset.sem    || '1';
+    }
+</script>
+
+
+
