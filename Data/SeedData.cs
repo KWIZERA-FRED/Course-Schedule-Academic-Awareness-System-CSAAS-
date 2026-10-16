@@ -157,6 +157,45 @@ public static class UserData
         },
         new User
         {
+            Id           = 12,
+            FirstName    = "Francois",
+            LastName     = "Habimana",
+            Email        = "f.habimana@unilak.ac.rw",
+            Identifier   = "STAFF/011",
+            PasswordHash = "hod123",
+            Role         = UserRole.HOD,
+            Department   = "Business & Management",
+            IsActive     = true,
+            CreatedOn    = new DateTime(2019, 8, 1)
+        },
+        new User
+        {
+            Id           = 13,
+            FirstName    = "Jeannine",
+            LastName     = "Mukamurenzi",
+            Email        = "j.mukamurenzi@unilak.ac.rw",
+            Identifier   = "STAFF/012",
+            PasswordHash = "hod123",
+            Role         = UserRole.HOD,
+            Department   = "Social Sciences",
+            IsActive     = true,
+            CreatedOn    = new DateTime(2021, 1, 10)
+        },
+        new User
+        {
+            Id           = 14,
+            FirstName    = "Patrick",
+            LastName     = "Niyonkuru",
+            Email        = "p.niyonkuru@unilak.ac.rw",
+            Identifier   = "STAFF/013",
+            PasswordHash = "hod123",
+            Role         = UserRole.HOD,
+            Department   = "Law & Governance",
+            IsActive     = true,
+            CreatedOn    = new DateTime(2020, 6, 1)
+        },
+        new User
+        {
             Id           = 5,
             FirstName    = "Claude",
             LastName     = "Ndayisaba",

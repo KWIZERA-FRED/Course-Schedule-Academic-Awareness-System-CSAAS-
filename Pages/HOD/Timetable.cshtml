@@ -1,0 +1,355 @@
+@page
+@model CourseScheduleSystem.Web.Pages.HOD.TimetableModel
+@{
+    ViewData["Title"] = "Timetable Management";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Timetable Management | CSAS</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <link rel="stylesheet" href="~/css/dashboard.css" />
+    <style>
+        .upload-zone {
+            border: 2px dashed #d1d5db; border-radius: 12px; padding: 36px 24px;
+            text-align: center; background: #fafafa; cursor: pointer;
+            transition: .2s ease;
+        }
+        .upload-zone:hover, .upload-zone.drag-over {
+            border-color: #1C3B83; background: #eff6ff;
+        }
+        .upload-zone input[type=file] { display: none; }
+        .upload-zone i { font-size: 36px; color: #9ca3af; margin-bottom: 12px; display: block; }
+        .upload-zone.has-file i { color: #059669; }
+        .upload-zone p { font-size: 13px; color: #6b7280; margin: 0; }
+        .upload-zone .file-name { font-weight: 700; color: #0D1E47; font-size: 14px; }
+
+        .status-draft     { background: #f3f4f6; color: #6b7280; }
+        .status-published { background: #ecfdf5; color: #059669; }
+        .status-archived  { background: #fffbeb; color: #d97706; }
+
+        .form-field { margin-bottom: 14px; }
+        .form-field label { display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:5px; }
+        .form-field input, .form-field select, .form-field textarea {
+            width:100%; padding:10px 12px; border:1px solid #d1d5db;
+            border-radius:8px; font-size:13px; outline:none;
+        }
+        .form-field input:focus, .form-field select:focus { border-color:#1C3B83; }
+        .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+        .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    </style>
+</head>
+<body>
+<div class="dash-shell">
+
+    <aside class="dash-sidebar">
+        <a href="/" class="dash-sidebar-brand">
+            <div class="dash-sidebar-brand-icon" style="background:transparent;box-shadow:none;padding:2px;">
+                <img src="/images/logo.jpeg" alt="UNILAK" style="width:34px;height:34px;border-radius:50%;object-fit:cover;" />
+            </div>
+            <div class="dash-sidebar-brand-text"><strong>CSAS</strong><span>HOD Portal</span></div>
+        </a>
+        <div class="dash-sidebar-section">Main Menu</div>
+        <nav class="dash-sidebar-nav">
+            <a href="/" class="dash-nav-link"><i class="bi bi-house-fill"></i> Home</a>
+            <a href="/HOD/Dashboard" class="dash-nav-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="/HOD/Timetable" class="dash-nav-link active"><i class="bi bi-calendar-week-fill"></i> Timetable Upload</a>
+            <a href="/HOD/TimetableHistory" class="dash-nav-link"><i class="bi bi-clock-history"></i> Revision History</a>
+            <a href="/Timetable/Report" class="dash-nav-link"><i class="bi bi-printer-fill"></i> Timetable Report</a>
+            <a href="/Timetable/Exams" class="dash-nav-link"><i class="bi bi-journal-check"></i> Exam Timetable</a>
+            <a href="/HOD/Chat" class="dash-nav-link"><i class="bi bi-chat-dots-fill"></i> Messages to CPs</a>
+            <a href="https://umurongosmart.com/" target="_blank" class="dash-nav-link"
+               style="border-top:1px solid rgba(255,255,255,0.07);margin-top:4px;padding-top:12px;">
+                <iconify-icon icon="mdi:headset-mic" style="font-size:16px;vertical-align:middle;"></iconify-icon> UmurongoSmart
+            </a>
+        </nav>
+        <div class="dash-sidebar-section">Account</div>
+        <nav class="dash-sidebar-nav">
+            <a href="/Profile" class="dash-nav-link"><i class="bi bi-person"></i> My Profile</a>
+            <a href="/Logout" class="dash-nav-link"><i class="bi bi-box-arrow-left"></i> Logout</a>
+        </nav>
+        <div class="dash-sidebar-footer">
+            <div class="dash-sidebar-user">
+                <div class="dash-user-avatar"><i class="bi bi-building"></i></div>
+                <div class="dash-user-info">
+                    <strong>@Model.CurrentUser.FullName</strong>
+                    <span>HOD &middot; @Model.CurrentUser.Department</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="dash-main">
+        <div class="dash-topbar">
+            <div class="dash-topbar-title">
+                <h1>Timetable Management</h1>
+                <p>Upload, publish and manage academic timetables for <strong>@Model.CurrentUser.Department</strong></p>
+            </div>
+            <div class="dash-topbar-actions">
+                <a href="/HOD/Dashboard" class="btn-dash-outline btn-dash-sm">
+                    <i class="bi bi-arrow-left"></i> Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="dash-content">
+
+            @if (TempData["StatusMessage"] != null)
+            {
+                var t  = TempData["StatusType"]?.ToString() ?? "info";
+                var ac = t == "success" ? "dash-alert-success" : t == "warning" ? "dash-alert-warning" : t == "danger" ? "dash-alert-danger" : "dash-alert-info";
+                var ic = t == "success" ? "bi-check-circle-fill" : t == "danger" ? "bi-x-circle-fill" : "bi-exclamation-triangle-fill";
+                <div class="dash-alert @ac"><i class="bi @ic"></i><div>@TempData["StatusMessage"]</div></div>
+            }
+
+            <div class="dash-alert dash-alert-info" style="margin-bottom:20px;">
+                <i class="bi bi-shield-lock-fill"></i>
+                <div style="font-size:13px;">
+                    You can only upload and manage timetables for <strong>@Model.CurrentUser.Department</strong>.
+                    Other HODs manage their own departments independently.
+                    Once published, students can find the timetable on the Student Portal.
+                </div>
+            </div>
+
+            <div class="dash-card" style="margin-bottom:22px;">
+                <div class="dash-card-header">
+                    <div>
+                        <h5><i class="bi bi-cloud-upload-fill" style="color:#1C3B83;margin-right:8px;"></i>Upload New Timetable</h5>
+                        <p>Upload an Excel or CSV timetable file — set the academic year, year of study and semester</p>
+                    </div>
+                </div>
+                <div class="dash-card-body">
+                    <form method="post" asp-page-handler="Upload" enctype="multipart/form-data" id="uploadForm">
+                        @Html.AntiForgeryToken()
+
+                        <div class="form-grid-3" style="margin-bottom:16px;">
+                            <div class="form-field">
+                                <label>Academic Year <span style="color:#dc2626;">*</span></label>
+                                <select name="academicYear" required>
+                                    <option value="">— Select Year —</option>
+                                    @foreach (var y in Model.AcademicYears)
+                                    {
+                                        if (y == "2025/2026")
+                                        {
+                                            <option value="@y" selected>@y</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@y">@y</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-field">
+                                <label>Year of Study <span style="color:#dc2626;">*</span></label>
+                                <select name="yearOfStudy" required>
+                                    <option value="1">Year 1</option>
+                                    <option value="2">Year 2</option>
+                                    <option value="3" selected>Year 3</option>
+                                    <option value="4">Year 4</option>
+                                </select>
+                            </div>
+                            <div class="form-field">
+                                <label>Semester <span style="color:#dc2626;">*</span></label>
+                                <select name="semester" required>
+                                    <option value="1" selected>Semester 1</option>
+                                    <option value="2">Semester 2</option>
+                                    <option value="3">Semester 3</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-field" style="margin-bottom:16px;">
+                            <label>Timetable File <span style="color:#dc2626;">*</span></label>
+                            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+                                <i class="bi bi-file-earmark-spreadsheet-fill" id="uploadIcon"></i>
+                                <p id="uploadText">
+                                    <strong>Click to choose file</strong> or drag and drop here<br />
+                                    <span style="font-size:11px;color:#9ca3af;">Accepted: .xlsx, .xls, .csv</span>
+                                </p>
+                                <input type="file" id="fileInput" name="excelFile"
+                                       accept=".xlsx,.xls,.csv" onchange="handleFileSelect(this)" />
+                            </div>
+                        </div>
+
+                        <div class="form-field" style="margin-bottom:20px;">
+                            <label>Notes (optional)</label>
+                            <textarea name="notes" rows="2"
+                                      placeholder="e.g. Updated schedule for Semester 1, 2025/2026. Replaces previous version."
+                                      style="resize:vertical;"></textarea>
+                        </div>
+
+                        <div style="display:flex;justify-content:flex-end;">
+                            <button type="submit" class="btn-dash-primary" id="uploadBtn" disabled>
+                                <i class="bi bi-cloud-upload-fill"></i> Upload Timetable
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <div>
+                        <h5><i class="bi bi-folder-fill" style="color:#1C3B83;margin-right:8px;"></i>Uploaded Timetables — @Model.CurrentUser.Department</h5>
+                        <p>
+                            @Model.MyTimetables.Count(t => t.IsPublished) published &nbsp;&middot;&nbsp;
+                            @Model.MyTimetables.Count(t => !t.IsPublished && t.Status != CourseScheduleSystem.Web.Models.TimetableStatus.Archived) draft &nbsp;&middot;&nbsp;
+                            @Model.MyTimetables.Count(t => t.Status == CourseScheduleSystem.Web.Models.TimetableStatus.Archived) archived
+                        </p>
+                    </div>
+                </div>
+                <div class="dash-card-body" style="padding:0;">
+                    @if (!Model.MyTimetables.Any())
+                    {
+                        <div class="dash-empty">
+                            <i class="bi bi-calendar-x"></i>
+                            <p>No timetables uploaded yet. Use the form above to upload your first timetable.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <table class="dash-table">
+                            <thead>
+                                <tr>
+                                    <th>Academic Year</th>
+                                    <th>Year / Semester</th>
+                                    <th>File</th>
+                                    <th>Uploaded By</th>
+                                    <th>Uploaded On</th>
+                                    <th>Status</th>
+                                    <th>Notes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var t in Model.MyTimetables)
+                                {
+                                    var statusClass = t.Status switch {
+                                        CourseScheduleSystem.Web.Models.TimetableStatus.Published => "status-published",
+                                        CourseScheduleSystem.Web.Models.TimetableStatus.Archived  => "status-archived",
+                                        _ => "status-draft"
+                                    };
+                                    var statusIcon = t.Status switch {
+                                        CourseScheduleSystem.Web.Models.TimetableStatus.Published => "eye-fill",
+                                        CourseScheduleSystem.Web.Models.TimetableStatus.Archived  => "archive-fill",
+                                        _ => "pencil-fill"
+                                    };
+                                    <tr>
+                                        <td style="font-size:13px;font-weight:600;">@t.AcademicYear</td>
+                                        <td>
+                                            <span style="background:#eff6ff;color:#1C3B83;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;">
+                                                Year @t.YearOfStudy &nbsp;|&nbsp; Sem @t.Semester
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(t.StoredPath) && System.IO.File.Exists(System.IO.Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", t.StoredPath.TrimStart('/').Replace('/', System.IO.Path.DirectorySeparatorChar))))
+                                            {
+                                                <a href="@t.StoredPath" download="@t.FileName"
+                                                   style="color:#1C3B83;font-size:12px;font-weight:600;text-decoration:none;">
+                                                    <i class="bi bi-file-earmark-spreadsheet-fill" style="margin-right:5px;"></i>@t.FileName
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span style="font-size:12px;color:#9ca3af;">
+                                                    <i class="bi bi-file-earmark-spreadsheet" style="margin-right:5px;"></i>@t.FileName
+                                                </span>
+                                            }
+                                        </td>
+                                        <td style="font-size:12px;">@t.UploadedBy</td>
+                                        <td style="font-size:11px;color:#6b7280;white-space:nowrap;">@t.UploadedOn.ToString("dd MMM yyyy HH:mm")</td>
+                                        <td>
+                                            <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;" class="@statusClass">
+                                                <i class="bi bi-@statusIcon"></i> @t.Status
+                                            </span>
+                                            @if (t.PublishedOn.HasValue)
+                                            {
+                                                <div style="font-size:10px;color:#9ca3af;margin-top:2px;">@t.PublishedOn.Value.ToString("dd MMM HH:mm")</div>
+                                            }
+                                        </td>
+                                        <td style="font-size:11px;color:#6b7280;max-width:160px;">@(string.IsNullOrEmpty(t.Notes) ? "—" : t.Notes)</td>
+                                        <td>
+                                            <div style="display:flex;gap:5px;">
+                                                @if (t.Status != CourseScheduleSystem.Web.Models.TimetableStatus.Published)
+                                                {
+                                                    <form method="post" asp-page-handler="Publish" style="display:inline;">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="timetableId" value="@t.Id" />
+                                                        <button type="submit" class="btn-dash-primary btn-dash-sm" style="font-size:11px;">
+                                                            <i class="bi bi-send-fill"></i> Publish
+                                                        </button>
+                                                    </form>
+                                                }
+                                                else
+                                                {
+                                                    <form method="post" asp-page-handler="Unpublish" style="display:inline;">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="timetableId" value="@t.Id" />
+                                                        <button type="submit" class="btn-dash-outline btn-dash-sm" style="font-size:11px;color:#d97706;border-color:#fde68a;">
+                                                            <i class="bi bi-eye-slash"></i> Unpublish
+                                                        </button>
+                                                    </form>
+                                                }
+                                                <form method="post" asp-page-handler="Delete" style="display:inline;">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="timetableId" value="@t.Id" />
+                                                    <button type="submit" class="btn-dash-icon" style="color:#dc2626;"
+                                                            onclick="return confirm('Delete this timetable file permanently?')">
+                                                        <i class="bi bi-trash3"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function handleFileSelect(input) {
+        var zone = document.getElementById('uploadZone');
+        var icon = document.getElementById('uploadIcon');
+        var text = document.getElementById('uploadText');
+        var btn  = document.getElementById('uploadBtn');
+        if (input.files && input.files[0]) {
+            var f = input.files[0];
+            zone.classList.add('has-file');
+            icon.className = 'bi bi-file-earmark-check-fill';
+            text.innerHTML = '<span class="file-name"><i class="bi bi-check-circle-fill" style="color:#059669;margin-right:6px;"></i>' + f.name + '</span><br/><span style="font-size:11px;color:#6b7280;">' + (f.size / 1024).toFixed(1) + ' KB — ready to upload</span>';
+            btn.disabled   = false;
+            btn.style.opacity = '1';
+        } else {
+            zone.classList.remove('has-file');
+            btn.disabled = true;
+        }
+    }
+
+    var zone = document.getElementById('uploadZone');
+    zone.addEventListener('dragover',  function(e) { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', function()  { zone.classList.remove('drag-over'); });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        var input = document.getElementById('fileInput');
+        input.files = e.dataTransfer.files;
+        handleFileSelect(input);
+    });
+
+    document.getElementById('uploadBtn').style.opacity = '0.5';
+</script>
+</body>
+</html>
